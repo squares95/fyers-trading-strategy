@@ -55,18 +55,8 @@ Paper/Reports/*_live.xlsx
 # Session data
 LiveTick/session_*.json
 
-# Fyers credentials - NEVER COMMIT THESE
+# Fyers credentials - keep locally but not in repo
 Config/LoginConfig/config.properties
-Config/LoginConfig/*.properties
-Config/**/*.properties
-Config/**/*.key
-Config/**/*.secret
-.env
-.env.local
-.env.*.local
-
-# Keep .env.example for reference
-!.env.example
 
 # Fyers logs
 fyersDataSocket.log
