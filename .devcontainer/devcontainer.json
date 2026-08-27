@@ -18,8 +18,7 @@
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "python.linting.enabled": true,
         "python.linting.pylintEnabled": true,
-        "python.formatting.provider": "black",
-        "terminal.integrated.cwd": "/workspaces/fyers"
+        "python.formatting.provider": "black"
       }
     }
   },
