@@ -5,6 +5,17 @@ from pathlib import Path
 from threading import RLock
 from typing import Any, Callable
 
+# Import secure config for credential management
+try:
+    from Config.secure_config import get_credential, set_credential
+    SECURE_CONFIG_AVAILABLE = True
+except ImportError:
+    try:
+        from secure_config import get_credential, set_credential
+        SECURE_CONFIG_AVAILABLE = True
+    except ImportError:
+        SECURE_CONFIG_AVAILABLE = False
+
 
 DEFAULT_DATA_TYPE = "SymbolUpdate"
 VALID_DATA_TYPES = {"SymbolUpdate", "DepthUpdate"}
@@ -31,9 +42,22 @@ def normalize_symbol(symbol: str) -> str:
 
 
 def read_config_property(key: str, config_path: str | Path = DEFAULT_CONFIG_PATH) -> str | None:
+    """
+    Read config property with secure credential lookup.
+
+    Priority: Windows Credential Manager > env var > file
+    """
+    # Try secure config first for sensitive keys
+    sensitive_keys = {'appId', 'secretID', 'auth_code', 'access_token', 'REDIRECT'}
+    if SECURE_CONFIG_AVAILABLE and key in sensitive_keys:
+        value = get_credential(key)
+        if value:
+            return value
+
+    # Fallback to file
     path = Path(config_path)
     if not path.exists():
-        raise FileNotFoundError(f"Fyers config file not found: {path}")
+        return None
 
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
@@ -46,11 +70,47 @@ def read_config_property(key: str, config_path: str | Path = DEFAULT_CONFIG_PATH
     return None
 
 
+def write_config_property(key: str, value: str, config_path: str | Path = DEFAULT_CONFIG_PATH) -> bool:
+    """
+    Write config property to secure storage (keyring) for sensitive keys,
+    or to file for non-sensitive keys.
+    """
+    sensitive_keys = {'appId', 'secretID', 'auth_code', 'access_token', 'REDIRECT'}
+    if SECURE_CONFIG_AVAILABLE and key in sensitive_keys:
+        return set_credential(key, value)
+
+    # Fallback to file
+    path = Path(config_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    lines = []
+    key_found = False
+
+    if path.exists():
+        with path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                if line.strip().startswith(f"{key}="):
+                    lines.append(f"{key}={value}\n")
+                    key_found = True
+                else:
+                    lines.append(line)
+
+    if not key_found:
+        lines.append(f"{key}={value}\n")
+
+    with path.open("w", encoding="utf-8") as handle:
+        handle.writelines(lines)
+    return True
+
+
 def websocket_access_token(config_path: str | Path = DEFAULT_CONFIG_PATH) -> str:
     app_id = read_config_property("appId", config_path)
     access_token = read_config_property("access_token", config_path)
     if not app_id or not access_token:
-        raise RuntimeError(f"Missing appId or access_token in {Path(config_path)}")
+        raise RuntimeError(
+            f"Missing appId or access_token. "
+            f"Run: py -m Config.secure_config setup"
+        )
     if access_token.startswith(f"{app_id}:"):
         return access_token
     return f"{app_id}:{access_token}"

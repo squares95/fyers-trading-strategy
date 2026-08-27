@@ -12,11 +12,24 @@ LOG_DIR = ROOT / "Logs"
 app = Flask(__name__)
 auth_code_value = None
 
+# Credentials are now securely stored in Windows Credential Manager
+# (or .env file as fallback) - no more plain-text config.properties
 APPID = get_property('appId')
-REDIRECTURI = get_property('REDIRECT')
+REDIRECTURI = get_property('REDIRECT') or 'http://127.0.0.1:5000'
 RESPONSE_TYPE = "code"
 SECRETID = get_property('secretID')
-GRANT_TYPE="authorization_code"
+GRANT_TYPE = "authorization_code"
+
+if not APPID or not SECRETID:
+    print("=" * 80)
+    print("WARNING: Fyers credentials not found!")
+    print("=" * 80)
+    print("Please set up your credentials:")
+    print("  py -m Config.secure_config setup")
+    print()
+    print("Or migrate from old config.properties:")
+    print("  py -m Config.secure_config migrate")
+    print("=" * 80)
 
 
 @app.route('/')
@@ -24,7 +37,6 @@ def capture_code():
     global auth_code_value
     auth_code_value = request.args.get('auth_code')
     upsert_property('auth_code', auth_code_value)
-    # print(f"✅ Captured auth_code: {auth_code_value}")
     return "You can close this tab now."
 
 
