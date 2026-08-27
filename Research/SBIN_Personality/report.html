@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SBIN Personality And Strategy Discovery Report</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; margin: 0; background: #FCFCFD; color: #1F2430; }
+    main { max-width: 1120px; margin: 0 auto; padding: 36px 28px 64px; }
+    h1 { font-size: 30px; margin: 0 0 8px; }
+    h2 { margin-top: 34px; border-top: 1px solid #E6E8F0; padding-top: 22px; }
+    h3 { margin-top: 24px; }
+    p, li { line-height: 1.55; }
+    .summary { background: #FFFFFF; border: 1px solid #E6E8F0; padding: 18px 22px; border-radius: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .metric { background: #FFFFFF; border: 1px solid #E6E8F0; padding: 14px 16px; border-radius: 8px; }
+    .metric strong { display: block; font-size: 22px; margin-top: 6px; }
+    img { max-width: 100%; border: 1px solid #E6E8F0; border-radius: 8px; background: white; }
+    table { border-collapse: collapse; width: 100%; background: white; margin: 12px 0 18px; font-size: 13px; }
+    th, td { border: 1px solid #E6E8F0; padding: 8px 10px; text-align: left; }
+    th { background: #F4F5F7; }
+    code { background: #F4F5F7; padding: 2px 4px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>SBIN Personality And Strategy Discovery Report</h1>
+  <section class="summary">
+    <h2>Executive Summary</h2>
+    <ul>
+      <li>SBIN is <strong>mean-reverting</strong> on 1-minute follow-through: continuation 35.5% vs mean reversion 39.0%.</li>
+      <li>High-velocity windows: <strong>09:15-10:00, 15:00-15:30</strong>. Dead/noisy windows: <strong>12:00-13:00, 13:00-14:00</strong>.</li>
+      <li><strong>No production-ready strategy was promoted.</strong> Rejected: the best discovery candidate did not meet the minimum training thresholds.</li>
+      <li>Best discovery candidate: <code>breakout_retest|or30|end=10:30|rr=1.5|atr=1.0|vol=0.8|vwap=1|ema=1|macro=not_both_against|band=1.2</code>.</li>
+      <li>OOS result: 11 trades, 36.36% win rate, PF 0.7155388471177906, expectancy -0.181R, max DD -4.99R.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Key Findings With Visual Evidence</h2>
+    
+    <p>Chart rendering was skipped because the local Python runtime did not have a plotting backend available. The same evidence is preserved below as audit tables.</p>
+    <h3>Time-of-day velocity table</h3><table><thead><tr><th>Bucket</th><th>one_min_bars</th><th>avg_1m_tr_bps</th><th>median_1m_tr_bps</th><th>avg_1m_volume</th><th>total_volume</th><th>avg_5m_tr_bps</th><th>median_5m_tr_bps</th><th>avg_5m_volume</th><th>velocity_score</th><th>personality</th></tr></thead><tbody><tr><td>09:15-10:00</td><td>11115</td><td>12.7428</td><td>9.5111</td><td>42974.0265</td><td>477656305</td><td>31.5588</td><td>22.8124</td><td>214870.1327</td><td>0.9571</td><td>high-velocity</td></tr><tr><td>10:00-11:00</td><td>14820</td><td>7.8949</td><td>6.8145</td><td>27777.6028</td><td>411664073</td><td>18.2247</td><td>15.9268</td><td>138888.0138</td><td>0.6714</td><td>normal</td></tr><tr><td>11:00-12:00</td><td>14820</td><td>6.9824</td><td>6.0961</td><td>24754.1536</td><td>366856557</td><td>15.7146</td><td>13.635</td><td>123770.7682</td><td>0.3571</td><td>normal</td></tr><tr><td>12:00-13:00</td><td>14820</td><td>6.9389</td><td>5.7872</td><td>24026.219</td><td>356068565</td><td>15.3764</td><td>12.9748</td><td>120131.0948</td><td>0.1714</td><td>dead/noisy</td></tr><tr><td>13:00-14:00</td><td>14835</td><td>7.0047</td><td>6.0613</td><td>24257.7084</td><td>359863104</td><td>15.3402</td><td>13.0419</td><td>121288.542</td><td>0.3286</td><td>dead/noisy</td></tr><tr><td>14:00-15:00</td><td>14866</td><td>7.6047</td><td>6.3967</td><td>33425.1899</td><td>496898873</td><td>16.6445</td><td>14.0911</td><td>167080.9929</td><td>0.6143</td><td>normal</td></tr><tr><td>15:00-15:30</td><td>7410</td><td>8.4668</td><td>7.2502</td><td>78837.3101</td><td>584184468</td><td>18.406</td><td>15.2354</td><td>394186.5506</td><td>0.9</td><td>high-velocity</td></tr></tbody></table>
+    <h3>Selected strategy metrics</h3><table><thead><tr><th>set_name</th><th>trades</th><th>win_rate</th><th>profit_factor</th><th>expectancy_r</th><th>max_drawdown_r</th><th>avg_trade_duration_min</th></tr></thead><tbody><tr><td>train</td><td>51</td><td>50.9804</td><td>1.5359</td><td>0.2627</td><td>-8.0</td><td>35.1765</td></tr><tr><td>test</td><td>11</td><td>36.3636</td><td>0.7155</td><td>-0.181</td><td>-4.9912</td><td>73.5455</td></tr></tbody></table>
+
+  </section>
+  <section>
+    <h2>Scope, Data, And Metric Definitions</h2>
+    <p>Research window: 2025-06-19 to 2026-06-19. Discovery: 2025-06-19 to 2026-03-19 exclusive. OOS: 2026-03-19 to 2026-06-19.</p>
+    <p>Continuation and mean reversion are measured on eligible 1-minute bars using the signed move over the next three minutes. Profit Factor is gross positive R divided by absolute gross negative R.</p>
+  </section>
+  <section>
+    <h2>SBIN Personality Profile</h2>
+    <h3>Time-of-day profile</h3><table><thead><tr><th>Bucket</th><th>one_min_bars</th><th>avg_1m_tr_bps</th><th>median_1m_tr_bps</th><th>avg_1m_volume</th><th>total_volume</th><th>avg_5m_tr_bps</th><th>median_5m_tr_bps</th><th>avg_5m_volume</th><th>velocity_score</th><th>personality</th></tr></thead><tbody><tr><td>09:15-10:00</td><td>11115</td><td>12.7428</td><td>9.5111</td><td>42974.0265</td><td>477656305</td><td>31.5588</td><td>22.8124</td><td>214870.1327</td><td>0.9571</td><td>high-velocity</td></tr><tr><td>10:00-11:00</td><td>14820</td><td>7.8949</td><td>6.8145</td><td>27777.6028</td><td>411664073</td><td>18.2247</td><td>15.9268</td><td>138888.0138</td><td>0.6714</td><td>normal</td></tr><tr><td>11:00-12:00</td><td>14820</td><td>6.9824</td><td>6.0961</td><td>24754.1536</td><td>366856557</td><td>15.7146</td><td>13.635</td><td>123770.7682</td><td>0.3571</td><td>normal</td></tr><tr><td>12:00-13:00</td><td>14820</td><td>6.9389</td><td>5.7872</td><td>24026.219</td><td>356068565</td><td>15.3764</td><td>12.9748</td><td>120131.0948</td><td>0.1714</td><td>dead/noisy</td></tr><tr><td>13:00-14:00</td><td>14835</td><td>7.0047</td><td>6.0613</td><td>24257.7084</td><td>359863104</td><td>15.3402</td><td>13.0419</td><td>121288.542</td><td>0.3286</td><td>dead/noisy</td></tr><tr><td>14:00-15:00</td><td>14866</td><td>7.6047</td><td>6.3967</td><td>33425.1899</td><td>496898873</td><td>16.6445</td><td>14.0911</td><td>167080.9929</td><td>0.6143</td><td>normal</td></tr><tr><td>15:00-15:30</td><td>7410</td><td>8.4668</td><td>7.2502</td><td>78837.3101</td><td>584184468</td><td>18.406</td><td>15.2354</td><td>394186.5506</td><td>0.9</td><td>high-velocity</td></tr></tbody></table>
+    <h3>Noise vs signal</h3><table><thead><tr><th>class</th><th>percent</th><th>bars</th></tr></thead><tbody><tr><td>mean_reversion</td><td>39.0012</td><td>32816</td></tr><tr><td>continuation</td><td>35.5273</td><td>29893</td></tr><tr><td>noise</td><td>25.4715</td><td>21432</td></tr></tbody></table>
+    <h3>Opening range statistics</h3><table><thead><tr><th>metric</th><th>value</th></tr></thead><tbody><tr><td>days</td><td>247.0</td></tr><tr><td>or_high_broken_pct</td><td>68.8259</td></tr><tr><td>or_low_broken_pct</td><td>70.4453</td></tr><tr><td>either_side_broken_pct</td><td>99.1903</td></tr><tr><td>both_sides_broken_pct</td><td>40.081</td></tr><tr><td>true_breakout_after_first_break_pct</td><td>35.5102</td></tr><tr><td>fake_breakout_after_first_break_pct</td><td>69.3878</td></tr></tbody></table>
+    <h3>Gap resolution</h3><table><thead><tr><th>direction</th><th>gaps</th><th>fill_rate_pct</th><th>avg_gap_pct</th></tr></thead><tbody><tr><td>gap_down</td><td>49</td><td>46.9388</td><td>-0.7543</td></tr><tr><td>gap_up</td><td>90</td><td>37.7778</td><td>0.7549</td></tr></tbody></table>
+    <h3>Higher-timeframe dominance</h3><table><thead><tr><th>macro_alignment</th><th>trend_setup_trades</th><th>win_rate_pct</th><th>profit_factor</th><th>expectancy_r</th></tr></thead><tbody><tr><td>aligned_1d_1w</td><td>77</td><td>42.8571</td><td>1.0353</td><td>0.0195</td></tr><tr><td>mixed_or_neutral</td><td>84</td><td>42.8571</td><td>1.0768</td><td>0.0439</td></tr><tr><td>opposed_1d_1w</td><td>62</td><td>40.3226</td><td>1.0378</td><td>0.022</td></tr></tbody></table>
+  </section>
+  <section>
+    <h2>Mechanical Strategy Decision</h2>
+    <p><strong>Decision: do not promote this SBIN candidate to paper/live trading yet.</strong></p>
+    <p>Rejected candidate preserved for audit: <code>breakout_retest|or30|end=10:30|rr=1.5|atr=1.0|vol=0.8|vwap=1|ema=1|macro=not_both_against|band=1.2</code>.</p>
+    <ul>
+      <li>Signal is evaluated on closed 5-minute candles.</li>
+      <li>Entry is next 5-minute candle open after the signal.</li>
+      <li>Stop uses the larger of signal-candle adverse excursion and ATR-multiple risk.</li>
+      <li>Target is fixed by the variant R multiple, with minimum tested R:R of 1.5:1.</li>
+      <li>Exit at 15:15 if neither stop nor target is hit.</li>
+    </ul>
+    <p>The rule above is not a validated trading system because it did not clear the target thresholds.</p>
+  </section>
+  <section>
+    <h2>Comparative Backtest Summary</h2>
+    <table><thead><tr><th>set_name</th><th>trades</th><th>win_rate</th><th>profit_factor</th><th>expectancy_r</th><th>max_drawdown_r</th><th>avg_trade_duration_min</th></tr></thead><tbody><tr><td>train</td><td>51</td><td>50.9804</td><td>1.5359</td><td>0.2627</td><td>-8.0</td><td>35.1765</td></tr><tr><td>test</td><td>11</td><td>36.3636</td><td>0.7155</td><td>-0.181</td><td>-4.9912</td><td>73.5455</td></tr></tbody></table>
+  </section>
+  <section>
+    <h2>Limitations And Next Steps</h2>
+    <ul>
+      <li>Headline R metrics exclude brokerage, taxes, slippage, partial fills, queue position, leverage, and whole-share sizing.</li>
+      <li>This is a single-symbol discovery result. Validate on additional bank/large-cap names before promoting to live paper trading.</li>
+      <li>If Bank Nifty data is added, rerun with sector-index regime and VWAP filters.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

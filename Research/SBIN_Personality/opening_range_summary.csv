@@ -1,0 +1,8 @@
+metric,value
+days,247.0
+or_high_broken_pct,68.82591093117408
+or_low_broken_pct,70.44534412955466
+either_side_broken_pct,99.19028340080972
+both_sides_broken_pct,40.08097165991903
+true_breakout_after_first_break_pct,35.51020408163265
+fake_breakout_after_first_break_pct,69.38775510204081

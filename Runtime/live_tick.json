@@ -1,0 +1,14 @@
+{
+  "name": "live_tick",
+  "pid": 20332,
+  "status": "stopped",
+  "heartbeat_at": "2026-06-22 11:08:16",
+  "started_at": "2026-06-22 10:32:04",
+  "metadata": {
+    "symbols": [
+      "SBIN"
+    ],
+    "data_type": "SymbolUpdate"
+  },
+  "stopped_at": "2026-06-22 11:08:16"
+}

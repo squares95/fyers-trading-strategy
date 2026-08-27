@@ -1,0 +1,136 @@
+{
+  "CGPOWER": {
+    "symbol": "CGPOWER",
+    "data_path": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Data\\NSE30\\CGPOWER\\CGPOWER_5MIN.csv",
+    "rows_used": 92250,
+    "complete_days": 1230,
+    "date_start": "2021-06-03 09:15:00",
+    "date_end": "2026-06-01 15:25:00",
+    "regime_tradeable_days": 506,
+    "signals_before_regime": 360,
+    "signals_after_regime": 132,
+    "unfiltered_trades": {
+      "trades": 360,
+      "net_pct": -33.23,
+      "avg_bps": -10.82,
+      "win_rate_pct": 37.78,
+      "profit_factor": 0.756,
+      "max_dd_pct": -52.17
+    },
+    "setup_before_strength_filter": {
+      "trades": 132,
+      "net_pct": 32.92,
+      "avg_bps": 21.99,
+      "win_rate_pct": 56.06,
+      "profit_factor": 1.792,
+      "max_dd_pct": -4.02
+    },
+    "final_strategy": {
+      "trades": 113,
+      "net_pct": 34.6,
+      "avg_bps": 26.75,
+      "win_rate_pct": 58.41,
+      "profit_factor": 2.018,
+      "max_dd_pct": -3.45
+    },
+    "train_before_2025": {
+      "trades": 41,
+      "net_pct": 3.29,
+      "avg_bps": 8.46,
+      "win_rate_pct": 46.34,
+      "profit_factor": 1.212,
+      "max_dd_pct": -3.45
+    },
+    "validation_2025_onward": {
+      "trades": 72,
+      "net_pct": 30.3,
+      "avg_bps": 37.17,
+      "win_rate_pct": 65.28,
+      "profit_factor": 3.01,
+      "max_dd_pct": -2.49
+    },
+    "long_leg": {
+      "trades": 70,
+      "net_pct": 14.93,
+      "avg_bps": 20.25,
+      "win_rate_pct": 54.29,
+      "profit_factor": 1.744,
+      "max_dd_pct": -2.45
+    },
+    "short_leg": {
+      "trades": 43,
+      "net_pct": 17.11,
+      "avg_bps": 37.34,
+      "win_rate_pct": 65.12,
+      "profit_factor": 2.51,
+      "max_dd_pct": -3.08
+    }
+  },
+  "SUZLON": {
+    "symbol": "SUZLON",
+    "data_path": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Data\\NSE30\\SUZLON\\SUZLON_5MIN.csv",
+    "rows_used": 92250,
+    "complete_days": 1230,
+    "date_start": "2021-06-03 09:15:00",
+    "date_end": "2026-06-01 15:25:00",
+    "regime_tradeable_days": 754,
+    "signals_before_regime": 457,
+    "signals_after_regime": 203,
+    "unfiltered_trades": {
+      "trades": 457,
+      "net_pct": -38.68,
+      "avg_bps": -9.88,
+      "win_rate_pct": 38.07,
+      "profit_factor": 0.837,
+      "max_dd_pct": -43.28
+    },
+    "setup_before_strength_filter": {
+      "trades": 203,
+      "net_pct": 0.37,
+      "avg_bps": 0.63,
+      "win_rate_pct": 43.84,
+      "profit_factor": 1.015,
+      "max_dd_pct": -9.09
+    },
+    "final_strategy": {
+      "trades": 173,
+      "net_pct": -1.79,
+      "avg_bps": -0.58,
+      "win_rate_pct": 42.77,
+      "profit_factor": 0.987,
+      "max_dd_pct": -7.29
+    },
+    "train_before_2025": {
+      "trades": 98,
+      "net_pct": -1.29,
+      "avg_bps": -0.72,
+      "win_rate_pct": 40.82,
+      "profit_factor": 0.985,
+      "max_dd_pct": -6.84
+    },
+    "validation_2025_onward": {
+      "trades": 75,
+      "net_pct": -0.51,
+      "avg_bps": -0.39,
+      "win_rate_pct": 45.33,
+      "profit_factor": 0.989,
+      "max_dd_pct": -7.29
+    },
+    "long_leg": {
+      "trades": 88,
+      "net_pct": -8.15,
+      "avg_bps": -9.25,
+      "win_rate_pct": 37.5,
+      "profit_factor": 0.789,
+      "max_dd_pct": -10.44
+    },
+    "short_leg": {
+      "trades": 85,
+      "net_pct": 6.92,
+      "avg_bps": 8.4,
+      "win_rate_pct": 48.24,
+      "profit_factor": 1.201,
+      "max_dd_pct": -4.76
+    }
+  }
+}

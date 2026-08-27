@@ -1,0 +1,300 @@
+{
+  "symbols": {
+    "CGPOWER": {
+      "daily_summary": {
+        "symbol": "CGPOWER",
+        "days": 1188,
+        "start": "2021-06-03 09:15:00",
+        "end": "2026-06-01 09:15:00",
+        "first_close": 85.3,
+        "last_close": 894.0,
+        "total_return_pct": 948.07,
+        "cagr_pct": 60.08,
+        "max_drawdown_pct": -37.2,
+        "median_daily_range_pct": 3.13,
+        "median_turnover_cr": 98.12,
+        "up_day_pct": 50.51,
+        "bull_expansion_days": 562,
+        "derisk_downtrend_days": 123
+      },
+      "intraday_summary": {
+        "symbol": "CGPOWER",
+        "days": 1188,
+        "avg_first30_ret_bps": -14.79,
+        "first30_predicts_positive_day_pct": 63.8,
+        "orb_up_days": 614,
+        "orb_up_success_pct": 43.97,
+        "orb_up_avg_close_bps": -10.82,
+        "orb_down_days": 767,
+        "orb_down_success_pct": 45.76,
+        "orb_down_avg_close_bps": -22.18,
+        "bull_regime_orb_up_success_pct": 41.4,
+        "strong_up_days": 90,
+        "strong_up_avg_first30_bps": 92.83,
+        "strong_up_orb_up_success_pct": 85.19,
+        "strong_down_days": 40,
+        "strong_down_avg_first30_bps": -96.82,
+        "strong_down_orb_down_success_pct": 78.95
+      },
+      "strategy_summary": {
+        "symbol": "CGPOWER",
+        "signals_before_regime": 360,
+        "signals_after_regime": 132,
+        "final": {
+          "trades": 113,
+          "net_pct": 34.6,
+          "avg_bps": 26.75,
+          "win_rate_pct": 58.41,
+          "profit_factor": 2.018,
+          "max_dd_pct": -3.45
+        },
+        "by_side": {
+          "long": {
+            "trades": 70,
+            "net_pct": 14.93,
+            "avg_bps": 20.25,
+            "win_rate_pct": 54.29,
+            "profit_factor": 1.744,
+            "max_dd_pct": -2.45
+          },
+          "short": {
+            "trades": 43,
+            "net_pct": 17.11,
+            "avg_bps": 37.34,
+            "win_rate_pct": 65.12,
+            "profit_factor": 2.51,
+            "max_dd_pct": -3.08
+          }
+        },
+        "strength_bands": [
+          {
+            "trades": 0,
+            "net_pct": 0.0,
+            "avg_bps": 0.0,
+            "win_rate_pct": 0.0,
+            "profit_factor": 0.0,
+            "max_dd_pct": 0.0,
+            "strength_band": "<40",
+            "avg_strength": 0.0,
+            "longs": 0,
+            "shorts": 0
+          },
+          {
+            "trades": 18,
+            "net_pct": 3.11,
+            "avg_bps": 17.35,
+            "win_rate_pct": 50.0,
+            "profit_factor": 1.643,
+            "max_dd_pct": -1.57,
+            "strength_band": "40-50",
+            "avg_strength": 43.84,
+            "longs": 11,
+            "shorts": 7
+          },
+          {
+            "trades": 35,
+            "net_pct": 7.61,
+            "avg_bps": 21.21,
+            "win_rate_pct": 62.86,
+            "profit_factor": 1.962,
+            "max_dd_pct": -3.19,
+            "strength_band": "50-60",
+            "avg_strength": 55.89,
+            "longs": 21,
+            "shorts": 14
+          },
+          {
+            "trades": 19,
+            "net_pct": 1.59,
+            "avg_bps": 8.58,
+            "win_rate_pct": 52.63,
+            "profit_factor": 1.299,
+            "max_dd_pct": -1.62,
+            "strength_band": "60-70",
+            "avg_strength": 65.57,
+            "longs": 12,
+            "shorts": 7
+          },
+          {
+            "trades": 19,
+            "net_pct": 6.24,
+            "avg_bps": 32.67,
+            "win_rate_pct": 52.63,
+            "profit_factor": 1.984,
+            "max_dd_pct": -2.75,
+            "strength_band": "70-80",
+            "avg_strength": 73.46,
+            "longs": 10,
+            "shorts": 9
+          },
+          {
+            "trades": 22,
+            "net_pct": 12.39,
+            "avg_bps": 53.85,
+            "win_rate_pct": 68.18,
+            "profit_factor": 3.206,
+            "max_dd_pct": -2.07,
+            "strength_band": "80+",
+            "avg_strength": 87.92,
+            "longs": 16,
+            "shorts": 6
+          }
+        ]
+      },
+      "regime_counts": {
+        "bull_expansion": 562,
+        "bull_pullback": 287,
+        "mixed_chop": 216,
+        "derisk_downtrend": 123
+      }
+    },
+    "SUZLON": {
+      "daily_summary": {
+        "symbol": "SUZLON",
+        "days": 1228,
+        "start": "2021-06-03 09:15:00",
+        "end": "2026-06-01 09:15:00",
+        "first_close": 6.16,
+        "last_close": 53.75,
+        "total_return_pct": 772.56,
+        "cagr_pct": 54.31,
+        "max_drawdown_pct": -53.12,
+        "median_daily_range_pct": 3.9,
+        "median_turnover_cr": 200.17,
+        "up_day_pct": 45.03,
+        "bull_expansion_days": 427,
+        "derisk_downtrend_days": 317
+      },
+      "intraday_summary": {
+        "symbol": "SUZLON",
+        "days": 1228,
+        "avg_first30_ret_bps": -11.37,
+        "first30_predicts_positive_day_pct": 66.74,
+        "orb_up_days": 499,
+        "orb_up_success_pct": 41.48,
+        "orb_up_avg_close_bps": -3.69,
+        "orb_down_days": 674,
+        "orb_down_success_pct": 42.58,
+        "orb_down_avg_close_bps": -14.48,
+        "bull_regime_orb_up_success_pct": 52.27,
+        "strong_up_days": 160,
+        "strong_up_avg_first30_bps": 153.23,
+        "strong_up_orb_up_success_pct": 86.32,
+        "strong_down_days": 81,
+        "strong_down_avg_first30_bps": -160.43,
+        "strong_down_orb_down_success_pct": 76.47
+      },
+      "strategy_summary": {
+        "symbol": "SUZLON",
+        "signals_before_regime": 457,
+        "signals_after_regime": 203,
+        "final": {
+          "trades": 173,
+          "net_pct": -1.79,
+          "avg_bps": -0.58,
+          "win_rate_pct": 42.77,
+          "profit_factor": 0.987,
+          "max_dd_pct": -7.29
+        },
+        "by_side": {
+          "long": {
+            "trades": 88,
+            "net_pct": -8.15,
+            "avg_bps": -9.25,
+            "win_rate_pct": 37.5,
+            "profit_factor": 0.789,
+            "max_dd_pct": -10.44
+          },
+          "short": {
+            "trades": 85,
+            "net_pct": 6.92,
+            "avg_bps": 8.4,
+            "win_rate_pct": 48.24,
+            "profit_factor": 1.201,
+            "max_dd_pct": -4.76
+          }
+        },
+        "strength_bands": [
+          {
+            "trades": 0,
+            "net_pct": 0.0,
+            "avg_bps": 0.0,
+            "win_rate_pct": 0.0,
+            "profit_factor": 0.0,
+            "max_dd_pct": 0.0,
+            "strength_band": "<40",
+            "avg_strength": 0.0,
+            "longs": 0,
+            "shorts": 0
+          },
+          {
+            "trades": 24,
+            "net_pct": 7.4,
+            "avg_bps": 30.18,
+            "win_rate_pct": 58.33,
+            "profit_factor": 2.078,
+            "max_dd_pct": -2.2,
+            "strength_band": "40-50",
+            "avg_strength": 46.32,
+            "longs": 15,
+            "shorts": 9
+          },
+          {
+            "trades": 48,
+            "net_pct": 4.95,
+            "avg_bps": 10.52,
+            "win_rate_pct": 45.83,
+            "profit_factor": 1.285,
+            "max_dd_pct": -4.84,
+            "strength_band": "50-60",
+            "avg_strength": 54.75,
+            "longs": 18,
+            "shorts": 30
+          },
+          {
+            "trades": 43,
+            "net_pct": -1.85,
+            "avg_bps": -3.91,
+            "win_rate_pct": 41.86,
+            "profit_factor": 0.903,
+            "max_dd_pct": -4.94,
+            "strength_band": "60-70",
+            "avg_strength": 65.78,
+            "longs": 25,
+            "shorts": 18
+          },
+          {
+            "trades": 27,
+            "net_pct": -5.69,
+            "avg_bps": -21.29,
+            "win_rate_pct": 37.04,
+            "profit_factor": 0.583,
+            "max_dd_pct": -8.9,
+            "strength_band": "70-80",
+            "avg_strength": 74.91,
+            "longs": 12,
+            "shorts": 15
+          },
+          {
+            "trades": 31,
+            "net_pct": -5.87,
+            "avg_bps": -18.89,
+            "win_rate_pct": 32.26,
+            "profit_factor": 0.684,
+            "max_dd_pct": -8.02,
+            "strength_band": "80+",
+            "avg_strength": 88.34,
+            "longs": 18,
+            "shorts": 13
+          }
+        ]
+      },
+      "regime_counts": {
+        "bull_expansion": 427,
+        "derisk_downtrend": 317,
+        "mixed_chop": 252,
+        "bull_pullback": 232
+      }
+    }
+  }
+}

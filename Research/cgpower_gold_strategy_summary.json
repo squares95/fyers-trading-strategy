@@ -1,0 +1,594 @@
+{
+  "data_path": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Data\\NSE30\\CGPOWER\\CGPOWER_5MIN.csv",
+  "data_rows_used": 92250,
+  "complete_trading_days_used": 1230,
+  "date_range": [
+    "2021-06-02 09:15:00",
+    "2026-05-29 15:25:00"
+  ],
+  "regime_rule": {
+    "turnover_med60_prev_gt": 1000000000,
+    "range_med60_prev_gt": 0.02,
+    "tradeable_days": 505
+  },
+  "old_strategy_unfiltered": {
+    "trades": 535,
+    "net_pct": -41.41,
+    "avg_bps": -9.61,
+    "win_rate_pct": 36.26,
+    "profit_factor": 0.774,
+    "max_dd_pct": -58.12
+  },
+  "old_strategy_off_regime": {
+    "trades": 333,
+    "net_pct": -54.89,
+    "avg_bps": -23.52,
+    "win_rate_pct": 28.23,
+    "profit_factor": 0.535,
+    "max_dd_pct": -58.12
+  },
+  "gold_setup_before_strength_filter": {
+    "trades": 132,
+    "net_pct": 32.92,
+    "avg_bps": 21.99,
+    "win_rate_pct": 56.06,
+    "profit_factor": 1.792,
+    "max_dd_pct": -4.02
+  },
+  "gold_strategy": {
+    "trades": 113,
+    "net_pct": 34.6,
+    "avg_bps": 26.75,
+    "win_rate_pct": 58.41,
+    "profit_factor": 2.018,
+    "max_dd_pct": -3.45
+  },
+  "gold_train_before_2025": {
+    "trades": 41,
+    "net_pct": 3.29,
+    "avg_bps": 8.46,
+    "win_rate_pct": 46.34,
+    "profit_factor": 1.212,
+    "max_dd_pct": -3.45
+  },
+  "gold_validation_2025_onward": {
+    "trades": 72,
+    "net_pct": 30.3,
+    "avg_bps": 37.17,
+    "win_rate_pct": 65.28,
+    "profit_factor": 3.01,
+    "max_dd_pct": -2.49
+  },
+  "gold_long_leg": {
+    "trades": 70,
+    "net_pct": 14.93,
+    "avg_bps": 20.25,
+    "win_rate_pct": 54.29,
+    "profit_factor": 1.744,
+    "max_dd_pct": -2.45
+  },
+  "gold_short_leg": {
+    "trades": 43,
+    "net_pct": 17.11,
+    "avg_bps": 37.34,
+    "win_rate_pct": 65.12,
+    "profit_factor": 2.51,
+    "max_dd_pct": -3.08
+  },
+  "cost_stress": [
+    {
+      "trades": 113,
+      "net_pct": 50.65,
+      "avg_bps": 36.75,
+      "win_rate_pct": 59.29,
+      "profit_factor": 2.658,
+      "max_dd_pct": -3.06,
+      "cost_bps_per_side": 0
+    },
+    {
+      "trades": 113,
+      "net_pct": 40.8,
+      "avg_bps": 30.75,
+      "win_rate_pct": 58.41,
+      "profit_factor": 2.249,
+      "max_dd_pct": -3.29,
+      "cost_bps_per_side": 3
+    },
+    {
+      "trades": 113,
+      "net_pct": 34.6,
+      "avg_bps": 26.75,
+      "win_rate_pct": 58.41,
+      "profit_factor": 2.018,
+      "max_dd_pct": -3.45,
+      "cost_bps_per_side": 5
+    },
+    {
+      "trades": 113,
+      "net_pct": 25.79,
+      "avg_bps": 20.75,
+      "win_rate_pct": 54.87,
+      "profit_factor": 1.719,
+      "max_dd_pct": -3.68,
+      "cost_bps_per_side": 8
+    },
+    {
+      "trades": 113,
+      "net_pct": 20.24,
+      "avg_bps": 16.75,
+      "win_rate_pct": 54.87,
+      "profit_factor": 1.546,
+      "max_dd_pct": -4.39,
+      "cost_bps_per_side": 10
+    },
+    {
+      "trades": 113,
+      "net_pct": 14.94,
+      "avg_bps": 12.75,
+      "win_rate_pct": 53.98,
+      "profit_factor": 1.392,
+      "max_dd_pct": -5.76,
+      "cost_bps_per_side": 12
+    },
+    {
+      "trades": 113,
+      "net_pct": 7.41,
+      "avg_bps": 6.75,
+      "win_rate_pct": 53.1,
+      "profit_factor": 1.191,
+      "max_dd_pct": -7.77,
+      "cost_bps_per_side": 15
+    }
+  ],
+  "bootstrap": {
+    "simulations": 5000,
+    "prob_net_positive_pct": 99.82,
+    "prob_pf_above_1_pct": 99.9,
+    "net_pct_p05": 15.01,
+    "net_pct_p50": 34.63,
+    "net_pct_p95": 59.17,
+    "pf_p05": 1.412,
+    "pf_p50": 2.022,
+    "pf_p95": 2.968
+  },
+  "signal_strength_rule": {
+    "minimum_to_trade": 40.0,
+    "minimum_trigger_component": 0.15,
+    "weights": {
+      "adx": 0.22,
+      "volume": 0.28,
+      "ema_alignment": 0.18,
+      "vwap_distance": 0.12,
+      "trigger_quality": 0.2
+    },
+    "scales": {
+      "adx_points_above_min": 18.0,
+      "volume_ratio_above_min": 1.5,
+      "ema_alignment_pct": 0.01,
+      "vwap_distance_pct": 0.006,
+      "trigger_atr_fraction": 0.35
+    },
+    "note": "Regime is a binary gate. Strength scores only the signal candle's trend, participation, location, and trigger quality."
+  },
+  "strength_by_band": [
+    {
+      "trades": 14,
+      "net_pct": -0.21,
+      "avg_bps": -1.21,
+      "win_rate_pct": 42.86,
+      "profit_factor": 0.966,
+      "max_dd_pct": -2.59,
+      "strength_band": "<40",
+      "avg_strength": 35.02,
+      "longs": 8,
+      "shorts": 6
+    },
+    {
+      "trades": 19,
+      "net_pct": 3.12,
+      "avg_bps": 16.46,
+      "win_rate_pct": 52.63,
+      "profit_factor": 1.644,
+      "max_dd_pct": -1.57,
+      "strength_band": "40-50",
+      "avg_strength": 43.74,
+      "longs": 12,
+      "shorts": 7
+    },
+    {
+      "trades": 36,
+      "net_pct": 7.05,
+      "avg_bps": 19.18,
+      "win_rate_pct": 61.11,
+      "profit_factor": 1.839,
+      "max_dd_pct": -3.19,
+      "strength_band": "50-60",
+      "avg_strength": 55.73,
+      "longs": 21,
+      "shorts": 15
+    },
+    {
+      "trades": 21,
+      "net_pct": 1.89,
+      "avg_bps": 9.19,
+      "win_rate_pct": 52.38,
+      "profit_factor": 1.318,
+      "max_dd_pct": -1.36,
+      "strength_band": "60-70",
+      "avg_strength": 65.83,
+      "longs": 12,
+      "shorts": 9
+    },
+    {
+      "trades": 19,
+      "net_pct": 6.24,
+      "avg_bps": 32.67,
+      "win_rate_pct": 52.63,
+      "profit_factor": 1.984,
+      "max_dd_pct": -2.75,
+      "strength_band": "70-80",
+      "avg_strength": 73.46,
+      "longs": 10,
+      "shorts": 9
+    },
+    {
+      "trades": 23,
+      "net_pct": 11.47,
+      "avg_bps": 47.95,
+      "win_rate_pct": 65.22,
+      "profit_factor": 2.782,
+      "max_dd_pct": -2.07,
+      "strength_band": "80+",
+      "avg_strength": 87.68,
+      "longs": 16,
+      "shorts": 7
+    }
+  ],
+  "strength_thresholds": [
+    {
+      "trades": 132,
+      "net_pct": 32.92,
+      "avg_bps": 21.99,
+      "win_rate_pct": 56.06,
+      "profit_factor": 1.792,
+      "max_dd_pct": -4.02,
+      "threshold": 0,
+      "segment": "all"
+    },
+    {
+      "trades": 48,
+      "net_pct": 4.28,
+      "avg_bps": 9.24,
+      "win_rate_pct": 47.92,
+      "profit_factor": 1.247,
+      "max_dd_pct": -4.02,
+      "threshold": 0,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 84,
+      "net_pct": 27.47,
+      "avg_bps": 29.28,
+      "win_rate_pct": 60.71,
+      "profit_factor": 2.317,
+      "max_dd_pct": -2.76,
+      "threshold": 0,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 128,
+      "net_pct": 32.98,
+      "avg_bps": 22.71,
+      "win_rate_pct": 56.25,
+      "profit_factor": 1.818,
+      "max_dd_pct": -4.02,
+      "threshold": 35,
+      "segment": "all"
+    },
+    {
+      "trades": 47,
+      "net_pct": 4.95,
+      "avg_bps": 10.78,
+      "win_rate_pct": 48.94,
+      "profit_factor": 1.292,
+      "max_dd_pct": -4.02,
+      "threshold": 35,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 81,
+      "net_pct": 26.71,
+      "avg_bps": 29.63,
+      "win_rate_pct": 60.49,
+      "profit_factor": 2.319,
+      "max_dd_pct": -2.98,
+      "threshold": 35,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 118,
+      "net_pct": 33.2,
+      "avg_bps": 24.74,
+      "win_rate_pct": 57.63,
+      "profit_factor": 1.923,
+      "max_dd_pct": -3.45,
+      "threshold": 40,
+      "segment": "all"
+    },
+    {
+      "trades": 42,
+      "net_pct": 3.3,
+      "avg_bps": 8.27,
+      "win_rate_pct": 47.62,
+      "profit_factor": 1.212,
+      "max_dd_pct": -3.45,
+      "threshold": 40,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 76,
+      "net_pct": 28.95,
+      "avg_bps": 33.85,
+      "win_rate_pct": 63.16,
+      "profit_factor": 2.686,
+      "max_dd_pct": -2.49,
+      "threshold": 40,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 104,
+      "net_pct": 28.13,
+      "avg_bps": 24.31,
+      "win_rate_pct": 56.73,
+      "profit_factor": 1.864,
+      "max_dd_pct": -3.45,
+      "threshold": 45,
+      "segment": "all"
+    },
+    {
+      "trades": 36,
+      "net_pct": 2.75,
+      "avg_bps": 8.12,
+      "win_rate_pct": 47.22,
+      "profit_factor": 1.196,
+      "max_dd_pct": -3.45,
+      "threshold": 45,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 68,
+      "net_pct": 24.7,
+      "avg_bps": 32.88,
+      "win_rate_pct": 61.76,
+      "profit_factor": 2.56,
+      "max_dd_pct": -3.19,
+      "threshold": 45,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 99,
+      "net_pct": 29.17,
+      "avg_bps": 26.33,
+      "win_rate_pct": 58.59,
+      "profit_factor": 1.973,
+      "max_dd_pct": -3.45,
+      "threshold": 50,
+      "segment": "all"
+    },
+    {
+      "trades": 35,
+      "net_pct": 1.06,
+      "avg_bps": 3.57,
+      "win_rate_pct": 45.71,
+      "profit_factor": 1.084,
+      "max_dd_pct": -3.45,
+      "threshold": 50,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 64,
+      "net_pct": 27.82,
+      "avg_bps": 38.78,
+      "win_rate_pct": 65.62,
+      "profit_factor": 3.091,
+      "max_dd_pct": -3.19,
+      "threshold": 50,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 84,
+      "net_pct": 26.66,
+      "avg_bps": 28.65,
+      "win_rate_pct": 59.52,
+      "profit_factor": 2.051,
+      "max_dd_pct": -3.45,
+      "threshold": 55,
+      "segment": "all"
+    },
+    {
+      "trades": 31,
+      "net_pct": 2.67,
+      "avg_bps": 9.12,
+      "win_rate_pct": 48.39,
+      "profit_factor": 1.218,
+      "max_dd_pct": -3.45,
+      "threshold": 55,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 53,
+      "net_pct": 23.36,
+      "avg_bps": 40.08,
+      "win_rate_pct": 66.04,
+      "profit_factor": 3.135,
+      "max_dd_pct": -2.89,
+      "threshold": 55,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 63,
+      "net_pct": 20.66,
+      "avg_bps": 30.42,
+      "win_rate_pct": 57.14,
+      "profit_factor": 2.033,
+      "max_dd_pct": -3.13,
+      "threshold": 60,
+      "segment": "all"
+    },
+    {
+      "trades": 26,
+      "net_pct": 3.43,
+      "avg_bps": 13.65,
+      "win_rate_pct": 50.0,
+      "profit_factor": 1.324,
+      "max_dd_pct": -3.13,
+      "threshold": 60,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 37,
+      "net_pct": 16.67,
+      "avg_bps": 42.2,
+      "win_rate_pct": 62.16,
+      "profit_factor": 3.053,
+      "max_dd_pct": -2.06,
+      "threshold": 60,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 55,
+      "net_pct": 20.69,
+      "avg_bps": 34.84,
+      "win_rate_pct": 58.18,
+      "profit_factor": 2.179,
+      "max_dd_pct": -3.13,
+      "threshold": 65,
+      "segment": "all"
+    },
+    {
+      "trades": 24,
+      "net_pct": 4.52,
+      "avg_bps": 19.17,
+      "win_rate_pct": 54.17,
+      "profit_factor": 1.465,
+      "max_dd_pct": -3.13,
+      "threshold": 65,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 31,
+      "net_pct": 15.46,
+      "avg_bps": 46.98,
+      "win_rate_pct": 61.29,
+      "profit_factor": 3.292,
+      "max_dd_pct": -2.31,
+      "threshold": 65,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 42,
+      "net_pct": 18.43,
+      "avg_bps": 41.04,
+      "win_rate_pct": 59.52,
+      "profit_factor": 2.379,
+      "max_dd_pct": -2.46,
+      "threshold": 70,
+      "segment": "all"
+    },
+    {
+      "trades": 19,
+      "net_pct": 4.99,
+      "avg_bps": 26.46,
+      "win_rate_pct": 57.89,
+      "profit_factor": 1.661,
+      "max_dd_pct": -2.46,
+      "threshold": 70,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 23,
+      "net_pct": 12.8,
+      "avg_bps": 53.07,
+      "win_rate_pct": 60.87,
+      "profit_factor": 3.496,
+      "max_dd_pct": -1.67,
+      "threshold": 70,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 27,
+      "net_pct": 12.65,
+      "avg_bps": 44.79,
+      "win_rate_pct": 62.96,
+      "profit_factor": 2.65,
+      "max_dd_pct": -2.07,
+      "threshold": 75,
+      "segment": "all"
+    },
+    {
+      "trades": 12,
+      "net_pct": 4.39,
+      "avg_bps": 36.32,
+      "win_rate_pct": 66.67,
+      "profit_factor": 2.266,
+      "max_dd_pct": -2.07,
+      "threshold": 75,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 15,
+      "net_pct": 7.91,
+      "avg_bps": 51.57,
+      "win_rate_pct": 60.0,
+      "profit_factor": 2.99,
+      "max_dd_pct": -1.14,
+      "threshold": 75,
+      "segment": "validation_2025_onward"
+    },
+    {
+      "trades": 23,
+      "net_pct": 11.47,
+      "avg_bps": 47.95,
+      "win_rate_pct": 65.22,
+      "profit_factor": 2.782,
+      "max_dd_pct": -2.07,
+      "threshold": 80,
+      "segment": "all"
+    },
+    {
+      "trades": 11,
+      "net_pct": 3.26,
+      "avg_bps": 29.75,
+      "win_rate_pct": 63.64,
+      "profit_factor": 1.95,
+      "max_dd_pct": -2.07,
+      "threshold": 80,
+      "segment": "train_before_2025"
+    },
+    {
+      "trades": 12,
+      "net_pct": 7.94,
+      "avg_bps": 64.63,
+      "win_rate_pct": 66.67,
+      "profit_factor": 3.825,
+      "max_dd_pct": -1.08,
+      "threshold": 80,
+      "segment": "validation_2025_onward"
+    }
+  ],
+  "config": {
+    "cost_bps_per_side": 5.0,
+    "stop_atr_multiple": 1.3,
+    "target_r": 2.0,
+    "adx_min": 26.0,
+    "volume_ratio_min": 1.2,
+    "long_rsi_min": 50.0,
+    "long_rsi_max": 75.0,
+    "short_rsi_min": 28.0,
+    "short_rsi_max": 55.0,
+    "long_first_bar": 8,
+    "long_last_signal_bar_exclusive": 60,
+    "short_first_bar": 8,
+    "short_last_signal_bar_exclusive": 45
+  }
+}

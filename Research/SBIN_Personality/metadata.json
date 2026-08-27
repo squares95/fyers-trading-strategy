@@ -1,0 +1,27 @@
+{
+  "symbol": "SBIN",
+  "available_start": "2025-05-19 09:15:00",
+  "available_end": "2026-06-22 11:00:00",
+  "research_start": "2025-06-19",
+  "train_start": "2025-06-19",
+  "train_end_exclusive": "2026-03-19",
+  "test_start": "2026-03-19",
+  "research_end": "2026-06-19",
+  "selected_variant": "breakout_retest|or30|end=10:30|rr=1.5|atr=1.0|vol=0.8|vwap=1|ema=1|macro=not_both_against|band=1.2",
+  "strategy_validation": {
+    "status": "rejected_train_failed",
+    "train_pass": false,
+    "test_pass": false,
+    "message": "Rejected: the best discovery candidate did not meet the minimum training thresholds."
+  },
+  "target_thresholds": {
+    "min_train_trades": 22,
+    "min_test_trades": 8,
+    "min_win_rate_pct": 55.0,
+    "min_profit_factor": 1.5,
+    "min_rr": 1.5
+  },
+  "partial_sessions_excluded": true,
+  "candidate_variants_tested": 124,
+  "output_dir": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Research\\SBIN_Personality"
+}

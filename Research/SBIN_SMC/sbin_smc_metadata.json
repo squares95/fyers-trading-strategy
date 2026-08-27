@@ -1,0 +1,24 @@
+{
+  "symbol": "SBIN",
+  "data_range": {
+    "available_start": "2024-08-16 09:15:00",
+    "available_end": "2026-08-17 15:25:00",
+    "research_start": "2025-08-17",
+    "training_start": "2025-08-17",
+    "training_end_exclusive": "2026-04-17",
+    "test_start": "2026-04-17",
+    "test_end": "2026-08-17",
+    "research_months": 12,
+    "training_months": 8,
+    "test_months": 4
+  },
+  "banknifty_filter_source": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Data\\BANKNIFTY\\BANKNIFTY_1MIN.csv",
+  "unavailable_variants": [],
+  "selected_variant_from_training_only": "opening_15m__market_1m_mss__bank_vwap",
+  "outputs": {
+    "summary": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Research\\SBIN_SMC\\sbin_smc_variant_summary.csv",
+    "trades": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Research\\SBIN_SMC\\sbin_smc_trades.csv",
+    "failures": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Research\\SBIN_SMC\\sbin_smc_failure_breakdown.csv",
+    "report": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Research\\SBIN_SMC\\sbin_smc_research_report.md"
+  }
+}

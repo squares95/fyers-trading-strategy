@@ -1,0 +1,35 @@
+{
+  "exchange": "NSE",
+  "segment": "CM",
+  "timezone": "Asia/Kolkata",
+  "regular_session": {
+    "open": "09:15",
+    "close": "15:30"
+  },
+  "source": {
+    "label": "NSE holiday-master trading API",
+    "url": "https://www.nseindia.com/api/holiday-master?type=trading",
+    "checked_on": "2026-06-20"
+  },
+  "holidays": [
+    {"date": "2026-01-26", "name": "Republic Day"},
+    {"date": "2026-02-15", "name": "Mahashivratri"},
+    {"date": "2026-03-04", "name": "Holi"},
+    {"date": "2026-03-21", "name": "Id-ul-Fitr (Ramadan Eid)"},
+    {"date": "2026-03-26", "name": "Shri Mahavir Jayanti"},
+    {"date": "2026-04-03", "name": "Good Friday"},
+    {"date": "2026-04-14", "name": "Dr. Baba Saheb Ambedkar Jayanti"},
+    {"date": "2026-05-01", "name": "Maharashtra Day"},
+    {"date": "2026-05-27", "name": "Bakri Id / Eid ul-Adha"},
+    {"date": "2026-06-26", "name": "Muharram"},
+    {"date": "2026-08-15", "name": "Independence Day"},
+    {"date": "2026-08-28", "name": "Ganesh Chaturthi"},
+    {"date": "2026-10-02", "name": "Mahatma Gandhi Jayanti / Dussehra"},
+    {"date": "2026-10-20", "name": "Diwali Laxmi Pujan"},
+    {"date": "2026-10-22", "name": "Diwali Balipratipada"},
+    {"date": "2026-11-08", "name": "Diwali Laxmi Pujan"},
+    {"date": "2026-11-24", "name": "Guru Nanak Jayanti"},
+    {"date": "2026-12-25", "name": "Christmas"}
+  ],
+  "special_sessions": []
+}

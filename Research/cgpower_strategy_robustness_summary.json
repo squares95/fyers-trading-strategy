@@ -1,0 +1,104 @@
+{
+  "strategy": "CGPOWER VWAP/EMA trend-pullback combo, first signal per day",
+  "data_path": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Data\\NSE30\\CGPOWER.csv",
+  "train_end_date": "2025-09-16",
+  "baseline": {
+    "trades": 190,
+    "net_pct": 29.5,
+    "avg_bps": 13.93,
+    "win_rate_pct": 50.0,
+    "profit_factor": 1.515,
+    "max_dd_pct": -4.3
+  },
+  "train": {
+    "trades": 122,
+    "net_pct": 15.95,
+    "avg_bps": 12.46,
+    "win_rate_pct": 50.0,
+    "profit_factor": 1.444,
+    "max_dd_pct": -4.3
+  },
+  "validation": {
+    "trades": 68,
+    "net_pct": 11.69,
+    "avg_bps": 16.55,
+    "win_rate_pct": 50.0,
+    "profit_factor": 1.656,
+    "max_dd_pct": -2.37
+  },
+  "long_leg": {
+    "trades": 95,
+    "net_pct": 11.23,
+    "avg_bps": 11.48,
+    "win_rate_pct": 49.47,
+    "profit_factor": 1.42,
+    "max_dd_pct": -5.11
+  },
+  "short_leg": {
+    "trades": 95,
+    "net_pct": 16.43,
+    "avg_bps": 16.37,
+    "win_rate_pct": 50.53,
+    "profit_factor": 1.612,
+    "max_dd_pct": -2.99
+  },
+  "quarters_positive": 7,
+  "quarters_total": 9,
+  "months_positive": 16,
+  "months_total": 24,
+  "random_entry_control": {
+    "simulations": 1000,
+    "net_pct_percentiles": {
+      "p05": 0.11,
+      "p25": 8.62,
+      "p50": 14.82,
+      "p75": 20.76,
+      "p95": 31.97
+    },
+    "profit_factor_percentiles": {
+      "p05": 1.01,
+      "p25": 1.16,
+      "p50": 1.28,
+      "p75": 1.39,
+      "p95": 1.6
+    },
+    "actual_net_pct_rank_pct": 91.8,
+    "actual_pf_rank_pct": 89.7
+  },
+  "bootstrap_actual_returns": {
+    "simulations": 5000,
+    "net_pct_percentiles": {
+      "p05": 8.81,
+      "p25": 20.0,
+      "p50": 29.41,
+      "p75": 39.35,
+      "p95": 54.77
+    },
+    "profit_factor_percentiles": {
+      "p05": 1.16,
+      "p25": 1.35,
+      "p50": 1.51,
+      "p75": 1.69,
+      "p95": 1.97
+    },
+    "probability_net_positive_pct": 99.24,
+    "probability_pf_above_1_pct": 99.36
+  },
+  "shuffled_trade_order_drawdown": {
+    "simulations": 5000,
+    "max_dd_pct_percentiles": {
+      "p05": -8.38,
+      "p25": -6.36,
+      "p50": -5.34,
+      "p75": -4.52,
+      "p95": -3.67
+    }
+  },
+  "parameter_neighborhood": {
+    "available": 1,
+    "pullback_candidates": 2592,
+    "pullback_train_and_test_profitable": 377,
+    "pullback_robust_pf_cluster": 11,
+    "best_robust_pf_avg_bps": 15.49
+  }
+}

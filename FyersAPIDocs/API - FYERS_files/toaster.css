@@ -1,0 +1,207 @@
+#toaster{
+  position: fixed;
+  top: 1rem;
+  right: 0;
+  width: auto;
+  z-index: 9999;
+}
+.toaster {
+  position: relative;
+    width: 100%;
+    top: 0px;
+    display: flex;
+    margin-bottom: 1rem;
+    transition: 0.2s ease-in;    
+    animation: fadein 2s;
+    -moz-animation: fadein 2s; /* Firefox */
+    -webkit-animation: fadein 2s; /* Safari and Chrome */
+    -o-animation: fadein 2s; /* Opera */
+
+}
+.fy-toast{
+    position: relative; top: 0rem; right: 1rem;
+    border-radius: 4px;
+    padding: 15px 15px;
+    max-width: 430px;
+    flex-basis: 430px;
+    width: 430px;
+    float: right;
+    transition: 0.2s ease-in;
+  }
+  @-webkit-keyframes dissolveInTop{
+    0%{opacity: 1; transform:translate3d(0,-100px,0)}
+    100%{opacity: 1; transform:translate3d(0,0,0)}
+  }
+  
+  @keyframes fadein {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-moz-keyframes fadein { /* Firefox */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-webkit-keyframes fadein { /* Safari and Chrome */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-o-keyframes fadein { /* Opera */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+  .toaster.show{
+    /* display: flex; */
+    height: 100%;
+    /* -webkit-animation: fadeInBottom 1s; */
+    animation: dissolveInTop 1s;
+    -moz-animation: dissolveInTop 1s; /* Firefox */
+    -webkit-animation: dissolveInTop 1s; /* Safari and Chrome */
+    -o-animation: dissolveInTop 1s; /* Opera */
+  }
+  .fy-success{
+    border: 1px solid hsl(141deg 87% 30% / 30%);
+    background: #EAF9EE;
+  }
+  .dark .fy-success{
+      background: #132824;
+      border-color: hsl(138deg 100% 44% / 30%);
+  }
+  .fy-error{
+    border: 1px solid hsl(0deg 100% 47% / 30%);
+    background: #FFEBEA;
+  }
+  .dark .fy-error{
+    border: 1px solid hsl(0deg 100% 47% / 30%);
+    background:#281D25;
+  }
+  .fy-warning{
+    border: 1px solid hsl(45deg 100% 27% / 30%);
+    background: #FFF9E5;
+  }
+  .dark .fy-warning{
+    border: 1px solid hsl(49deg 100% 50% / 30%);
+    background: #28281F;
+  }
+  .fy-info{
+    border: 1px solid hsl(208deg 44% 22% / 30%);
+    background:  #ECF0FE;
+  }
+  .dark .fy-info{
+    border: 1px solid hsl(213deg 9% 62% / 30%);
+    background:  #141C28;
+  }
+  .fy-toast-body{
+    padding:0px 0px 1px 30px;
+  }
+  .fy-toast-body h4{
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 7px;
+    line-height:0.875rem;
+  }
+  .fy-toast-body p{
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-bottom: 0;
+  color: #2A394E;
+  }
+  .dark .fy-toast-body p{
+      color:#909CA8 ;
+  }
+  .fy-toast-body {
+    background-position: 0px -1px !important;
+  }
+  .fy-success .fy-toast-body{
+    background: url(https://assets.fyers.in/toasters/images/success.svg) no-repeat;
+    color: #248A3D;    
+  }
+  .fy-error .fy-toast-body {
+    background: url(https://assets.fyers.in/toasters/images/error.svg) no-repeat;
+    color: #DB1B00;
+  }
+  .fy-warning .fy-toast-body {
+    color: #846800;
+    background: url(https://assets.fyers.in/toasters/images/warning.svg) no-repeat;
+  }
+  .fy-info .fy-toast-body {
+    color: #263A50;
+    background: url(https://assets.fyers.in/toasters/images/info.svg) no-repeat;
+  }
+  
+
+  .dark .fy-success .fy-toast-body{
+    background: url(https://assets.fyers.in/toasters/images/dark-success.svg) no-repeat;
+    color: #248A3D;    
+  }
+  .dark .fy-error .fy-toast-body {
+    background: url(https://assets.fyers.in/toasters/images/dark-error.svg) no-repeat;
+    color: #DB1B00;
+  }
+  .dark .fy-warning .fy-toast-body {
+    color: #846800;
+    background: url(https://assets.fyers.in/toasters/images/dark-warning.svg) no-repeat;
+  }
+  .dark .fy-info .fy-toast-body {
+    color: #263A50;
+    background: url(https://assets.fyers.in/toasters/images/dark-info.svg) no-repeat;
+  }
+
+
+
+  .fy-success .fy-toast-body h4,.fy-success .close{
+    color: #248A3D;
+  }
+  .fy-error .fy-toast-body h4,.fy-error .close{
+    color: #DB1B00;
+  }
+  .fy-warning .fy-toast-body h4,.fy-warning .close{
+    color: #846800;
+  }
+  .fy-info .fy-toast-body h4,.fy-info .close{
+    color: #263A50;
+  }
+
+   .dark .fy-success .fy-toast-body h4,.dark .fy-success .close{
+    color: #00DF44;
+  }
+  .dark .fy-error .fy-toast-body h4,.dark .fy-error .close{
+    color: #DB1B00;
+  }
+  .dark .fy-warning .fy-toast-body h4,.dark .fy-warning .close{
+    color: #FFD000;
+  }
+  .dark .fy-info .fy-toast-body h4,.dark .fy-info .close{
+    color: #949CA6;
+  }
+  .close {
+    float: right;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 15px;
+    color: #000;
+    text-shadow: none;
+    opacity: 1 !important;
+}
+@media (max-width: 575px) {
+    .fy-toast{
+        right: 6.75px;
+        max-width: 300px;
+        flex-basis: 300px;
+    }
+  }

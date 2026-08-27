@@ -1,0 +1,17 @@
+trades,win_rate,decisive_win_rate,profit_factor,expectancy_r,gross_profit_r,gross_loss_r,max_drawdown_r,avg_r,breakevens,losses,variant,sweep_reference,entry_trigger,banknifty_filter,set_name,available
+6,33.33333333333333,40.0,1.3333333333333333,0.16666666666666666,4.0,3.0,-2.0,0.16666666666666666,1,3,previous_day__direct_5m_ob__no_bank_filter,previous_day,direct_5m_ob,False,train,True
+6,16.666666666666664,25.0,0.6666666666666666,-0.16666666666666666,2.0,3.0,-3.0,-0.16666666666666666,2,3,previous_day__direct_5m_ob__no_bank_filter,previous_day,direct_5m_ob,False,test,True
+0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,0,previous_day__direct_5m_ob__bank_vwap,previous_day,direct_5m_ob,True,train,True
+1,0.0,0.0,0.0,0.0,0.0,-0.0,0.0,0.0,1,0,previous_day__direct_5m_ob__bank_vwap,previous_day,direct_5m_ob,True,test,True
+6,16.666666666666664,100.0,inf,0.3333333333333333,2.0,-0.0,0.0,0.3333333333333333,5,0,previous_day__market_1m_mss__no_bank_filter,previous_day,market_1m_mss,False,train,True
+7,14.285714285714285,25.0,0.6666666666666666,-0.14285714285714285,2.0,3.0,-3.0,-0.14285714285714285,3,3,previous_day__market_1m_mss__no_bank_filter,previous_day,market_1m_mss,False,test,True
+1,0.0,0.0,0.0,0.0,0.0,-0.0,0.0,0.0,1,0,previous_day__market_1m_mss__bank_vwap,previous_day,market_1m_mss,True,train,True
+2,0.0,0.0,0.0,0.0,0.0,-0.0,0.0,0.0,2,0,previous_day__market_1m_mss__bank_vwap,previous_day,market_1m_mss,True,test,True
+21,33.33333333333333,43.75,1.5555555555555556,0.23809523809523808,14.0,9.0,-4.0,0.23809523809523808,5,9,opening_15m__direct_5m_ob__no_bank_filter,opening_15m,direct_5m_ob,False,train,True
+20,15.0,20.0,0.5,-0.3,6.0,12.0,-10.0,-0.3,5,12,opening_15m__direct_5m_ob__no_bank_filter,opening_15m,direct_5m_ob,False,test,True
+7,42.857142857142854,50.0,2.0,0.42857142857142855,6.0,3.0,-2.0,0.42857142857142855,1,3,opening_15m__direct_5m_ob__bank_vwap,opening_15m,direct_5m_ob,True,train,True
+5,20.0,20.0,0.5,-0.4,2.0,4.0,-3.0,-0.4,0,4,opening_15m__direct_5m_ob__bank_vwap,opening_15m,direct_5m_ob,True,test,True
+38,39.473684210526315,62.5,2.997620018764336,0.47312053075997423,26.978580168879024,9.0,-2.0,0.47312053075997423,14,9,opening_15m__market_1m_mss__no_bank_filter,opening_15m,market_1m_mss,False,train,True
+26,34.61538461538461,52.94117647058824,2.0522388059701497,0.32376578645235377,16.417910447761198,8.0,-2.0,0.32376578645235377,9,8,opening_15m__market_1m_mss__no_bank_filter,opening_15m,market_1m_mss,False,test,True
+15,46.666666666666664,77.77777777777779,6.770833333333346,0.7694444444444462,13.541666666666693,2.0,-1.0,0.7694444444444462,6,2,opening_15m__market_1m_mss__bank_vwap,opening_15m,market_1m_mss,True,train,True
+4,0.0,0.0,0.0,-1.0,0.0,4.0,-3.0,-1.0,0,4,opening_15m__market_1m_mss__bank_vwap,opening_15m,market_1m_mss,True,test,True

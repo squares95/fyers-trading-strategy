@@ -1,0 +1,4 @@
+failure_reason,count,avg_mfe_r,avg_minutes_held
+SMC trap: sweep kept running with almost no follow-through,3,0.04725132663302856,13.666666666666666
+Opening-range whipsaw after liquidity grab,2,0.6631654332776189,45.0
+Fast continuation through the swept level,1,0.36923076923078324,18.0

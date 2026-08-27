@@ -1,0 +1,50 @@
+{
+  "strategy": "G01",
+  "description": "Intraday momentum strategy with regime, volume, trend, VWAP, trigger-quality, and signal-strength filters.",
+  "execution_timeframe": "5MIN",
+  "source_timeframe": "1MIN",
+  "data_refresh": {
+    "updateData_default": true,
+    "refreshDays_default": 120,
+    "chunkDays_default": 100
+  },
+  "risk": {
+    "cost_bps_per_side": 5.0,
+    "stop_atr_multiple": 1.3,
+    "target_r": 2.0
+  },
+  "filters": {
+    "adx_min": 26.0,
+    "volume_ratio_min": 1.2,
+    "long_rsi_min": 50.0,
+    "long_rsi_max": 75.0,
+    "short_rsi_min": 28.0,
+    "short_rsi_max": 55.0,
+    "long_first_bar": 8,
+    "long_last_signal_bar_exclusive": 60,
+    "short_first_bar": 8,
+    "short_last_signal_bar_exclusive": 45
+  },
+  "regime": {
+    "turnover_med60_prev_min": 1000000000,
+    "range_med60_prev_min": 0.02
+  },
+  "signal_strength": {
+    "minimum_to_trade": 40.0,
+    "minimum_trigger_component": 0.15,
+    "weights": {
+      "adx": 0.22,
+      "volume": 0.28,
+      "ema_alignment": 0.18,
+      "vwap_distance": 0.12,
+      "trigger_quality": 0.2
+    },
+    "scales": {
+      "adx_points_above_min": 18.0,
+      "volume_ratio_above_min": 1.5,
+      "ema_alignment_pct": 0.01,
+      "vwap_distance_pct": 0.006,
+      "trigger_atr_fraction": 0.35
+    }
+  }
+}

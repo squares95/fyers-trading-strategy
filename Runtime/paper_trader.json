@@ -1,0 +1,30 @@
+{
+  "name": "paper_trader",
+  "pid": 20332,
+  "status": "stopped",
+  "heartbeat_at": "2026-06-22 11:08:15",
+  "started_at": "2026-06-22 10:32:03",
+  "metadata": {
+    "symbols": [
+      "SBIN"
+    ],
+    "report_folder": "C:\\Users\\Tapan\\IDirect\\my-python-project\\src\\Fyers\\Paper\\Reports",
+    "paper_config": {
+      "initial_balance": 1000.0,
+      "leverage": 5.0,
+      "max_open_positions": 1,
+      "entry_grace_minutes": 2,
+      "max_data_staleness_minutes": 3,
+      "brokerage_rate": 0.0003,
+      "brokerage_cap_per_order": 20.0,
+      "stt_sell_side_rate": 0.00025,
+      "exchange_txn_rate": 3.07e-05,
+      "sebi_turnover_rate": 1e-06,
+      "stamp_buy_side_rate": 3e-05,
+      "gst_rate": 0.18,
+      "slippage_bps": 0.0
+    },
+    "manage_live_tick": true
+  },
+  "stopped_at": "2026-06-22 11:08:15"
+}

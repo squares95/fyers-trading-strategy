@@ -1,0 +1,64 @@
+# Data files (too large for git)
+Data/**/*.csv
+Data/**/*.csv.bak*
+Data/**/202*.pdf
+Data/**/202*.pdf
+!Data/**/*.csv.example
+
+# Logs
+*.log
+Logs/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Research output (regenerate)
+Research/*.csv
+Research/*_results.csv
+Research/*_output.txt
+Research/*.xlsx
+
+# Live tick data
+TickData/**/*.jsonl
+LiveTick/*.log
+LiveTick/live_run_*.out.log
+LiveTick/live_run_*.err.log
+
+# Paper trading reports
+Paper/Reports/Scans/
+Paper/Reports/*.xlsx
+Paper/Reports/*_events.csv
+Paper/Reports/*_trades.csv
+Paper/Reports/*_state.json
+Paper/Reports/*_live.csv
+Paper/Reports/*_live.xlsx
+
+# Session data
+LiveTick/session_*.json
+
+# Fyers credentials
+fyersDataSocket.log
+Logs/fyersDataSocket.log
+
+# Backup files
+*.bak
+*.bak_*
