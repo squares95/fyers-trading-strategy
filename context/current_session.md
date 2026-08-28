@@ -54,30 +54,41 @@ before going to paper trading. User wants real-world volatility awareness.
 
 ## 🔄 In Progress: Exp 6 — News/Sentiment Integration
 
-### Hypothesis
-Strategy is profitable on average but may bleed on:
-- Crash days (news-driven)
-- Event-driven volatility (results, budget, Fed-like events)
-- Sector-wide news shocks
+### Status: **READY TO RUN** (committed + pushed)
 
-### Design Ideas (TBD)
-1. **VIX filter** — Skip trading when India VIX > X
-2. **FII/DII flow filter** — Strong FII selling = defensive mode
-3. **News event blackout** — Skip 1-2 days around known events
-4. **Sentiment score** — Daily news score 0-100, only trade > 50
-5. **Gap filter** — No trading after overnight gap > 2%
+### Approach (no paid news API)
+Using **public data we already have** + free sources:
+1. **Gap filter** — daily candles detect >2% overnight gap (any portfolio stock)
+2. **Crash filter** — BANKNIFTY previous-day return < -2%
+3. **Range filter** — previous day intraday range > 4% (volatility shock)
+4. **VIX filter** — India VIX (fetched via yfinance, free, no auth)
 
-### Data Sources (Free/Accessible)
-- NSE India VIX (daily)
-- NSE FII/DII activity (daily)
-- MoneyControl / Economic Times news scraping
-- Twitter/X finance (rate-limited)
-- Google News RSS
+### Files Created
+- `Research/exp06_news_filter.py` — backtest with 6 scenarios
+- `Research/fetch_india_vix.py` — fetches India VIX via yfinance → Data/INDIAVIX/
+
+### Scenarios to Test
+1. Baseline (no filter)
+2. Gap >2% only
+3. Crash >-2% only
+4. Range >4% only
+5. Combined (gap | crash | range)
+6. Strict (gap&crash | range)
 
 ### Success Criteria
 - OOS performance must NOT degrade vs. Exp 5 (+22.8%)
 - Ideally improve on drawdown (-5.09% baseline)
 - Reduce losing days / tail risk
+
+### User Action
+In codespace:
+```bash
+cd /workspaces/fyers-trading-strategy
+git pull
+python Research/fetch_india_vix.py     # one-time
+python Research/exp06_news_filter.py   # run experiment
+cat Research/GroqAnalysis/exp06_*.json  # share latest JSON
+```
 
 ---
 
