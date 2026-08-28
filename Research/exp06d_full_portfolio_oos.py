@@ -47,9 +47,9 @@ def run_scenario_full(symbols: list[str], blocked: set, label: str) -> dict:
     print(f"\n--- {label} ---")
     all_trades = []
     for sym in symbols:
-        # Force full-data path (ignore slim for full test)
-        path_1d = Path(__file__).resolve().parent.parent / "Data" / sym / f"{sym}_1D.csv"
-        path_5m = Path(__file__).resolve().parent.parent / "Data" / sym / f"{sym}_5MIN.csv"
+        # Use resolve_data_path (prefers slim bundle, falls back to full Data/)
+        path_1d = resolve_data_path(sym, "1D")
+        path_5m = resolve_data_path(sym, "5MIN")
         if not path_1d.exists() or not path_5m.exists():
             print(f"  [SKIP] {sym}: missing {path_1d.name} or {path_5m.name}")
             continue
@@ -95,14 +95,15 @@ def main() -> None:
     print(f"OOS start: {OOS_START}")
     print(f"Filter: 2.5% gap (validated best from Exp 6B/6C)\n")
 
-    # Check which stocks have full data locally
-    print("Checking full data availability...")
+    # Check which stocks have full data (slim bundle or full)
+    print("Checking full data availability (slim or full path)...")
     available = []
     for sym in FULL_PORTFOLIO + [INDEX_SYMBOL]:
-        p1 = Path(__file__).resolve().parent.parent / "Data" / sym / f"{sym}_1D.csv"
-        p5 = Path(__file__).resolve().parent.parent / "Data" / sym / f"{sym}_5MIN.csv"
+        p1 = resolve_data_path(sym, "1D")
+        p5 = resolve_data_path(sym, "5MIN")
         has = p1.exists() and p5.exists()
-        print(f"  {'[OK]' if has else '[MS]'} {sym}: 1D={p1.exists()}, 5MIN={p5.exists()}")
+        source = "slim" if str(SLIM_DIR) in str(p1) else "full"
+        print(f"  {'[OK]' if has else '[MS]'} {sym}: 1D={p1.name} ({source}), 5MIN={p5.name} ({source})")
         if has:
             available.append(sym)
     if INDEX_SYMBOL not in available:
