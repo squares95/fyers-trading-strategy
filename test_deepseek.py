@@ -1,7 +1,6 @@
 """
-Test DeepSeek access via GitHub Models in Codespace.
-
-This script verifies that you can use DeepSeek through GitHub's free API.
+Test LLM access via Groq API (free tier).
+Get API key: https://console.groq.com (free, no credit card)
 Run: python test_deepseek.py (NOT py)
 """
 import os
@@ -15,21 +14,22 @@ def test_python_version():
     print()
 
 
-def test_github_token():
-    """Check if GITHUB_TOKEN is available."""
-    token = os.environ.get("GITHUB_TOKEN", "")
+def test_api_key():
+    """Check if GROQ_API_KEY is available."""
+    token = os.environ.get("GROQ_API_KEY", "")
     if token:
-        print(f"✓ GITHUB_TOKEN is set (length: {len(token)})")
+        print(f"✓ GROQ_API_KEY is set (length: {len(token)})")
         return True
     else:
-        print("✗ GITHUB_TOKEN is NOT set")
-        print("  This should be auto-populated in Codespaces.")
-        print("  If running locally, you need to set it manually.")
+        print("✗ GROQ_API_KEY is NOT set")
+        print("  Get a free API key at: https://console.groq.com")
+        print("  Then set: export GROQ_API_KEY=your_key (Linux/Mac)")
+        print("           setx GROQ_API_KEY your_key (Windows)")
         return False
 
 
-def test_deepseek_access():
-    """Test DeepSeek via GitHub Models."""
+def test_llm_access():
+    """Test Llama via Groq."""
     try:
         from openai import OpenAI
     except ImportError:
@@ -37,72 +37,70 @@ def test_deepseek_access():
         os.system("pip install openai")
         from openai import OpenAI
 
-    token = os.environ.get("OPENROUTER_API_KEY", "")
+    token = os.environ.get("GROQ_API_KEY", "")
     if not token:
-        print("\n⚠️  Cannot test DeepSeek without OPENROUTER_API_KEY")
-        print("  Get a free API key at: https://openrouter.ai (no credit card needed)")
-        print("  Then set: set OPENROUTER_API_KEY=your_key_here (Windows)")
-        print("  Or: export OPENROUTER_API_KEY=your_key_here (Linux/Mac)")
+        print("\n⚠️  Cannot test LLM without GROQ_API_KEY")
         return False
 
-    print("\nTesting DeepSeek via OpenRouter (free tier)...")
+    print("\nTesting Llama via Groq (free tier)...")
     print("-" * 60)
 
     try:
         client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
+            base_url="https://api.groq.com/openai/v1",
             api_key=token
         )
 
-        # Test with DeepSeek R1 via OpenRouter (reasoning model, free)
+        # Test with Llama 3.3 70B via Groq (free)
         response = client.chat.completions.create(
-            model="deepseek/deepseek-r1:free",
+            model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "user", "content": "What is a VWAP pullback strategy in 2 sentences?"}
             ],
             max_tokens=100
         )
 
-        print("✓ DeepSeek response received!")
+        print("✓ Llama response received!")
         print(f"Model: {response.model}")
         print(f"Response: {response.choices[0].message.content}")
         print()
         return True
 
     except Exception as e:
-        print(f"✗ Error accessing DeepSeek via OpenRouter: {e}")
+        print(f"✗ Error accessing Groq: {e}")
         print()
         print("Possible issues:")
-        print("  1. OPENROUTER_API_KEY not set or invalid")
-        print("  2. Model not available (try another free model)")
-        print("  3. OpenRouter free tier exhausted")
+        print("  1. GROQ_API_KEY not set or invalid")
+        print("  2. Rate limit hit (Groq free tier has limits)")
+        print("  3. Network connectivity issue")
         return False
 
 
 def list_available_models():
-    """List some available models on DeepSeek."""
+    """List available models on Groq."""
     try:
         from openai import OpenAI
     except ImportError:
         os.system("pip install openai")
         from openai import OpenAI
 
-    token = os.environ.get("OPENROUTER_API_KEY", "")
+    token = os.environ.get("GROQ_API_KEY", "")
     if not token:
-        print("Cannot list models without OPENROUTER_API_KEY")
+        print("Cannot list models without GROQ_API_KEY")
         return
 
     print("Testing different models...")
     print("-" * 60)
 
     models_to_test = [
-        ("deepseek/deepseek-r1:free", "DeepSeek R1 (reasoning, free)"),
-        ("meta-llama/llama-3.3-70b-instruct:free", "Llama 3.3 70B (free)"),
-        ("qwen/qwen-2.5-72b-instruct:free", "Qwen 2.5 72B (free)"),
+        ("llama-3.3-70b-versatile", "Llama 3.3 70B (fast, versatile)"),
+        ("llama-3.1-8b-instant", "Llama 3.1 8B (fastest)"),
+        ("mixtral-8x7b-32768", "Mixtral 8x7B"),
+        ("gemma2-9b-it", "Gemma 2 9B"),
     ]
 
     client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
+        base_url="https://api.groq.com/openai/v1",
         api_key=token
     )
 
@@ -120,14 +118,14 @@ def list_available_models():
 
 def main():
     print("=" * 60)
-    print("DEEPSEEK TEST SCRIPT")
+    print("GROQ LLM TEST SCRIPT")
     print("=" * 60)
     print()
 
     test_python_version()
-    test_github_token()  # Keep for backward compatibility
+    test_api_key()
 
-    if test_deepseek_access():
+    if test_llm_access():
         list_available_models()
 
     print()
@@ -142,7 +140,7 @@ def main():
     print("   cd Research")
     print("   python test_tatapower.py")
     print()
-    print("3. Use DeepSeek to analyze results:")
+    print("3. Use LLM to analyze results:")
     print("   python -c \"from test_deepseek import *\"")
     print()
 
