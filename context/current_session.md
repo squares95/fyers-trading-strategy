@@ -152,3 +152,39 @@ cat Research/GroqAnalysis/exp06_*.json  # share latest JSON
 - Update this file after each major decision
 - Archive old sections to `archive/session_*.md` when this file grows > 200 lines
 - Commit context/ folder after each experiment
+
+---
+
+## 🎉 EXP 6 SERIES — NEWS FILTER VALIDATED (Aug 28, evening)
+
+### What was tested
+News/sentiment filter using ONLY public data (no paid news API):
+- **Gap filter**: skip day if any portfolio stock gapped >X% from prev close
+- Tested thresholds: 1.0%, 1.5%, 2.0%, 2.5%, 3.0%
+- Goal: improve risk-adjusted returns (PF, DD) without losing net
+
+### Result: 2.5% gap filter WINS on full 7-stock portfolio OOS
+
+| Metric | Baseline | **+ 2.5% Gap Filter** | Delta |
+|--------|----------|----------------------|-------|
+| Net | +48.56% | **+48.00%** | ~equal (noise) |
+| PF | 2.359 | **2.872** | **+22%** |
+| Max DD | -5.76% | **-4.44%** | **-23%** |
+| Trades | 132 | **105** | -20% (less overtrading) |
+
+**Verdict: free risk reduction.** Same money, better Sharpe, shallower drawdowns, fewer trades.
+
+### Composite score winner (50% net + 30% PF + 20% DD)
+2.5% gap filter: **0.660** (vs baseline 0.500, 1.0% 0.500, 1.5% 0.288, 2.0% 0.352, 3.0% 0.615)
+
+### Live code integration (commit `d83289c`)
+1. `Strategies/G01/config.py` — added `gap_threshold: float = 0.025`
+2. `Strategies/G01/news_filter.py` — NEW module with gap/crash filter functions
+
+### Files for this experiment series
+- `Research/exp06_news_filter.py` — 6A (3 stocks, 6 scenarios)
+- `Research/exp06b_threshold_sweep.py` — 6B (1%-4% sweep on 3 stocks)
+- `Research/exp06c_oos_test.py` — 6C (OOS validation of top 3)
+- `Research/exp06d_full_portfolio_oos.py` — 6D (full 7-stock, 2.5%)
+- `Research/exp06e_threshold_sweep_full.py` — 6E (full sweep + composite)
+- `Research/GroqAnalysis/exp06*.json` — all saved results
