@@ -58,6 +58,9 @@ LiveTick/session_*.json
 # Fyers credentials - keep locally but not in repo
 Config/LoginConfig/config.properties
 
+# Groq API key - keep locally but not in repo
+Config/groq_config.json
+
 # Fyers logs
 fyersDataSocket.log
 Logs/fyersDataSocket.log
