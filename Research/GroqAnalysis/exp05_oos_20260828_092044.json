@@ -1,0 +1,42 @@
+{
+  "FULL_PERIOD": {
+    "trades": 180,
+    "net_return_pct": 65.09,
+    "profit_factor": 2.178,
+    "win_rate_pct": 46.1,
+    "max_dd_pct": -5.76,
+    "months": 43,
+    "profitable_months": 28,
+    "monthly_avg": 1.514
+  },
+  "OOS: 2025-2026 only": {
+    "trades": 77,
+    "net_return_pct": 22.84,
+    "profit_factor": 2.098,
+    "win_rate_pct": 46.8,
+    "max_dd_pct": -5.09,
+    "months": 16,
+    "profitable_months": 12,
+    "monthly_avg": 1.427
+  },
+  "OOS: 2024-2026 only": {
+    "trades": 108,
+    "net_return_pct": 24.68,
+    "profit_factor": 1.804,
+    "win_rate_pct": 43.5,
+    "max_dd_pct": -7.23,
+    "months": 25,
+    "profitable_months": 15,
+    "monthly_avg": 0.987
+  },
+  "OOS: Last 3 years": {
+    "trades": 108,
+    "net_return_pct": 24.68,
+    "profit_factor": 1.804,
+    "win_rate_pct": 43.5,
+    "max_dd_pct": -7.23,
+    "months": 25,
+    "profitable_months": 15,
+    "monthly_avg": 0.987
+  }
+}

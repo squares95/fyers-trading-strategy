@@ -1,0 +1,72 @@
+{
+  "experiment": "exp04_portfolio_backtest",
+  "timestamp": "20260828_091908",
+  "portfolio": [
+    "CGPOWER",
+    "BHEL",
+    "DRREDDY",
+    "INDUSINDBK",
+    "M&M",
+    "HCLTECH",
+    "TITAN"
+  ],
+  "individual_results": [
+    {
+      "symbol": "CGPOWER",
+      "trades": 72,
+      "net_return_pct": 40.42,
+      "win_rate_pct": 50.0
+    },
+    {
+      "symbol": "BHEL",
+      "trades": 11,
+      "net_return_pct": 6.15,
+      "win_rate_pct": 54.5
+    },
+    {
+      "symbol": "DRREDDY",
+      "trades": 20,
+      "net_return_pct": 6.62,
+      "win_rate_pct": 45.0
+    },
+    {
+      "symbol": "INDUSINDBK",
+      "trades": 16,
+      "net_return_pct": 4.2,
+      "win_rate_pct": 43.8
+    },
+    {
+      "symbol": "M&M",
+      "trades": 33,
+      "net_return_pct": 2.78,
+      "win_rate_pct": 36.4
+    },
+    {
+      "symbol": "HCLTECH",
+      "trades": 14,
+      "net_return_pct": 2.53,
+      "win_rate_pct": 42.9
+    },
+    {
+      "symbol": "TITAN",
+      "trades": 14,
+      "net_return_pct": 2.41,
+      "win_rate_pct": 50.0
+    }
+  ],
+  "portfolio_metrics": {
+    "total_trades": 180,
+    "net_return_pct": 65.09,
+    "profit_factor": 2.178,
+    "win_rate_pct": 46.1,
+    "max_drawdown_pct": -5.76,
+    "avg_trade_pct": 0.362,
+    "gross_profit_pct": 120.35,
+    "gross_loss_pct": 55.25,
+    "avg_winner_pct": 1.45,
+    "avg_loser_pct": -0.57,
+    "months_traded": 43,
+    "profitable_months": 28,
+    "monthly_avg": 1.514
+  }
+}
