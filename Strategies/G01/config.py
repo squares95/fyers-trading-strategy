@@ -222,6 +222,26 @@ class StrategyConfig:
         3. Less time for the trade to work = less risk
     """
 
+    # --- Gap Filter (Exp 6 — News/Sentiment Regime) ---
+    gap_threshold: float = 0.025
+    """
+    Skip signals on days where any portfolio stock gapped more than this %.
+
+    Validated in Exp 6A-6E (Aug 2026): 2.5% gap filter improves risk-adjusted
+    returns on full 7-stock OOS portfolio:
+        - Net: +48.0% (essentially equal to +48.56% baseline)
+        - PF: 2.872 vs 2.359 (+22% better)
+        - DD: -4.44% vs -5.76% (23% shallower)
+        - Trades: 105 vs 132 (-20% overtrading)
+
+    Why it works: gap days (overnight news shocks) produce whipsaw intraday
+    moves that hurt technical-signal strategies. Skipping them removes the
+    chaos while preserving the actual trend edge.
+
+    Set to 1.0 (or higher) to disable the filter effectively.
+    Set to 0.025 for the validated 2.5% threshold.
+    """
+
 
 # ============================================================================
 # DEFAULT CONFIGURATION
