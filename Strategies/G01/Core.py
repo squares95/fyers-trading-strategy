@@ -26,45 +26,51 @@ Usage:
 """
 
 # Re-export from config
-from .config import (
-    DEFAULT_DATA_PATH,
-    ROOT,
-    MARKET_OPEN,
-    MARKET_CLOSE,
-    BARS_PER_DAY,
-    StrategyConfig,
-    DEFAULT_CONFIG,
+# Re-export from backtest
+from .backtest import (
+    backtest,
+    calculate_performance_metrics,
+    simulate_single_trade,
 )
-
-# Re-export from indicators
-from .indicators import (
-    ema,
-    rsi,
-    true_range,
-    atr,
-    volume_ratio,
-    prev_close,
+from .config import (
+    BARS_PER_DAY,
+    DEFAULT_CONFIG,
+    DEFAULT_DATA_PATH,
+    MARKET_CLOSE,
+    MARKET_OPEN,
+    ROOT,
+    StrategyConfig,
 )
 
 # Re-export from data
 from .data import (
-    load_regular_session,
-    load_data_for_strategy,
     get_data_summary,
+    load_data_for_strategy,
+    load_regular_session,
 )
 
 # Re-export from features
 from .features import (
+    FEATURE_DESCRIPTIONS,
     calculate_features,
     prepare_features,
-    FEATURE_DESCRIPTIONS,
+)
+
+# Re-export from indicators
+from .indicators import (
+    atr,
+    ema,
+    prev_close,
+    rsi,
+    true_range,
+    volume_ratio,
 )
 
 # Re-export from signal_rules
 from .signal_rules import (
     long_entry_condition,
-    short_entry_condition,
     select_first_signal_per_day,
+    short_entry_condition,
 )
 
 # Re-export from signals
@@ -73,25 +79,18 @@ from .signals import (
     get_signal_stats,
 )
 
-# Re-export from backtest
-from .backtest import (
-    backtest,
-    simulate_single_trade,
-    calculate_performance_metrics,
-)
-
 # Re-export from stats
 from .stats import (
-    summarize_trades,
     analyze_by_direction,
     analyze_by_period,
     analyze_exit_reasons,
+    summarize_trades,
 )
-
 
 # ============================================================================
 # COMPLETE PIPELINE
 # ============================================================================
+
 
 def run_strategy(path=DEFAULT_DATA_PATH) -> tuple:
     """
@@ -117,9 +116,9 @@ def run_strategy(path=DEFAULT_DATA_PATH) -> tuple:
         >>> print(f"Generated {len(signals)} signals")
         >>> print(f"Backtested {len(trades)} trades")
     """
+    from .backtest import backtest
     from .features import prepare_features
     from .signals import generate_signals
-    from .backtest import backtest
 
     df = prepare_features(path)
     signals = generate_signals(df)
@@ -140,7 +139,6 @@ __all__ = [
     "BARS_PER_DAY",
     "StrategyConfig",
     "DEFAULT_CONFIG",
-
     # Indicators
     "ema",
     "rsi",
@@ -148,37 +146,30 @@ __all__ = [
     "atr",
     "volume_ratio",
     "prev_close",
-
     # Data
     "load_regular_session",
     "load_data_for_strategy",
     "get_data_summary",
-
     # Features
     "calculate_features",
     "prepare_features",
     "FEATURE_DESCRIPTIONS",
-
     # Signal Rules
     "long_entry_condition",
     "short_entry_condition",
     "select_first_signal_per_day",
-
     # Signals
     "generate_signals",
     "get_signal_stats",
-
     # Backtest
     "backtest",
     "simulate_single_trade",
     "calculate_performance_metrics",
-
     # Stats
     "summarize_trades",
     "analyze_by_direction",
     "analyze_by_period",
     "analyze_exit_reasons",
-
     # Pipeline
     "run_strategy",
 ]

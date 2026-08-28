@@ -7,37 +7,36 @@ Focus on high-volatility mid-cap stocks similar to CGPOWER.
 
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Stocks to download - similar profile to CGPOWER
 STOCKS_TO_TRY = [
     # Power sector (CGPOWER is power sector)
-    "TATAPOWER",    # Tata Power
-    "ADANIPOWER",   # Adani Power
-    "NTPC",         # NTPC
-    "POWERGRID",    # Power Grid
-    "BHEL",         # Bharat Heavy Electricals
-
+    "TATAPOWER",  # Tata Power
+    "ADANIPOWER",  # Adani Power
+    "NTPC",  # NTPC
+    "POWERGRID",  # Power Grid
+    "BHEL",  # Bharat Heavy Electricals
     # High beta mid-caps
-    "TATAMOTORS",   # Tata Motors
-    "MARUTI",       # Maruti Suzuki
-    "ADANIENT",     # Adani Enterprises
-    "JSWSTEEL",     # JSW Steel
-    "TATASTEEL",    # Tata Steel
-
+    "TATAMOTORS",  # Tata Motors
+    "MARUTI",  # Maruti Suzuki
+    "ADANIENT",  # Adani Enterprises
+    "JSWSTEEL",  # JSW Steel
+    "TATASTEEL",  # Tata Steel
     # Banking (high volume)
-    "HDFCBANK",     # Already have
-    "ICICIBANK",    # Already have
-    "KOTAKBANK",    # Kotak Mahindra
-    "AXISBANK",     # Axis Bank
-
+    "HDFCBANK",  # Already have
+    "ICICIBANK",  # Already have
+    "KOTAKBANK",  # Kotak Mahindra
+    "AXISBANK",  # Axis Bank
     # Volatile sectors
-    "ADANIPORTS",   # Adani Ports
-    "ONGC",         # ONGC
-    "COALINDIA",    # Coal India
-    "BPCL",         # BPCL
-    "IOC",          # Indian Oil
+    "ADANIPORTS",  # Adani Ports
+    "ONGC",  # ONGC
+    "COALINDIA",  # Coal India
+    "BPCL",  # BPCL
+    "IOC",  # Indian Oil
 ]
+
 
 def download_stock_data(symbol, days=400):
     """Download 5-min data for a stock."""
@@ -46,11 +45,7 @@ def download_stock_data(symbol, days=400):
 
         print(f"\nDownloading {symbol} ({days} days)...")
         result = Main.RunExample(
-            "download",
-            [symbol],
-            downloadTotalDays=days,
-            chunkDays=100,
-            downloadStats=False
+            "download", [symbol], downloadTotalDays=days, chunkDays=100, downloadStats=False
         )
 
         # Check if file was created

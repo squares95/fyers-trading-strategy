@@ -16,21 +16,17 @@ Experiments:
 8. Volatility-adaptive parameters
 """
 
-from pathlib import Path
-import itertools
-import json
-import time
-import pandas as pd
-import numpy as np
-
 import sys
+import time
+from pathlib import Path
+
+import pandas as pd
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 ROOT = Path(__file__).resolve().parents[1]
-from Strategies.G01 import Core, Gold
-from Strategies.G01.Core import (
-    prepare_features, generate_signals, backtest, StrategyConfig
-)
+from Strategies.G01 import Gold
+from Strategies.G01.Core import StrategyConfig, backtest, generate_signals, prepare_features
 
 
 def run_experiment(
@@ -65,13 +61,13 @@ def experiment_ema_combinations(df: pd.DataFrame) -> list:
 
     # Different EMA pairs
     ema_pairs = [
-        (5, 13),      # Very fast
-        (8, 21),      # Fast
-        (13, 34),     # Medium
-        (21, 55),     # Slow
-        (34, 89),     # Very slow
-        (5, 20),      # Classic
-        (10, 30),     # Alternative
+        (5, 13),  # Very fast
+        (8, 21),  # Fast
+        (13, 34),  # Medium
+        (21, 55),  # Slow
+        (34, 89),  # Very slow
+        (5, 20),  # Classic
+        (10, 30),  # Alternative
     ]
 
     for fast, slow in ema_pairs:
@@ -88,15 +84,15 @@ def experiment_stop_target_ratios(df: pd.DataFrame) -> list:
     results = []
 
     stop_targets = [
-        (1.0, 1.5),   # Tight
-        (1.0, 2.0),   # Standard
-        (1.3, 2.0),   # Gold default
-        (1.5, 2.5),   # Wide
-        (1.5, 3.0),   # Wide aggressive
-        (2.0, 3.0),   # Very wide
-        (0.8, 1.5),   # Very tight
-        (1.0, 3.0),   # 1:3 ratio
-        (1.5, 4.5),   # 1:3 wide
+        (1.0, 1.5),  # Tight
+        (1.0, 2.0),  # Standard
+        (1.3, 2.0),  # Gold default
+        (1.5, 2.5),  # Wide
+        (1.5, 3.0),  # Wide aggressive
+        (2.0, 3.0),  # Very wide
+        (0.8, 1.5),  # Very tight
+        (1.0, 3.0),  # 1:3 ratio
+        (1.5, 4.5),  # 1:3 wide
     ]
 
     for stop, target in stop_targets:
@@ -107,9 +103,7 @@ def experiment_stop_target_ratios(df: pd.DataFrame) -> list:
             adx_min=26.0,
             volume_ratio_min=1.2,
         )
-        result = run_experiment(
-            df, config, f"stop_{stop}_target_{target}"
-        )
+        result = run_experiment(df, config, f"stop_{stop}_target_{target}")
         results.append(result)
 
     return results
@@ -120,13 +114,13 @@ def experiment_rsi_ranges(df: pd.DataFrame) -> list:
     results = []
 
     rsi_ranges = [
-        (40, 80),   # Wider
-        (50, 75),   # Default
-        (45, 70),   # Tighter long
-        (55, 80),   # Higher min
-        (40, 70),   # Lower max
-        (30, 70),   # Very wide
-        (50, 65),   # Tighter
+        (40, 80),  # Wider
+        (50, 75),  # Default
+        (45, 70),  # Tighter long
+        (55, 80),  # Higher min
+        (40, 70),  # Lower max
+        (30, 70),  # Very wide
+        (50, 65),  # Tighter
     ]
 
     for low, high in rsi_ranges:
@@ -139,9 +133,7 @@ def experiment_rsi_ranges(df: pd.DataFrame) -> list:
             adx_min=26.0,
             volume_ratio_min=1.2,
         )
-        result = run_experiment(
-            df, config, f"rsi_{low}_{high}"
-        )
+        result = run_experiment(df, config, f"rsi_{low}_{high}")
         results.append(result)
 
     return results
@@ -188,14 +180,14 @@ def experiment_time_windows(df: pd.DataFrame) -> list:
 
     # (long_first, long_last, short_first, short_last)
     windows = [
-        (5, 60, 5, 50),    # Earlier
-        (8, 60, 8, 45),    # Default
+        (5, 60, 5, 50),  # Earlier
+        (8, 60, 8, 45),  # Default
         (10, 55, 10, 40),  # Later
-        (8, 70, 8, 50),    # Wider
+        (8, 70, 8, 50),  # Wider
         (12, 50, 12, 35),  # Tight
-        (5, 50, 5, 35),    # Morning only
+        (5, 50, 5, 35),  # Morning only
         (15, 60, 15, 45),  # Skip first 15 min
-        (8, 60, 8, 60),    # Shorts full day
+        (8, 60, 8, 60),  # Shorts full day
     ]
 
     for lf, ll, sf, sl in windows:
@@ -208,9 +200,7 @@ def experiment_time_windows(df: pd.DataFrame) -> list:
             adx_min=26.0,
             volume_ratio_min=1.2,
         )
-        result = run_experiment(
-            df, config, f"window_{lf}_{ll}_{sf}_{sl}"
-        )
+        result = run_experiment(df, config, f"window_{lf}_{ll}_{sf}_{sl}")
         results.append(result)
 
     return results
@@ -251,11 +241,13 @@ def main():
         valid.sort(key=lambda x: x.get("net_pct", 0), reverse=True)
 
         for r in valid:
-            print(f"  {r['name']:30s} | trades={r.get('trades', 0):3d} | "
-                  f"net={r.get('net_pct', 0):6.2f}% | "
-                  f"win={r.get('win_rate_pct', 0):5.1f}% | "
-                  f"pf={r.get('profit_factor', 0):.2f} | "
-                  f"dd={r.get('max_dd_pct', 0):6.2f}%")
+            print(
+                f"  {r['name']:30s} | trades={r.get('trades', 0):3d} | "
+                f"net={r.get('net_pct', 0):6.2f}% | "
+                f"win={r.get('win_rate_pct', 0):5.1f}% | "
+                f"pf={r.get('profit_factor', 0):.2f} | "
+                f"dd={r.get('max_dd_pct', 0):6.2f}%"
+            )
 
         print(f"\n  Completed in {elapsed:.1f}s")
         all_results.extend(valid)
@@ -273,14 +265,22 @@ def main():
     print("TOP 10 CONFIGURATIONS BY NET RETURN:")
     print(f"{'=' * 80}")
     top10 = results_df.nlargest(10, "net_pct")
-    print(top10[["name", "trades", "net_pct", "win_rate_pct", "profit_factor", "max_dd_pct"]].to_string(index=False))
+    print(
+        top10[
+            ["name", "trades", "net_pct", "win_rate_pct", "profit_factor", "max_dd_pct"]
+        ].to_string(index=False)
+    )
 
     # Find top by profit factor
     print(f"\n{'=' * 80}")
     print("TOP 10 BY PROFIT FACTOR (min 30 trades):")
     print(f"{'=' * 80}")
     top_pf = results_df[results_df["trades"] >= 30].nlargest(10, "profit_factor")
-    print(top_pf[["name", "trades", "net_pct", "win_rate_pct", "profit_factor", "max_dd_pct"]].to_string(index=False))
+    print(
+        top_pf[
+            ["name", "trades", "net_pct", "win_rate_pct", "profit_factor", "max_dd_pct"]
+        ].to_string(index=False)
+    )
 
 
 if __name__ == "__main__":

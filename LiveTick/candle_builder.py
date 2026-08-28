@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from datetime import datetime, time, timedelta
-from typing import Any, Iterable
+from typing import Any
 from zoneinfo import ZoneInfo
-
 
 IST = ZoneInfo("Asia/Kolkata")
 MARKET_OPEN_TIME = time(9, 15)
@@ -223,7 +223,9 @@ class MinuteCandleBuilder:
     def flush_ready(self, now: datetime | None = None, settle_seconds: int = 2) -> list[Candle]:
         current = (now or datetime.now(IST)).replace(tzinfo=None)
         if self._current is None:
-            latest_closed_bucket = floor_minute(current - timedelta(seconds=max(0, int(settle_seconds))))
+            latest_closed_bucket = floor_minute(
+                current - timedelta(seconds=max(0, int(settle_seconds)))
+            )
             latest_closed_bucket -= timedelta(minutes=1)
             if (
                 self._last_finalized_bucket is None
@@ -233,7 +235,9 @@ class MinuteCandleBuilder:
                 return []
             return self._gap_fill_until(latest_closed_bucket + timedelta(minutes=1))
 
-        bucket_close = self._current["datetime"] + timedelta(minutes=1, seconds=max(0, int(settle_seconds)))
+        bucket_close = self._current["datetime"] + timedelta(
+            minutes=1, seconds=max(0, int(settle_seconds))
+        )
         if current < bucket_close:
             return []
         return self.flush()

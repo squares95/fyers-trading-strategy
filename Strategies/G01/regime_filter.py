@@ -108,9 +108,8 @@ def daily_regime_table(df: pd.DataFrame) -> pd.DataFrame:
     # A day is tradeable if BOTH conditions are met:
     # - Turnover is above 1 billion
     # - Daily range is above 2%
-    daily["regime_tradeable"] = (
-        (daily["turnover"] > REGIME_TURNOVER_MIN) &
-        (daily["range_pct"] > REGIME_RANGE_MIN)
+    daily["regime_tradeable"] = (daily["turnover"] > REGIME_TURNOVER_MIN) & (
+        daily["range_pct"] > REGIME_RANGE_MIN
     )
 
     return daily

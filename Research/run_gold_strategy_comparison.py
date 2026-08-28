@@ -9,9 +9,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from Strategies.G01 import Core as base
-from Strategies.G01 import Gold as gold
-
+from Strategies.G01 import Core as base, Gold as gold
 
 DATA_DIR = ROOT / "Data"
 SLIM_DIR = ROOT / "Data" / "_slim"
@@ -47,13 +45,13 @@ def strategy_stats_for_symbol(symbol: str) -> tuple[dict[str, object], pd.DataFr
     stats = {
         "symbol": symbol,
         "data_path": str(path),
-        "rows_used": int(len(df)),
+        "rows_used": len(df),
         "complete_days": int(df["date"].nunique()),
         "date_start": str(df["Datetime"].min()),
         "date_end": str(df["Datetime"].max()),
-        "regime_tradeable_days": int(len(tradeable_dates)),
-        "signals_before_regime": int(len(all_signals)),
-        "signals_after_regime": int(len(regime_signals)),
+        "regime_tradeable_days": len(tradeable_dates),
+        "signals_before_regime": len(all_signals),
+        "signals_after_regime": len(regime_signals),
         "unfiltered_trades": gold.equity_stats(all_trades),
         "setup_before_strength_filter": gold.equity_stats(setup_trades),
         "final_strategy": gold.equity_stats(final_trades),

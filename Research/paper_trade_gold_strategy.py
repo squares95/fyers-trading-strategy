@@ -12,15 +12,12 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import Actions as Main
-from Strategies.G01 import Core as base
-from Strategies.G01 import Gold as gold
 from Login import login
-
+from Strategies.G01 import Core as base, Gold as gold
 
 IST = ZoneInfo("Asia/Kolkata")
 MARKET_OPEN = "09:15"
@@ -159,10 +156,7 @@ def complete_5min_from_1min(df_1m: pd.DataFrame) -> pd.DataFrame:
         return df
     open_time = parse_time("09:15")
     close_time = parse_time("15:29")
-    df = df[
-        (df["Datetime"].dt.time >= open_time)
-        & (df["Datetime"].dt.time <= close_time)
-    ].copy()
+    df = df[(df["Datetime"].dt.time >= open_time) & (df["Datetime"].dt.time <= close_time)].copy()
     open_minutes = open_time.hour * 60 + open_time.minute
     minutes = df["Datetime"].dt.hour * 60 + df["Datetime"].dt.minute
     df["_date"] = df["Datetime"].dt.date
@@ -342,7 +336,9 @@ def run_once(symbol: str, output_folder: Path, reset: bool = False) -> str:
         return msg
     if signal_time < started_at - timedelta(minutes=5):
         msg = f"Found an older signal from {signal_time}; marked as missed, not entering retroactively."
-        state["seen_signal_dates"] = sorted(set(state.get("seen_signal_dates", []) + [str(signal["date"])]))
+        state["seen_signal_dates"] = sorted(
+            set(state.get("seen_signal_dates", []) + [str(signal["date"])])
+        )
         state["last_status"] = msg
         save_state(symbol, state)
         append_event(symbol, "MISSED_SIGNAL", msg, signal.to_dict())
@@ -350,7 +346,9 @@ def run_once(symbol: str, output_folder: Path, reset: bool = False) -> str:
 
     position = open_position_from_signal(symbol, signal)
     state["open_position"] = position
-    state["seen_signal_dates"] = sorted(set(state.get("seen_signal_dates", []) + [str(signal["date"])]))
+    state["seen_signal_dates"] = sorted(
+        set(state.get("seen_signal_dates", []) + [str(signal["date"])])
+    )
     state["last_status"] = "Paper position opened."
     save_state(symbol, state)
     append_event(symbol, "ENTRY", "Paper position opened.", position)
@@ -361,7 +359,9 @@ def run_once(symbol: str, output_folder: Path, reset: bool = False) -> str:
     )
 
 
-def run_loop(symbol: str, output_folder: Path, poll_seconds: int, duration_minutes: int, reset: bool) -> None:
+def run_loop(
+    symbol: str, output_folder: Path, poll_seconds: int, duration_minutes: int, reset: bool
+) -> None:
     end_at = now_ist() + timedelta(minutes=duration_minutes)
     first = True
     while now_ist() <= end_at:
@@ -380,7 +380,9 @@ def run_loop(symbol: str, output_folder: Path, poll_seconds: int, duration_minut
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Paper-trade the CGPOWER gold strategy without placing real orders.")
+    parser = argparse.ArgumentParser(
+        description="Paper-trade the CGPOWER gold strategy without placing real orders."
+    )
     parser.add_argument("--symbol", default="CGPOWER")
     parser.add_argument("--output-folder", default=str(ROOT / "Data" / "NSE30"))
     parser.add_argument("--poll-seconds", type=int, default=60)

@@ -10,7 +10,6 @@ import pandas as pd
 
 from Research.CGPOWER import cgpower_session_microstructure as sm
 
-
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
 SYMBOLS = (
@@ -268,7 +267,17 @@ def ReliabilityScore(row: dict[str, object]) -> float:
     strategy = UnitScore(float(row["StrategyFloorPF"]), 0.70, 1.50)
     if not bool(row["StrategyBothPositive"]):
         strategy *= 0.35
-    return round(100 * (0.20 * benchmark + 0.15 * acceptance + 0.10 * low_noise + 0.15 * range_quality + 0.40 * strategy), 2)
+    return round(
+        100
+        * (
+            0.20 * benchmark
+            + 0.15 * acceptance
+            + 0.10 * low_noise
+            + 0.15 * range_quality
+            + 0.40 * strategy
+        ),
+        2,
+    )
 
 
 def BehaviorSummary(
@@ -280,9 +289,8 @@ def BehaviorSummary(
     selection = daily.loc[: boundaries["selection_end"]].dropna(subset=["nifty_daily_return"])
     matched = selection.dropna(subset=["nifty_daily_return", "nifty_r15"])
     one_sided = selection[selection["break_type"].isin(["high_only", "low_only"])]
-    accepted = (
-        ((one_sided["break_type"] == "high_only") & one_sided["close_above_or"])
-        | ((one_sided["break_type"] == "low_only") & one_sided["close_below_or"])
+    accepted = ((one_sided["break_type"] == "high_only") & one_sided["close_above_or"]) | (
+        (one_sided["break_type"] == "low_only") & one_sided["close_below_or"]
     )
     directional_open = selection[selection["r15_atr"].abs() >= 0.15]
     row: dict[str, object] = {
@@ -302,7 +310,9 @@ def BehaviorSummary(
         "MedianAbsFirst30": selection["r30"].abs().median(),
         "MedianTurnoverCr": (selection["Close"] * selection["Volume"]).median() / 10_000_000,
         "OneSidedAcceptance": accepted.mean(),
-        "TwoSidedBreakRate": selection["break_type"].isin(["high_then_low", "low_then_high"]).mean(),
+        "TwoSidedBreakRate": selection["break_type"]
+        .isin(["high_then_low", "low_then_high"])
+        .mean(),
         "DirectionalOpenContinuation": (
             np.sign(directional_open["r15"]) == np.sign(directional_open["r_after15"])
         ).mean(),
@@ -328,8 +338,7 @@ def main() -> None:
     boundaries = ResearchBoundaries(common_dates)
     common_set = set(common_dates)
     loaded = {
-        symbol: frame[frame["Date"].isin(common_set)].copy()
-        for symbol, frame in loaded.items()
+        symbol: frame[frame["Date"].isin(common_set)].copy() for symbol, frame in loaded.items()
     }
 
     summaries: list[dict[str, object]] = []
@@ -343,7 +352,9 @@ def main() -> None:
         all_strategy_rows.append(results)
         best = BestFrozenFamily(results)
         summaries.append(BehaviorSummary(symbol, daily, best, boundaries))
-        print(f"Screened {symbol}: score={summaries[-1]['ReliabilityScore']:.2f} family={best['BestFamily']}")
+        print(
+            f"Screened {symbol}: score={summaries[-1]['ReliabilityScore']:.2f} family={best['BestFamily']}"
+        )
 
     summary = pd.DataFrame(summaries).sort_values(
         ["SelectionGate", "ReliabilityScore"], ascending=[False, False]

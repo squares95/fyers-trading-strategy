@@ -1,0 +1,29 @@
+{
+  "experiment": "exp06f_validate_live_code",
+  "timestamp": "2026-08-28T22:38:17",
+  "portfolio": [
+    "CGPOWER",
+    "DRREDDY",
+    "INDUSINDBK",
+    "BHEL",
+    "HCLTECH",
+    "TITAN",
+    "M&M"
+  ],
+  "baseline": {
+    "total_trades": 132,
+    "net_return_pct": 48.56,
+    "profit_factor": 2.359,
+    "win_rate_pct": 47.0,
+    "max_drawdown_pct": -5.76,
+    "avg_trade_pct": 0.368
+  },
+  "filtered_2_5pct": {
+    "total_trades": 105,
+    "net_return_pct": 48.0,
+    "profit_factor": 2.872,
+    "win_rate_pct": 50.5,
+    "max_drawdown_pct": -4.44,
+    "avg_trade_pct": 0.457
+  }
+}

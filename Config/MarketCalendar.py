@@ -6,7 +6,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CALENDAR_PATH = ROOT / "Config" / "MarketHolidays" / "NSE_CM_2026.json"
 
@@ -35,7 +34,9 @@ def SessionClose(calendar: dict[str, Any] | None = None):
 
 def HolidayMap(calendar: dict[str, Any] | None = None) -> dict[str, str]:
     cfg = calendar or LoadMarketCalendar()
-    return {str(row["date"]): str(row.get("name", "Market Holiday")) for row in cfg.get("holidays", [])}
+    return {
+        str(row["date"]): str(row.get("name", "Market Holiday")) for row in cfg.get("holidays", [])
+    }
 
 
 def SpecialSessionMap(calendar: dict[str, Any] | None = None) -> dict[str, dict[str, Any]]:

@@ -1,10 +1,13 @@
 import os
-import pandas as pd
 from datetime import date, timedelta
+
+import pandas as pd
+
 try:
     from tqdm import tqdm
 except ImportError:
-    class tqdm: # type: ignore
+
+    class tqdm:  # type: ignore
         def __init__(self, iterable=None, **kwargs):
             self.iterable = iterable if iterable is not None else range(kwargs.get("total", 0))
             self.n = 0
@@ -21,13 +24,16 @@ except ImportError:
         @staticmethod
         def write(message):
             print(message)
+
+
 from zoneinfo import ZoneInfo
+
 try:
     import ta
 except ImportError:
     ta = None
-from datetime import datetime
 import time
+from datetime import datetime
 
 RAW_COLUMNS = ["Datetime", "Open", "High", "Low", "Close", "Volume"]
 FINAL_COLUMNS = RAW_COLUMNS + ["EMA9", "EMA21", "ADX", "ATR"]
@@ -58,6 +64,7 @@ FYERS_SYMBOL_ALIASES = {
     "NIFTYBANK-INDEX": "NSE:NIFTYBANK-INDEX",
 }
 
+
 class FyersRateLimitError(RuntimeError):
     def __init__(self, symbol: str, range_start: date, range_end: date, response: dict):
         self.symbol = symbol
@@ -67,8 +74,10 @@ class FyersRateLimitError(RuntimeError):
         message = response.get("message", "request limit reached")
         super().__init__(f"{symbol} {range_start} to {range_end}: {message}")
 
+
 def login():
     from Login import login as fyers_login
+
     return fyers_login()
 
 
@@ -87,18 +96,29 @@ def resolve_fyers_symbol(symbol: str) -> str:
 
 def fetchSymbols(key=None):
     from CFGFunctions import fetchSymbols as cfg_fetch_symbols
+
     return cfg_fetch_symbols(key)
+
 
 def isMarketOpen(fyers):
     response = fyers.market_status()
 
-    status = next((item['status'] for item in response['marketStatus'] if item['exchange'] == 10 and item['segment'] == 11), None)
+    status = next(
+        (
+            item["status"]
+            for item in response["marketStatus"]
+            if item["exchange"] == 10 and item["segment"] == 11
+        ),
+        None,
+    )
     return status
+
 
 def checkLastCandle(symbol: str, path: str = "Data") -> datetime:
     file_path = base_1min_input_path(symbol, path)
     df = pd.read_csv(file_path, parse_dates=["Datetime"])
     return df.iloc[-1]["Datetime"]
+
 
 def UpdateCSV(symbol: str, fyers, path: str = "Data") -> bool:
     """
@@ -114,7 +134,7 @@ def UpdateCSV(symbol: str, fyers, path: str = "Data") -> bool:
 
     ist = ZoneInfo("Asia/Kolkata")
     file_path = base_1min_input_path(symbol, path)
-    
+
     # Get last datetime from CSV
     last_dt = checkLastCandle(symbol, path)
 
@@ -126,19 +146,21 @@ def UpdateCSV(symbol: str, fyers, path: str = "Data") -> bool:
         return False
 
     fyers_symbol = resolve_fyers_symbol(symbol)
-    
+
     # Fyers API requires timestamps in seconds
     from_time = int((last_dt + timedelta(minutes=1)).replace(tzinfo=ist).timestamp())
     to_time = int(now.replace(tzinfo=ist).timestamp())
 
-    response = fyers.history({
-        "symbol": fyers_symbol,
-        "resolution": FYERS_BASE_RESOLUTION,
-        "date_format": "0",
-        "range_from": from_time,
-        "range_to": to_time,
-        "cont_flag": "1"
-    })
+    response = fyers.history(
+        {
+            "symbol": fyers_symbol,
+            "resolution": FYERS_BASE_RESOLUTION,
+            "date_format": "0",
+            "range_from": from_time,
+            "range_to": to_time,
+            "cont_flag": "1",
+        }
+    )
 
     if "candles" not in response or not response["candles"]:
         print("No new candles available.")
@@ -155,6 +177,7 @@ def UpdateCSV(symbol: str, fyers, path: str = "Data") -> bool:
     )
     return True
 
+
 def normalize_candles(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return pd.DataFrame(columns=RAW_COLUMNS)
@@ -168,17 +191,22 @@ def normalize_candles(df: pd.DataFrame) -> pd.DataFrame:
     df = df.sort_values("Datetime").reset_index(drop=True)
     return df
 
+
 def symbol_data_folder(symbol: str, output_folder: str) -> str:
     return os.path.join(output_folder, symbol)
+
 
 def timeframe_file_path(symbol: str, output_folder: str, timeframe: str) -> str:
     return os.path.join(symbol_data_folder(symbol, output_folder), f"{symbol}_{timeframe}.csv")
 
+
 def legacy_symbol_file_path(symbol: str, output_folder: str) -> str:
     return os.path.join(output_folder, f"{symbol}.csv")
 
+
 def base_1min_input_path(symbol: str, output_folder: str) -> str:
     return timeframe_file_path(symbol, output_folder, TIMEFRAME_1MIN)
+
 
 def preferred_5min_input_path(symbol: str, output_folder: str) -> str:
     new_path = timeframe_file_path(symbol, output_folder, TIMEFRAME_5MIN)
@@ -186,11 +214,13 @@ def preferred_5min_input_path(symbol: str, output_folder: str) -> str:
         return new_path
     return legacy_symbol_file_path(symbol, output_folder)
 
+
 def read_existing_base_candles(symbol: str, output_folder: str) -> pd.DataFrame:
     file_path = base_1min_input_path(symbol, output_folder)
     if not os.path.exists(file_path):
         return pd.DataFrame(columns=RAW_COLUMNS)
     return read_existing_candles(file_path)
+
 
 def read_existing_candles(file_path: str) -> pd.DataFrame:
     if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
@@ -207,14 +237,13 @@ def read_existing_candles(file_path: str) -> pd.DataFrame:
     df = df.dropna(subset=["Open", "High", "Low", "Close", "Volume"])
     return normalize_candles(df)
 
+
 def candles_to_dataframe(candles, ist: ZoneInfo) -> pd.DataFrame:
     if not candles:
         return pd.DataFrame(columns=RAW_COLUMNS)
 
     valid_candles = [
-        candle[:6]
-        for candle in candles
-        if isinstance(candle, (list, tuple)) and len(candle) >= 6
+        candle[:6] for candle in candles if isinstance(candle, (list, tuple)) and len(candle) >= 6
     ]
     if not valid_candles:
         return pd.DataFrame(columns=RAW_COLUMNS)
@@ -224,6 +253,7 @@ def candles_to_dataframe(candles, ist: ZoneInfo) -> pd.DataFrame:
     df["Datetime"] = pd.to_datetime(df["epoch"], unit="s", utc=True, errors="coerce")
     df["Datetime"] = df["Datetime"].dt.tz_convert(ist).dt.tz_localize(None)
     return normalize_candles(df[RAW_COLUMNS])
+
 
 def missing_date_ranges(
     existing_df: pd.DataFrame,
@@ -257,7 +287,9 @@ def missing_date_ranges(
         ranges.extend((partial_date, partial_date) for partial_date in partial_dates)
 
     if first_date > start_date:
-        older_end = first_date if first_dt.time() > market_open_time else first_date - timedelta(days=1)
+        older_end = (
+            first_date if first_dt.time() > market_open_time else first_date - timedelta(days=1)
+        )
         older_end = min(older_end, end_date)
         if start_date <= older_end:
             ranges.append((start_date, older_end))
@@ -281,6 +313,7 @@ def missing_date_ranges(
 
     return [(range_start, range_end) for range_start, range_end in merged_ranges]
 
+
 def format_elapsed(seconds: float) -> str:
     seconds = max(0, int(seconds))
     hours, remainder = divmod(seconds, 3600)
@@ -291,10 +324,12 @@ def format_elapsed(seconds: float) -> str:
         return f"{minutes}m {secs:02d}s"
     return f"{secs}s"
 
+
 def count_history_chunks(range_start: date, range_end: date, chunk_days: int) -> int:
     chunk_days = min(HISTORY_INTRADAY_MAX_DAYS, max(1, int(chunk_days)))
     days = max(0, (range_end - range_start).days + 1)
     return (days + chunk_days - 1) // chunk_days
+
 
 def fetch_candles(
     fyers,
@@ -320,7 +355,7 @@ def fetch_candles(
             "date_format": "1",
             "range_from": chunk_start.strftime("%Y-%m-%d"),
             "range_to": chunk_end.strftime("%Y-%m-%d"),
-            "cont_flag": "1"
+            "cont_flag": "1",
         }
         call_progressed = False
         try:
@@ -358,24 +393,21 @@ def fetch_candles(
 
     return candles_to_dataframe(all_candles, ist)
 
+
 def fallback_ema(close: pd.Series, window: int) -> pd.Series:
     return close.ewm(span=window, adjust=False, min_periods=window).mean()
 
+
 def fallback_true_range(high: pd.Series, low: pd.Series, close: pd.Series) -> pd.Series:
     prev_close = close.shift(1)
-    ranges = pd.concat(
-        [
-            high - low,
-            (high - prev_close).abs(),
-            (low - prev_close).abs()
-        ],
-        axis=1
-    )
+    ranges = pd.concat([high - low, (high - prev_close).abs(), (low - prev_close).abs()], axis=1)
     return ranges.max(axis=1)
+
 
 def fallback_atr(high: pd.Series, low: pd.Series, close: pd.Series, window: int) -> pd.Series:
     tr = fallback_true_range(high, low, close)
     return tr.ewm(alpha=1 / window, adjust=False, min_periods=window).mean()
+
 
 def fallback_adx(high: pd.Series, low: pd.Series, close: pd.Series, window: int) -> pd.Series:
     up_move = high.diff()
@@ -389,6 +421,7 @@ def fallback_adx(high: pd.Series, low: pd.Series, close: pd.Series, window: int)
     minus_di = 100 * minus_dm.ewm(alpha=1 / window, adjust=False, min_periods=window).mean() / atr
     dx = 100 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, pd.NA)
     return dx.ewm(alpha=1 / window, adjust=False, min_periods=window).mean()
+
 
 def add_indicators(df: pd.DataFrame, log_fn=None) -> pd.DataFrame:
     df = normalize_candles(df)
@@ -405,10 +438,7 @@ def add_indicators(df: pd.DataFrame, log_fn=None) -> pd.DataFrame:
             df["ADX"] = adx.adx()
 
             df["ATR"] = ta.volatility.AverageTrueRange(
-                high=df["High"],
-                low=df["Low"],
-                close=df["Close"],
-                window=ATR_WINDOW
+                high=df["High"], low=df["Low"], close=df["Close"], window=ATR_WINDOW
             ).average_true_range()
         except (TypeError, ValueError, IndexError) as e:
             log(f"ta indicator calculation failed; using pandas fallback indicators: {e}")
@@ -427,6 +457,7 @@ def add_indicators(df: pd.DataFrame, log_fn=None) -> pd.DataFrame:
 
     return df[FINAL_COLUMNS]
 
+
 def aggregate_ohlcv(df: pd.DataFrame, group_cols) -> pd.DataFrame:
     grouped = df.groupby(group_cols, sort=True)
     result = grouped.agg(
@@ -435,9 +466,10 @@ def aggregate_ohlcv(df: pd.DataFrame, group_cols) -> pd.DataFrame:
         High=("High", "max"),
         Low=("Low", "min"),
         Close=("Close", "last"),
-        Volume=("Volume", "sum")
+        Volume=("Volume", "sum"),
     ).reset_index(drop=True)
     return normalize_candles(result)
+
 
 def resample_intraday(df_source: pd.DataFrame, minutes_per_bar: int) -> pd.DataFrame:
     df = normalize_candles(df_source)
@@ -447,21 +479,21 @@ def resample_intraday(df_source: pd.DataFrame, minutes_per_bar: int) -> pd.DataF
     open_time = datetime.strptime(MARKET_OPEN, "%H:%M").time()
     close_time = datetime.strptime(MARKET_CLOSE_1MIN, "%H:%M").time()
     open_minutes = open_time.hour * 60 + open_time.minute
-    df = df[
-        (df["Datetime"].dt.time >= open_time)
-        & (df["Datetime"].dt.time <= close_time)
-    ].copy()
+    df = df[(df["Datetime"].dt.time >= open_time) & (df["Datetime"].dt.time <= close_time)].copy()
     minutes = df["Datetime"].dt.hour * 60 + df["Datetime"].dt.minute
     df["_date"] = df["Datetime"].dt.date
     df["_bucket"] = ((minutes - open_minutes) // minutes_per_bar).astype(int)
     df = df[df["_bucket"] >= 0].copy()
     return aggregate_ohlcv(df, ["_date", "_bucket"])
 
+
 def resample_to_5min(df_1min: pd.DataFrame) -> pd.DataFrame:
     return resample_intraday(df_1min, 5)
 
+
 def resample_to_15min(df_1min: pd.DataFrame) -> pd.DataFrame:
     return resample_intraday(df_1min, 15)
+
 
 def resample_to_daily(df_1min: pd.DataFrame) -> pd.DataFrame:
     df = normalize_candles(df_1min)
@@ -470,6 +502,7 @@ def resample_to_daily(df_1min: pd.DataFrame) -> pd.DataFrame:
 
     df["_date"] = df["Datetime"].dt.date
     return aggregate_ohlcv(df, ["_date"])
+
 
 def resample_to_weekly(df_1min: pd.DataFrame) -> pd.DataFrame:
     df = normalize_candles(df_1min)
@@ -484,9 +517,10 @@ def resample_to_weekly(df_1min: pd.DataFrame) -> pd.DataFrame:
         High=("High", "max"),
         Low=("Low", "min"),
         Close=("Close", "last"),
-        Volume=("Volume", "sum")
+        Volume=("Volume", "sum"),
     ).reset_index(drop=True)
     return normalize_candles(weekly)
+
 
 def write_timeframe_files(
     symbol: str,
@@ -536,8 +570,9 @@ def write_timeframe_files(
             TIMEFRAME_15MIN: len(df_15min_final),
             TIMEFRAME_1D: len(df_1d_final),
             TIMEFRAME_1W: len(df_1w_final),
-        }
+        },
     }
+
 
 def materialize_timeframe_files(symbol: str, output_folder: str = "./Data") -> dict:
     input_path = base_1min_input_path(symbol, output_folder)
@@ -546,7 +581,10 @@ def materialize_timeframe_files(symbol: str, output_folder: str = "./Data") -> d
         raise FileNotFoundError(f"No existing 1-minute data found for {symbol} at {input_path}")
     return write_timeframe_files(symbol, output_folder, df_1min)
 
-def download_full_refresh_legacy(symbols: list[str], output_folder='./Data', chunk_days=60, total_days=365):
+
+def download_full_refresh_legacy(
+    symbols: list[str], output_folder="./Data", chunk_days=60, total_days=365
+):
     """
     Legacy full-refresh downloader kept for reference.
 
@@ -554,7 +592,7 @@ def download_full_refresh_legacy(symbols: list[str], output_folder='./Data', chu
     writes raw data to CSV (with datetime formatting), and calculates EMA9, EMA21, ADX, and ATR21.
     """
     os.makedirs(output_folder, exist_ok=True)
-    fyers = login() # Fetch logged in FyersModel instance
+    fyers = login()  # Fetch logged in FyersModel instance
 
     end_date = date.today()
     start_date = end_date - timedelta(days=total_days)
@@ -576,13 +614,13 @@ def download_full_refresh_legacy(symbols: list[str], output_folder='./Data', chu
                 "symbol": resolve_fyers_symbol(symbol),
                 "resolution": "5",
                 "date_format": "1",
-                "range_from": chunk_start.strftime('%Y-%m-%d'),
-                "range_to": chunk_end.strftime('%Y-%m-%d'),
-                "cont_flag": "1"
+                "range_from": chunk_start.strftime("%Y-%m-%d"),
+                "range_to": chunk_end.strftime("%Y-%m-%d"),
+                "cont_flag": "1",
             }
             try:
                 resp = fyers.history(data=params)
-                candles = resp.get('candles') or []
+                candles = resp.get("candles") or []
                 all_candles.extend(candles)
             except Exception as e:
                 print(f"Error for {symbol} {chunk_start} to {chunk_end}: {e}")
@@ -593,72 +631,84 @@ def download_full_refresh_legacy(symbols: list[str], output_folder='./Data', chu
             print(f"No data for {symbol}, skipping.")
             continue
 
-        df = pd.DataFrame(all_candles, columns=['epoch','Open','High','Low','Close','Volume'])
-        df['Datetime'] = pd.to_datetime(df['epoch'], unit='s', utc=True)
-        df['Datetime'] = df['Datetime'].dt.tz_convert('Asia/Kolkata').dt.tz_localize(None)
-        df = df[['Datetime','Open','High','Low','Close','Volume']].sort_values('Datetime')
+        df = pd.DataFrame(all_candles, columns=["epoch", "Open", "High", "Low", "Close", "Volume"])
+        df["Datetime"] = pd.to_datetime(df["epoch"], unit="s", utc=True)
+        df["Datetime"] = df["Datetime"].dt.tz_convert("Asia/Kolkata").dt.tz_localize(None)
+        df = df[["Datetime", "Open", "High", "Low", "Close", "Volume"]].sort_values("Datetime")
 
         # Save raw data
         file_path = os.path.join(output_folder, f"{symbol}.csv")
         df.to_csv(file_path, index=False)
 
         # Padding range for indicators
-        first_ts = df['Datetime'].iloc[0]
-        pad_start = (first_ts - timedelta(days=chunk_days)).strftime('%Y-%m-%d')
-        pad_end = (first_ts - timedelta(seconds=1)).strftime('%Y-%m-%d')
+        first_ts = df["Datetime"].iloc[0]
+        pad_start = (first_ts - timedelta(days=chunk_days)).strftime("%Y-%m-%d")
+        pad_end = (first_ts - timedelta(seconds=1)).strftime("%Y-%m-%d")
 
         try:
-            pad_resp = fyers.history(data={
-                "symbol": resolve_fyers_symbol(symbol),
-                "resolution": "5",
-                "date_format": "1",
-                "range_from": pad_start,
-                "range_to": pad_end,
-                "cont_flag": "1"
-            })
-            pad_candles = pad_resp.get('candles') or []
+            pad_resp = fyers.history(
+                data={
+                    "symbol": resolve_fyers_symbol(symbol),
+                    "resolution": "5",
+                    "date_format": "1",
+                    "range_from": pad_start,
+                    "range_to": pad_end,
+                    "cont_flag": "1",
+                }
+            )
+            pad_candles = pad_resp.get("candles") or []
         except Exception as e:
             print(f"Padding fetch error for {symbol}: {e}")
             pad_candles = []
 
         if pad_candles:
-            df_pad = pd.DataFrame(pad_candles, columns=['epoch','Open','High','Low','Close','Volume'])
-            df_pad['Datetime'] = pd.to_datetime(df_pad['epoch'], unit='s', utc=True).dt.tz_convert('Asia/Kolkata').dt.tz_localize(None)
-            df_pad = df_pad[['Datetime','Open','High','Low','Close','Volume']]
-            df_full = pd.concat([df_pad, df], ignore_index=True).drop_duplicates('Datetime').sort_values('Datetime')
+            df_pad = pd.DataFrame(
+                pad_candles, columns=["epoch", "Open", "High", "Low", "Close", "Volume"]
+            )
+            df_pad["Datetime"] = (
+                pd.to_datetime(df_pad["epoch"], unit="s", utc=True)
+                .dt.tz_convert("Asia/Kolkata")
+                .dt.tz_localize(None)
+            )
+            df_pad = df_pad[["Datetime", "Open", "High", "Low", "Close", "Volume"]]
+            df_full = (
+                pd.concat([df_pad, df], ignore_index=True)
+                .drop_duplicates("Datetime")
+                .sort_values("Datetime")
+            )
         else:
             df_full = df.copy()
 
         # Indicators
         assert ta is not None, "ta library is required for legacy downloader"
-        df_full['EMA9'] = ta.trend.ema_indicator(df_full['Close'], window=9)
-        df_full['EMA21'] = ta.trend.ema_indicator(df_full['Close'], window=21)
-        adx = ta.trend.ADXIndicator(df_full['High'], df_full['Low'], df_full['Close'], window=14)
-        df_full['ADX'] = adx.adx()
+        df_full["EMA9"] = ta.trend.ema_indicator(df_full["Close"], window=9)
+        df_full["EMA21"] = ta.trend.ema_indicator(df_full["Close"], window=21)
+        adx = ta.trend.ADXIndicator(df_full["High"], df_full["Low"], df_full["Close"], window=14)
+        df_full["ADX"] = adx.adx()
 
         # Add ATR
-        df_full['ATR'] = ta.volatility.AverageTrueRange(
-            high=df_full['High'], 
-            low=df_full['Low'], 
-            close=df_full['Close'], 
-            window=21
+        df_full["ATR"] = ta.volatility.AverageTrueRange(
+            high=df_full["High"], low=df_full["Low"], close=df_full["Close"], window=21
         ).average_true_range()
 
         # Trim back to original data
-        df_final = df_full[df_full['Datetime'] >= first_ts].reset_index(drop=True)
+        df_final = df_full[df_full["Datetime"] >= first_ts].reset_index(drop=True)
 
         # Round indicator columns to 2 decimals
-        df_final['EMA9'] = df_final['EMA9'].round(2)
-        df_final['EMA21'] = df_final['EMA21'].round(2)
-        df_final['ADX'] = df_final['ADX'].round(2)
-        df_final['ATR'] = df_final['ATR'].round(2)
+        df_final["EMA9"] = df_final["EMA9"].round(2)
+        df_final["EMA21"] = df_final["EMA21"].round(2)
+        df_final["ADX"] = df_final["ADX"].round(2)
+        df_final["ATR"] = df_final["ATR"].round(2)
 
         # Save final with indicators
         df_final.to_csv(file_path, index=False)
 
     print("✅ Download, indicator population (including ATR) complete.")
 
-def download(symbols: list[str], output_folder='./Data', chunk_days=100, total_days=365, downloadStats=False):
+
+def download(
+    symbols: list[str], output_folder="./Data", chunk_days=100, total_days=365, downloadStats=False
+):
     """
     Incrementally downloads only missing OHLCV data for each symbol.
 
@@ -667,13 +717,17 @@ def download(symbols: list[str], output_folder='./Data', chunk_days=100, total_d
     15MIN, 1D, and 1W files are derived locally from the 1MIN source.
     """
     started_at = time.perf_counter()
-    stats = {
-        "history_calls": 0,
-        "candles_fetched": 0,
-        "symbols_processed": 0,
-        "symbols_rate_limited": 0,
-        "symbols_skipped_no_data": 0,
-    } if downloadStats else None
+    stats = (
+        {
+            "history_calls": 0,
+            "candles_fetched": 0,
+            "symbols_processed": 0,
+            "symbols_rate_limited": 0,
+            "symbols_skipped_no_data": 0,
+        }
+        if downloadStats
+        else None
+    )
     os.makedirs(output_folder, exist_ok=True)
 
     ist = ZoneInfo("Asia/Kolkata")
@@ -855,7 +909,9 @@ def AddIndicators(df: pd.DataFrame, log_fn=None) -> pd.DataFrame:
     return add_indicators(df, log_fn)
 
 
-def WriteTimeframeFiles(symbol: str, output_folder: str, df_1min: pd.DataFrame, progress_callback=None, log_fn=None) -> dict:
+def WriteTimeframeFiles(
+    symbol: str, output_folder: str, df_1min: pd.DataFrame, progress_callback=None, log_fn=None
+) -> dict:
     return write_timeframe_files(symbol, output_folder, df_1min, progress_callback, log_fn)
 
 
@@ -868,4 +924,6 @@ def Download(symbols, output_folder="./Data", chunk_days=100, total_days=365, do
 
 
 if __name__ == "__main__":
-    Download(["CGPOWER"], output_folder="./Data", chunk_days=100, total_days=100, downloadStats=True)
+    Download(
+        ["CGPOWER"], output_folder="./Data", chunk_days=100, total_days=100, downloadStats=True
+    )

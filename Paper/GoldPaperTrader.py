@@ -7,10 +7,11 @@ import math
 import sys
 import threading
 import time
+from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -28,10 +29,8 @@ from Config.MarketCalendar import (
     ShouldRunSingleOffmarketCheck,
     ShouldStartLiveTick,
 )
-from Strategies.G01 import Core as base
-from Strategies.G01 import Gold as gold
 from LiveTick.session import RuntimeSession, is_pid_running, load_session, request_stop
-
+from Strategies.G01 import Core as base, Gold as gold
 
 IST = ZoneInfo("Asia/Kolkata")
 MARKET_OPEN = "09:15"
@@ -133,7 +132,9 @@ def trades_path(report_folder: str | Path = DEFAULT_REPORT_DIR) -> Path:
     return report_dir(report_folder) / "gold_paper_trades.csv"
 
 
-def report_xlsx_path(report_folder: str | Path = DEFAULT_REPORT_DIR, current: datetime | None = None) -> Path:
+def report_xlsx_path(
+    report_folder: str | Path = DEFAULT_REPORT_DIR, current: datetime | None = None
+) -> Path:
     day = (current or now_ist()).strftime("%Y-%m-%d")
     return report_dir(report_folder) / f"GoldPaperTrades_{day}.xlsx"
 
@@ -147,12 +148,16 @@ def fallback_report_file_path(primary_path: str | Path) -> Path:
     return primary.with_name(f"{primary.stem}_live{primary.suffix}")
 
 
-def timeframe_path(symbol: str, timeframe: str, data_folder: str | Path = DEFAULT_DATA_FOLDER) -> Path:
+def timeframe_path(
+    symbol: str, timeframe: str, data_folder: str | Path = DEFAULT_DATA_FOLDER
+) -> Path:
     symbol = clean_symbol(symbol)
     return Path(data_folder) / symbol / f"{symbol}_{timeframe}.csv"
 
 
-def load_candles(symbol: str, timeframe: str, data_folder: str | Path = DEFAULT_DATA_FOLDER) -> pd.DataFrame:
+def load_candles(
+    symbol: str, timeframe: str, data_folder: str | Path = DEFAULT_DATA_FOLDER
+) -> pd.DataFrame:
     path = timeframe_path(symbol, timeframe, data_folder)
     if not path.exists() or path.stat().st_size == 0:
         return pd.DataFrame(columns=Main.FINAL_COLUMNS)
@@ -273,7 +278,9 @@ def prepare_live_features(df_5m: pd.DataFrame) -> pd.DataFrame:
 
     typical = (regular["High"] + regular["Low"] + regular["Close"]) / 3
     volume_cumsum = regular["Volume"].groupby(regular["date"]).cumsum().replace(0, np.nan)
-    regular["vwap"] = (typical * regular["Volume"]).groupby(regular["date"]).cumsum() / volume_cumsum
+    regular["vwap"] = (typical * regular["Volume"]).groupby(
+        regular["date"]
+    ).cumsum() / volume_cumsum
     regular["vwap"] = regular["vwap"].ffill()
     for span in (13, 21, 34, 55):
         regular[f"ema{span}"] = base.ema(regular["Close"], span)
@@ -288,7 +295,9 @@ def prepare_live_features(df_5m: pd.DataFrame) -> pd.DataFrame:
     return regular.reset_index(drop=True)
 
 
-def generate_live_signals(df: pd.DataFrame, config: base.StrategyConfig = gold.GOLD_CONFIG) -> pd.DataFrame:
+def generate_live_signals(
+    df: pd.DataFrame, config: base.StrategyConfig = gold.GOLD_CONFIG
+) -> pd.DataFrame:
     if df.empty:
         return pd.DataFrame()
 
@@ -329,7 +338,9 @@ def generate_live_signals(df: pd.DataFrame, config: base.StrategyConfig = gold.G
         return first
 
     index_lookup = df.reset_index().set_index(["date", "Datetime"])["index"]
-    signal_indexes = [int(index_lookup.loc[(row.date, row.Datetime)]) for row in first.itertuples(index=False)]
+    signal_indexes = [
+        int(index_lookup.loc[(row.date, row.Datetime)]) for row in first.itertuples(index=False)
+    ]
     first["signal_index"] = signal_indexes
     first["entry_index"] = first["signal_index"] + 1
 
@@ -375,6 +386,7 @@ def candidate_signal_for_today(
     # News/sentiment gap filter (Exp 6) — skip if any portfolio stock gapped >threshold
     if portfolio_daily and gap_threshold > 0:
         from Strategies.G01.news_filter import compute_portfolio_gap_dates
+
         chaos_dates = compute_portfolio_gap_dates(portfolio_daily, threshold=gap_threshold)
         if today in chaos_dates:
             return None
@@ -394,7 +406,9 @@ def candidate_signal_for_today(
     return final.iloc[0]
 
 
-def latest_entry_candle(df_1m: pd.DataFrame, entry_time: datetime, grace_minutes: int) -> pd.Series | None:
+def latest_entry_candle(
+    df_1m: pd.DataFrame, entry_time: datetime, grace_minutes: int
+) -> pd.Series | None:
     if df_1m.empty:
         return None
     rows = df_1m[
@@ -479,7 +493,9 @@ def open_position(
     )
 
 
-def calculate_charges(entry: float, exit_price: float, qty: int, direction: int, config: PaperConfig) -> dict[str, float]:
+def calculate_charges(
+    entry: float, exit_price: float, qty: int, direction: int, config: PaperConfig
+) -> dict[str, float]:
     if direction == 1:
         buy_value = entry * qty
         sell_value = exit_price * qty
@@ -511,7 +527,9 @@ def calculate_charges(entry: float, exit_price: float, qty: int, direction: int,
     }
 
 
-def check_exit(position: dict[str, Any], df_1m: pd.DataFrame, config: PaperConfig, current: datetime) -> tuple[dict[str, Any] | None, str]:
+def check_exit(
+    position: dict[str, Any], df_1m: pd.DataFrame, config: PaperConfig, current: datetime
+) -> tuple[dict[str, Any] | None, str]:
     entry_time = pd.Timestamp(position["entry_time"]).to_pydatetime()
     after_entry = df_1m[df_1m["Datetime"] >= entry_time].copy()
     if after_entry.empty:
@@ -718,7 +736,11 @@ def write_report(
     report_folder = report_dir(report_folder)
     trades = read_report_csv(trades_path(report_folder))
     events = read_report_csv(events_path(report_folder))
-    state = json.loads(state_path(report_folder).read_text(encoding="utf-8")) if state_path(report_folder).exists() else {}
+    state = (
+        json.loads(state_path(report_folder).read_text(encoding="utf-8"))
+        if state_path(report_folder).exists()
+        else {}
+    )
     open_positions = list((state.get("open_positions") or {}).values())
 
     wb = Workbook()
@@ -766,22 +788,46 @@ def write_report(
         cell.fill = subheader_fill
         cell.font = Font(bold=True)
     for row in ws_summary.iter_rows(min_row=3, max_col=2):
-        if row[0].value in ("Net P/L", "Open Unrealized P/L") and isinstance(row[1].value, (int, float)):
+        if row[0].value in ("Net P/L", "Open Unrealized P/L") and isinstance(
+            row[1].value, (int, float)
+        ):
             row[1].font = Font(color=green if row[1].value >= 0 else red, bold=True)
 
     write_dataframe(ws_trades, trades)
-    write_dataframe(ws_events, events.tail(250).reset_index(drop=True) if not events.empty else events)
+    write_dataframe(
+        ws_events, events.tail(250).reset_index(drop=True) if not events.empty else events
+    )
     write_dataframe(ws_positions, pd.DataFrame(open_positions))
 
     style_title(ws_assumptions, "Paper Trading Assumptions", end_col=4)
     assumptions = [
         ["Initial Balance", config.initial_balance, "Rs", "Portfolio starting balance"],
         ["Leverage", config.leverage, "x", "Whole-share quantity uses balance * leverage / price"],
-        ["Max Open Positions", config.max_open_positions, "", "Default is conservative single-position mode"],
-        ["Entry Grace", config.entry_grace_minutes, "minutes", "Miss signal if matching entry candle is too old"],
-        ["Max Data Staleness", config.max_data_staleness_minutes, "minutes", "No trades if LiveTick CSV is stale"],
+        [
+            "Max Open Positions",
+            config.max_open_positions,
+            "",
+            "Default is conservative single-position mode",
+        ],
+        [
+            "Entry Grace",
+            config.entry_grace_minutes,
+            "minutes",
+            "Miss signal if matching entry candle is too old",
+        ],
+        [
+            "Max Data Staleness",
+            config.max_data_staleness_minutes,
+            "minutes",
+            "No trades if LiveTick CSV is stale",
+        ],
         ["Brokerage Rate", config.brokerage_rate, "%", "Per order, capped"],
-        ["Brokerage Cap", config.brokerage_cap_per_order, "Rs", "Applied separately on buy and sell"],
+        [
+            "Brokerage Cap",
+            config.brokerage_cap_per_order,
+            "Rs",
+            "Applied separately on buy and sell",
+        ],
         ["STT Sell Side", config.stt_sell_side_rate, "%", "Equity intraday STT"],
         ["Exchange Txn", config.exchange_txn_rate, "%", "NSE transaction charge"],
         ["SEBI Turnover", config.sebi_turnover_rate, "%", "SEBI turnover fee"],
@@ -802,7 +848,9 @@ def write_report(
             col_letter = get_column_letter(col_idx)
             max_len = 10
             for cell in ws[col_letter]:
-                max_len = max(max_len, min(45, len(str(cell.value)) if cell.value is not None else 0))
+                max_len = max(
+                    max_len, min(45, len(str(cell.value)) if cell.value is not None else 0)
+                )
             ws.column_dimensions[col_letter].width = max_len + 2
         for row in ws.iter_rows():
             for cell in row:
@@ -827,7 +875,9 @@ def _save_workbook_safely(wb, path: str | Path) -> Path:
             )
             return fallback
         except PermissionError:
-            stamped = primary.with_name(f"{primary.stem}_{now_ist().strftime('%H%M%S')}{primary.suffix}")
+            stamped = primary.with_name(
+                f"{primary.stem}_{now_ist().strftime('%H%M%S')}{primary.suffix}"
+            )
             wb.save(stamped)
             print(
                 f"Report files are locked, wrote timestamped report copy instead: {stamped}",
@@ -846,7 +896,9 @@ def read_report_csv(path: str | Path) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True, sort=False)
 
 
-def summary_rows_from_state(state: dict[str, Any], trades: pd.DataFrame, config: PaperConfig) -> list[list[Any]]:
+def summary_rows_from_state(
+    state: dict[str, Any], trades: pd.DataFrame, config: PaperConfig
+) -> list[list[Any]]:
     balance = float(state.get("balance", config.initial_balance))
     open_positions = state.get("open_positions") or {}
     if trades.empty:
@@ -856,11 +908,15 @@ def summary_rows_from_state(state: dict[str, Any], trades: pd.DataFrame, config:
         total_charges = 0.0
         max_drawdown = 0.0
     else:
-        closed = int(len(trades))
+        closed = len(trades)
         wins = int((pd.to_numeric(trades.get("net_pnl", 0), errors="coerce") > 0).sum())
         net_pnl = float(pd.to_numeric(trades.get("net_pnl", 0), errors="coerce").fillna(0).sum())
-        total_charges = float(pd.to_numeric(trades.get("total_charges", 0), errors="coerce").fillna(0).sum())
-        balances = pd.to_numeric(trades.get("closing_balance", pd.Series(dtype=float)), errors="coerce").dropna()
+        total_charges = float(
+            pd.to_numeric(trades.get("total_charges", 0), errors="coerce").fillna(0).sum()
+        )
+        balances = pd.to_numeric(
+            trades.get("closing_balance", pd.Series(dtype=float)), errors="coerce"
+        ).dropna()
         if balances.empty:
             max_drawdown = 0.0
         else:
@@ -953,7 +1009,9 @@ def ensure_live_tick_feed(
             append_event("LIVE_FEED_SYMBOL_MISMATCH", "PORTFOLIO", message, report_folder)
             return False, None, [], [message]
 
-        message = f"Reusing LiveTick session PID {session.get('pid')} for {', '.join(cleaned_symbols)}."
+        message = (
+            f"Reusing LiveTick session PID {session.get('pid')} for {', '.join(cleaned_symbols)}."
+        )
         append_event("LIVE_FEED_REUSE", "PORTFOLIO", message, report_folder)
         return False, None, [], [message]
 
@@ -1072,10 +1130,16 @@ def GoldPaperTrade(
                     if reported_live_errors < len(live_errors):
                         for exc in live_errors[reported_live_errors:]:
                             append_event("LIVE_FEED_ERROR", "PORTFOLIO", str(exc), report_folder)
-                            print(f"{current.isoformat(timespec='seconds')} LIVE_FEED_ERROR: {exc}", flush=True)
+                            print(
+                                f"{current.isoformat(timespec='seconds')} LIVE_FEED_ERROR: {exc}",
+                                flush=True,
+                            )
                         reported_live_errors = len(live_errors)
                         if is_market_session(current):
-                            print("Stopping paper trader because managed LiveTick failed during market hours.", flush=True)
+                            print(
+                                "Stopping paper trader because managed LiveTick failed during market hours.",
+                                flush=True,
+                            )
                             break
 
                     try:
@@ -1107,18 +1171,26 @@ def GoldPaperTrade(
                     )
             except KeyboardInterrupt:
                 stop_requested = True
-                print("Keyboard interrupt received; shutting down paper trader gracefully.", flush=True)
+                print(
+                    "Keyboard interrupt received; shutting down paper trader gracefully.",
+                    flush=True,
+                )
     finally:
         if live_owned and live_thread is not None and live_thread.is_alive():
             request_stop("live_tick", reason="paper_trader_shutdown")
             try:
                 live_thread.join(timeout=10)
             except KeyboardInterrupt:
-                print("LiveTick stop was requested; exiting without waiting for the socket thread.", flush=True)
+                print(
+                    "LiveTick stop was requested; exiting without waiting for the socket thread.",
+                    flush=True,
+                )
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run live paper trading for the gold intraday strategy.")
+    parser = argparse.ArgumentParser(
+        description="Run live paper trading for the gold intraday strategy."
+    )
     parser.add_argument("--symbols", nargs="+", default=list(DEFAULT_SYMBOLS))
     parser.add_argument("--data-folder", default=str(DEFAULT_DATA_FOLDER))
     parser.add_argument("--report-folder", default=str(DEFAULT_REPORT_DIR))

@@ -27,10 +27,10 @@ Beginner Note:
 
 import pandas as pd
 
-
 # ============================================================================
 # GAP FILTER (validated: 2.5%)
 # ============================================================================
+
 
 def compute_gap_filter_dates(
     daily_df: pd.DataFrame,
@@ -91,6 +91,7 @@ def compute_portfolio_gap_dates(
 # CRASH FILTER (index previous-day return < -2%)
 # ============================================================================
 
+
 def compute_crash_filter_dates(
     index_daily: pd.DataFrame,
     crash_threshold: float = -0.02,
@@ -121,6 +122,7 @@ def compute_crash_filter_dates(
 # ============================================================================
 # COMBINED NEWS FILTER
 # ============================================================================
+
 
 def compute_news_filter_dates(
     portfolio_daily: dict[str, pd.DataFrame],
@@ -163,6 +165,7 @@ def compute_news_filter_dates(
 # ============================================================================
 # CONVENIENCE: apply news filter to signals
 # ============================================================================
+
 
 def filter_signals_by_news(
     signals: pd.DataFrame,

@@ -12,7 +12,7 @@ from .MarketCalendar import (
     ShouldStartLiveTick,
 )
 from .MutualFunds import (
+    PARAG_PARIKH_FLEXI_CAP_DIRECT_GROWTH,
     GetMutualFundDefinition,
     MutualFundDefinition,
-    PARAG_PARIKH_FLEXI_CAP_DIRECT_GROWTH,
 )

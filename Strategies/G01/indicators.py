@@ -13,10 +13,10 @@ Beginner Note:
 import numpy as np
 import pandas as pd
 
-
 # ============================================================================
 # EXPONENTIAL MOVING AVERAGE (EMA)
 # ============================================================================
+
 
 def ema(series: pd.Series, span: int) -> pd.Series:
     """
@@ -50,6 +50,7 @@ def ema(series: pd.Series, span: int) -> pd.Series:
 # ============================================================================
 # RELATIVE STRENGTH INDEX (RSI)
 # ============================================================================
+
 
 def rsi(close: pd.Series, period: int = 14) -> pd.Series:
     """
@@ -85,13 +86,13 @@ def rsi(close: pd.Series, period: int = 14) -> pd.Series:
         not the direction. High RSI means prices rose quickly recently.
     """
     delta = close.diff()
-    gain = delta.clip(lower=0)      # Only positive changes (losses become 0)
-    loss = -delta.clip(upper=0)     # Only negative changes (gains become 0)
+    gain = delta.clip(lower=0)  # Only positive changes (losses become 0)
+    loss = -delta.clip(upper=0)  # Only negative changes (gains become 0)
 
     # Calculate exponential moving averages of gains and losses
     # Using Wilder's smoothing method (alpha = 1/period)
-    avg_gain = gain.ewm(alpha=1/period, adjust=False, min_periods=period).mean()
-    avg_loss = loss.ewm(alpha=1/period, adjust=False, min_periods=period).mean()
+    avg_gain = gain.ewm(alpha=1 / period, adjust=False, min_periods=period).mean()
+    avg_loss = loss.ewm(alpha=1 / period, adjust=False, min_periods=period).mean()
 
     # Relative Strength = Average Gain / Average Loss
     rs = avg_gain / avg_loss.replace(0, np.nan)  # Avoid division by zero
@@ -103,6 +104,7 @@ def rsi(close: pd.Series, period: int = 14) -> pd.Series:
 # ============================================================================
 # TRUE RANGE (TR)
 # ============================================================================
+
 
 def true_range(df: pd.DataFrame) -> pd.Series:
     """
@@ -138,9 +140,9 @@ def true_range(df: pd.DataFrame) -> pd.Series:
 
     return pd.concat(
         [
-            df["High"] - df["Low"],                    # Bar's own range
-            (df["High"] - prev_close).abs(),          # Gap from yesterday's close (up)
-            (df["Low"] - prev_close).abs(),           # Gap from yesterday's close (down)
+            df["High"] - df["Low"],  # Bar's own range
+            (df["High"] - prev_close).abs(),  # Gap from yesterday's close (up)
+            (df["Low"] - prev_close).abs(),  # Gap from yesterday's close (down)
         ],
         axis=1,
     ).max(axis=1)
@@ -149,6 +151,7 @@ def true_range(df: pd.DataFrame) -> pd.Series:
 # ============================================================================
 # AVERAGE TRUE RANGE (ATR)
 # ============================================================================
+
 
 def atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
     """
@@ -185,12 +188,13 @@ def atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
         You might set stops at 1.5× ATR for both, but in dollar terms
         the higher-volatility stock gets a wider stop.
     """
-    return true_range(df).ewm(alpha=1/period, adjust=False, min_periods=period).mean()
+    return true_range(df).ewm(alpha=1 / period, adjust=False, min_periods=period).mean()
 
 
 # ============================================================================
 # VOLUME-BASED INDICATORS
 # ============================================================================
+
 
 def volume_ratio(volume: pd.Series, bar_no: pd.Series, lookback: int = 20) -> pd.Series:
     """
@@ -229,6 +233,7 @@ def volume_ratio(volume: pd.Series, bar_no: pd.Series, lookback: int = 20) -> pd
 # ============================================================================
 # SIMPLE PRICE MOVEMENTS
 # ============================================================================
+
 
 def prev_close(close: pd.Series) -> pd.Series:
     """

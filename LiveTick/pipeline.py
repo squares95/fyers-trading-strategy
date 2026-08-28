@@ -1,16 +1,21 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from queue import Full, Empty, Queue
+from queue import Empty, Full, Queue
 from threading import Event, Lock, Thread
-from typing import Any, Callable
+from typing import Any
 from zoneinfo import ZoneInfo
 
-from .candle_builder import MARKET_CLOSE_TIME
-from .candle_builder import Candle, MinuteCandleBuilder, TickRecord, extract_tick_records
+from .candle_builder import (
+    MARKET_CLOSE_TIME,
+    Candle,
+    MinuteCandleBuilder,
+    TickRecord,
+    extract_tick_records,
+)
 from .csv_store import CandleCsvStore, DataContinuityError, RollingDerivedTimeframes, read_csv_tail
 from .tick_store import TickJsonlStore
-
 
 FatalCallback = Callable[[BaseException], None]
 IST = ZoneInfo("Asia/Kolkata")
@@ -114,7 +119,11 @@ class LiveTickPipeline:
         try:
             self.queue.put_nowait((kind, payload))
         except Full:
-            self._set_fatal(RuntimeError(f"Live tick queue overflow for {self.symbol}; stopping to protect data quality."))
+            self._set_fatal(
+                RuntimeError(
+                    f"Live tick queue overflow for {self.symbol}; stopping to protect data quality."
+                )
+            )
             self.stop_requested.set()
 
     def _run(self) -> None:

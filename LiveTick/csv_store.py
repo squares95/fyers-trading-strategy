@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from io import StringIO
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import pandas as pd
 
 import Actions as Main
+
 from .candle_builder import Candle
 
 
@@ -88,7 +90,9 @@ def _is_allowed_datetime_jump(last_dt: datetime, next_dt: datetime, minutes: int
         return False
     if last_dt.date() == next_dt.date():
         return next_dt == last_dt + timedelta(minutes=minutes)
-    final_bucket_start = (datetime.combine(last_dt.date(), time(15, 29)) - timedelta(minutes=minutes - 1)).time()
+    final_bucket_start = (
+        datetime.combine(last_dt.date(), time(15, 29)) - timedelta(minutes=minutes - 1)
+    ).time()
     return last_dt.time() >= final_bucket_start and next_dt.time() == time(9, 15)
 
 
@@ -119,7 +123,9 @@ class CandleCsvStore:
             strict_minutes=1,
         )
 
-    def append_timeframe_candle(self, timeframe: str, candle: Candle, strict_minutes: int | None) -> AppendResult:
+    def append_timeframe_candle(
+        self, timeframe: str, candle: Candle, strict_minutes: int | None
+    ) -> AppendResult:
         return self.append_raw_rows(timeframe, [candle.to_raw_row()], strict_minutes=strict_minutes)
 
     def append_raw_rows(
@@ -140,7 +146,9 @@ class CandleCsvStore:
             if raw_df.empty:
                 return AppendResult(timeframe, 0, None, None)
             first_dt = pd.to_datetime(raw_df.iloc[0]["Datetime"]).to_pydatetime()
-            if strict_minutes is not None and not _is_allowed_datetime_jump(last_dt, first_dt, strict_minutes):
+            if strict_minutes is not None and not _is_allowed_datetime_jump(
+                last_dt, first_dt, strict_minutes
+            ):
                 raise DataContinuityError(
                     f"{self.symbol} {timeframe} gap detected: last={last_dt}, next={first_dt}"
                 )
@@ -154,7 +162,11 @@ class CandleCsvStore:
 
     def _with_indicators(self, path: Path, new_raw_df: pd.DataFrame) -> pd.DataFrame:
         tail = read_csv_tail(path, self.indicator_tail_rows)
-        tail_raw = tail[Main.RAW_COLUMNS].copy() if not tail.empty else pd.DataFrame(columns=Main.RAW_COLUMNS)
+        tail_raw = (
+            tail[Main.RAW_COLUMNS].copy()
+            if not tail.empty
+            else pd.DataFrame(columns=Main.RAW_COLUMNS)
+        )
         combined = Main.normalize_candles(pd.concat([tail_raw, new_raw_df], ignore_index=True))
         final = Main.add_indicators(combined, log_fn=lambda _message: None)
         return final.tail(len(new_raw_df)).reset_index(drop=True)
@@ -222,9 +234,13 @@ class _IntradayAggregator:
     def _bucket(self, dt: datetime) -> datetime:
         market_open_minutes = 9 * 60 + 15
         minutes_from_midnight = dt.hour * 60 + dt.minute
-        bucket_offset = ((minutes_from_midnight - market_open_minutes) // self.minutes) * self.minutes
+        bucket_offset = (
+            (minutes_from_midnight - market_open_minutes) // self.minutes
+        ) * self.minutes
         bucket_minutes = market_open_minutes + bucket_offset
-        return dt.replace(hour=bucket_minutes // 60, minute=bucket_minutes % 60, second=0, microsecond=0)
+        return dt.replace(
+            hour=bucket_minutes // 60, minute=bucket_minutes % 60, second=0, microsecond=0
+        )
 
     def _finalize(self) -> Candle | None:
         if not self._rows or len(self._rows) < self.minutes:

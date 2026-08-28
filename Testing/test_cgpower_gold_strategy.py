@@ -8,7 +8,6 @@ from unittest.mock import patch
 
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -65,10 +64,14 @@ class CGPowerGoldStrategyTests(unittest.TestCase):
         with TemporaryDirectory(dir=str(Path.cwd())) as tmp:
             report_path = Path(tmp) / "scan.xlsx"
             strategy = G01Strategy(data_folder=Path(tmp) / "Data", report_folder=Path(tmp))
-            with patch("Strategies.G01.Strategy.DataDownload.Download") as download, patch(
-                "Strategies.G01.Strategy.BuildTrades",
-                side_effect=fake_build_trades,
-            ), patch("Strategies.G01.Strategy.SaveScanReport", return_value=report_path):
+            with (
+                patch("Strategies.G01.Strategy.DataDownload.Download") as download,
+                patch(
+                    "Strategies.G01.Strategy.BuildTrades",
+                    side_effect=fake_build_trades,
+                ),
+                patch("Strategies.G01.Strategy.SaveScanReport", return_value=report_path),
+            ):
                 strategy.Scan(["CGPOWER"], days=5)
 
             download.assert_called_once()
@@ -88,10 +91,16 @@ class CGPowerGoldStrategyTests(unittest.TestCase):
 
         with TemporaryDirectory(dir=str(Path.cwd())) as tmp:
             strategy = G01Strategy(data_folder=Path(tmp) / "Data", report_folder=Path(tmp))
-            with patch("Strategies.G01.Strategy.DataDownload.Download") as download, patch(
-                "Strategies.G01.Strategy.BuildTrades",
-                side_effect=fake_build_trades,
-            ), patch("Strategies.G01.Strategy.SaveScanReport", return_value=Path(tmp) / "scan.xlsx"):
+            with (
+                patch("Strategies.G01.Strategy.DataDownload.Download") as download,
+                patch(
+                    "Strategies.G01.Strategy.BuildTrades",
+                    side_effect=fake_build_trades,
+                ),
+                patch(
+                    "Strategies.G01.Strategy.SaveScanReport", return_value=Path(tmp) / "scan.xlsx"
+                ),
+            ):
                 strategy.Scan(["CGPOWER"], days=5, updateData=False)
 
             download.assert_not_called()

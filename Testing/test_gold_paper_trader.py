@@ -11,7 +11,6 @@ from unittest.mock import patch
 
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -32,9 +31,9 @@ from Paper.GoldPaperTrader import (
     read_report_csv,
     report_xlsx_path,
     run_once,
-    signal_alert_message,
     should_run_single_offmarket_check,
     should_start_live_tick,
+    signal_alert_message,
     timeframe_path,
 )
 
@@ -67,7 +66,10 @@ class GoldPaperTraderTests(unittest.TestCase):
         signals = generate_live_signals(df)
 
         self.assertEqual(len(signals), 1)
-        self.assertEqual(pd.Timestamp(signals.iloc[0]["entry_time"]).to_pydatetime(), datetime(2026, 6, 19, 10, 5))
+        self.assertEqual(
+            pd.Timestamp(signals.iloc[0]["entry_time"]).to_pydatetime(),
+            datetime(2026, 6, 19, 10, 5),
+        )
         self.assertTrue(pd.isna(signals.iloc[0]["entry"]))
 
     def test_signal_status_line_is_green_and_detailed(self):
@@ -88,7 +90,9 @@ class GoldPaperTraderTests(unittest.TestCase):
 
         text = output.getvalue()
         self.assertIn("\033[92m", text)
-        self.assertIn("CGPOWER: SIGNAL HIT Long signal=10:00 entry=10:05 strength=82.4 band=Strong", text)
+        self.assertIn(
+            "CGPOWER: SIGNAL HIT Long signal=10:00 entry=10:05 strength=82.4 band=Strong", text
+        )
         self.assertIn("\033[0m", text)
 
     def test_charge_model_handles_short_sell_side_and_buy_side(self):
@@ -122,8 +126,12 @@ class GoldPaperTraderTests(unittest.TestCase):
             one_min_final = Main.add_indicators(one_min, log_fn=lambda _message: None)
             five_min_final = Main.add_indicators(five_min, log_fn=lambda _message: None)
             timeframe_path(symbol, Main.TIMEFRAME_1MIN, data_folder).parent.mkdir(parents=True)
-            one_min_final.to_csv(timeframe_path(symbol, Main.TIMEFRAME_1MIN, data_folder), index=False)
-            five_min_final.to_csv(timeframe_path(symbol, Main.TIMEFRAME_5MIN, data_folder), index=False)
+            one_min_final.to_csv(
+                timeframe_path(symbol, Main.TIMEFRAME_1MIN, data_folder), index=False
+            )
+            five_min_final.to_csv(
+                timeframe_path(symbol, Main.TIMEFRAME_5MIN, data_folder), index=False
+            )
 
             messages = run_once(
                 [symbol],
@@ -191,9 +199,12 @@ class GoldPaperTraderTests(unittest.TestCase):
         with TemporaryDirectory(dir=str(Path.cwd())) as tmp:
             root = Path(tmp)
             session = {"pid": 123, "metadata": {"symbols": ["CGPOWER", "HDFCBANK"]}}
-            with patch("Paper.GoldPaperTrader.load_session", return_value=session), patch(
-                "Paper.GoldPaperTrader.is_pid_running",
-                return_value=True,
+            with (
+                patch("Paper.GoldPaperTrader.load_session", return_value=session),
+                patch(
+                    "Paper.GoldPaperTrader.is_pid_running",
+                    return_value=True,
+                ),
             ):
                 owned, thread, errors, messages = ensure_live_tick_feed(
                     ["CGPOWER"],
@@ -225,7 +236,9 @@ class GoldPaperTraderTests(unittest.TestCase):
             self.assertIn("auto-start is disabled", messages[0])
 
     def test_live_tick_session_symbols_normalizes_fyers_names(self):
-        symbols = live_tick_session_symbols({"metadata": {"symbols": ["NSE:CGPOWER-EQ", "hdfcbank"]}})
+        symbols = live_tick_session_symbols(
+            {"metadata": {"symbols": ["NSE:CGPOWER-EQ", "hdfcbank"]}}
+        )
 
         self.assertEqual(symbols, {"CGPOWER", "HDFCBANK"})
 

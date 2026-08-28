@@ -12,12 +12,12 @@ We don't have a free news API, so we use:
 Hypothesis: Avoiding chaos days improves Sharpe and reduces drawdown
 without sacrificing much upside.
 """
+
 import json
 import sys
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -43,7 +43,9 @@ def resolve_data_path(symbol: str, timeframe: str) -> Path:
 # The filter is market-level (gap/crash/range), not per-stock,
 # so a subset is enough to validate it works.
 SLIM_AVAILABLE_STOCKS = [
-    "CGPOWER", "HDFCBANK", "SUZLON",  # stocks present in slim bundle
+    "CGPOWER",
+    "HDFCBANK",
+    "SUZLON",  # stocks present in slim bundle
 ]
 PORTFOLIO_STOCKS = SLIM_AVAILABLE_STOCKS  # use slim subset for filter testing
 
@@ -112,12 +114,12 @@ def compute_range_filter(stocks: list[str], range_threshold: float = 0.04) -> se
 def run_gold_with_filter(symbol: str, blocked_dates: set) -> pd.DataFrame:
     """Run SUPER GOLD on a stock, blocking signals on filtered dates."""
     try:
-        from Strategies.G01.features import prepare_features
-        from Strategies.G01.signals import generate_signals
         from Strategies.G01.backtest import backtest
-        from Strategies.G01.regime_filter import daily_regime_table
-        from Strategies.G01.strength_scorer import signal_strength_table
+        from Strategies.G01.features import prepare_features
         from Strategies.G01.Gold import get_super_gold_config
+        from Strategies.G01.regime_filter import daily_regime_table
+        from Strategies.G01.signals import generate_signals
+        from Strategies.G01.strength_scorer import signal_strength_table
 
         data_path = resolve_data_path(symbol, "5MIN")
         if not data_path.exists():
@@ -142,40 +144,45 @@ def run_gold_with_filter(symbol: str, blocked_dates: set) -> pd.DataFrame:
 
         strength = signal_strength_table(df, signals, config)
         signals = signals.merge(
-            strength[['date', 'direction', 'signal_strength', 'strength_trigger_component']],
-            on=['date', 'direction'], how='left'
+            strength[["date", "direction", "signal_strength", "strength_trigger_component"]],
+            on=["date", "direction"],
+            how="left",
         )
         signals = signals[
-            (signals['signal_strength'] >= 45) &
-            (signals['strength_trigger_component'] >= 0.15)
+            (signals["signal_strength"] >= 45) & (signals["strength_trigger_component"] >= 0.15)
         ].copy()
         if len(signals) == 0:
             return pd.DataFrame()
 
         trades = backtest(df, signals, config)
-        trades['symbol'] = symbol
+        trades["symbol"] = symbol
         return trades
-    except Exception as e:
+    except Exception:
         return pd.DataFrame()
 
 
 def calc_metrics(trades_df: pd.DataFrame) -> dict:
     if len(trades_df) == 0:
-        return {"total_trades": 0, "net_return_pct": 0, "profit_factor": 0,
-                "win_rate_pct": 0, "max_drawdown_pct": 0}
-    net = trades_df['net_return'] * 100
-    wins = trades_df[trades_df['net_return'] > 0]
-    losses = trades_df[trades_df['net_return'] <= 0]
-    gross_p = wins['net_return'].sum() * 100 if len(wins) else 0
-    gross_l = abs(losses['net_return'].sum() * 100) if len(losses) else 0
-    pf = gross_p / gross_l if gross_l > 0 else float('inf')
-    cum = trades_df.sort_values('entry_time')['net_return'].cumsum() * 100
+        return {
+            "total_trades": 0,
+            "net_return_pct": 0,
+            "profit_factor": 0,
+            "win_rate_pct": 0,
+            "max_drawdown_pct": 0,
+        }
+    net = trades_df["net_return"] * 100
+    wins = trades_df[trades_df["net_return"] > 0]
+    losses = trades_df[trades_df["net_return"] <= 0]
+    gross_p = wins["net_return"].sum() * 100 if len(wins) else 0
+    gross_l = abs(losses["net_return"].sum() * 100) if len(losses) else 0
+    pf = gross_p / gross_l if gross_l > 0 else float("inf")
+    cum = trades_df.sort_values("entry_time")["net_return"].cumsum() * 100
     dd = (cum - cum.cummax()).min()
     return {
-        "total_trades": int(len(trades_df)),
+        "total_trades": len(trades_df),
         "net_return_pct": round(net.sum(), 2),
         "profit_factor": round(pf, 3),
-        "win_rate_pct": round((trades_df['net_return'] > 0).mean() * 100, 1),
+        "win_rate_pct": round((trades_df["net_return"] > 0).mean() * 100, 1),
         "max_drawdown_pct": round(dd, 2),
         "avg_trade_pct": round(net.mean(), 3),
     }
@@ -193,17 +200,19 @@ def run_scenario(name: str, blocked_dates: set) -> dict:
         return {"scenario": name, "blocked_days": len(blocked_dates), "metrics": {}}
     combined = pd.concat(all_trades, ignore_index=True)
     metrics = calc_metrics(combined)
-    metrics['scenario'] = name
-    metrics['blocked_days'] = len(blocked_dates)
-    print(f"  NET: {metrics['net_return_pct']:+.2f}%  |  PF: {metrics['profit_factor']}  |  "
-          f"DD: {metrics['max_drawdown_pct']}%  |  Trades: {metrics['total_trades']}")
+    metrics["scenario"] = name
+    metrics["blocked_days"] = len(blocked_dates)
+    print(
+        f"  NET: {metrics['net_return_pct']:+.2f}%  |  PF: {metrics['profit_factor']}  |  "
+        f"DD: {metrics['max_drawdown_pct']}%  |  Trades: {metrics['total_trades']}"
+    )
     return metrics
 
 
 def main():
-    print("="*70)
+    print("=" * 70)
     print("EXPERIMENT 6: NEWS/SENTIMENT REGIME FILTER")
-    print("="*70)
+    print("=" * 70)
     print(f"Time: {datetime.now():%Y-%m-%d %H:%M:%S}")
     print(f"Portfolio: {PORTFOLIO_STOCKS}")
     print(f"Index for crash filter: {INDEX_SYMBOL}\n")
@@ -258,17 +267,19 @@ def main():
     strict = run_scenario("STRICT (gap&crash | range)", strict_dates)
 
     # 6. Summary comparison
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("SCENARIO COMPARISON")
-    print("="*70)
+    print("=" * 70)
     print(f"{'Scenario':<35} {'Trades':>7} {'Net%':>8} {'PF':>7} {'DD%':>7}")
-    print("-"*70)
+    print("-" * 70)
     for r in [baseline, gap_only, crash_only, range_only, combined, strict]:
-        m = r.get('metrics', r)
-        if not m or m.get('total_trades', 0) == 0:
+        m = r.get("metrics", r)
+        if not m or m.get("total_trades", 0) == 0:
             continue
-        print(f"{m.get('scenario','?'):<35} {m['total_trades']:>7} "
-              f"{m['net_return_pct']:>+7.2f}% {m['profit_factor']:>7.3f} {m['max_drawdown_pct']:>7.2f}")
+        print(
+            f"{m.get('scenario','?'):<35} {m['total_trades']:>7} "
+            f"{m['net_return_pct']:>+7.2f}% {m['profit_factor']:>7.3f} {m['max_drawdown_pct']:>7.2f}"
+        )
 
     # 7. Save results
     output_dir = Path("Research/GroqAnalysis")
@@ -285,32 +296,32 @@ def main():
             "strict": len(strict_dates),
         },
         "scenarios": {
-            "baseline": baseline.get('metrics', baseline),
-            "gap_only": gap_only.get('metrics', gap_only),
-            "crash_only": crash_only.get('metrics', crash_only),
-            "range_only": range_only.get('metrics', range_only),
-            "combined": combined.get('metrics', combined),
-            "strict": strict.get('metrics', strict),
-        }
+            "baseline": baseline.get("metrics", baseline),
+            "gap_only": gap_only.get("metrics", gap_only),
+            "crash_only": crash_only.get("metrics", crash_only),
+            "range_only": range_only.get("metrics", range_only),
+            "combined": combined.get("metrics", combined),
+            "strict": strict.get("metrics", strict),
+        },
     }
     with open(output_dir / f"exp06_{ts}.json", "w") as f:
         json.dump(results, f, indent=2)
     print(f"\n[Saved] Research/GroqAnalysis/exp06_{ts}.json")
 
     # 8. Recommendation
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("RECOMMENDATION")
-    print("="*70)
-    base_net = baseline.get('metrics', baseline).get('net_return_pct', 0)
-    base_dd = baseline.get('metrics', baseline).get('max_drawdown_pct', 0)
+    print("=" * 70)
+    base_net = baseline.get("metrics", baseline).get("net_return_pct", 0)
+    base_dd = baseline.get("metrics", baseline).get("max_drawdown_pct", 0)
     print(f"Baseline: {base_net:+.2f}% net, {base_dd}% DD")
     for r in [gap_only, crash_only, range_only, combined, strict]:
-        m = r.get('metrics', r)
-        if not m or m.get('total_trades', 0) == 0:
+        m = r.get("metrics", r)
+        if not m or m.get("total_trades", 0) == 0:
             continue
-        name = m.get('scenario', '?')
-        net = m['net_return_pct']
-        dd = m['max_drawdown_pct']
+        name = m.get("scenario", "?")
+        net = m["net_return_pct"]
+        dd = m["max_drawdown_pct"]
         verdict = ""
         if net > base_net and dd > base_dd:
             verdict = "  ** WINNER (better both) **"

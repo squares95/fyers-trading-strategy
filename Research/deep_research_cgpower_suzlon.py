@@ -10,9 +10,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from Strategies.G01 import Core as base
-from Strategies.G01 import Gold as gold
-
+from Strategies.G01 import Core as base, Gold as gold
 
 DATA_DIR = ROOT / "Data"
 SLIM_DIR = ROOT / "Data" / "_slim"
@@ -83,12 +81,16 @@ def make_daily_features(symbol: str) -> pd.DataFrame:
     daily["intraday_ret"] = daily["Close"] / daily["Open"] - 1
     daily["gap_pct"] = daily["Open"] / daily["prev_close"] - 1
     daily["range_pct"] = (daily["High"] - daily["Low"]) / daily["prev_close"]
-    daily["close_pos"] = (daily["Close"] - daily["Low"]) / (daily["High"] - daily["Low"]).replace(0, np.nan)
+    daily["close_pos"] = (daily["Close"] - daily["Low"]) / (daily["High"] - daily["Low"]).replace(
+        0, np.nan
+    )
     daily["turnover"] = daily["Close"] * daily["Volume"]
     daily["vol_med20_prev"] = daily["Volume"].rolling(20, min_periods=10).median().shift(1)
     daily["vol_ratio20"] = daily["Volume"] / daily["vol_med20_prev"]
     for window in [10, 20, 50, 100, 200]:
-        daily[f"sma{window}"] = daily["Close"].rolling(window, min_periods=max(5, window // 2)).mean()
+        daily[f"sma{window}"] = (
+            daily["Close"].rolling(window, min_periods=max(5, window // 2)).mean()
+        )
     for window in [5, 20, 60, 120]:
         daily[f"ret_{window}d"] = daily["Close"] / daily["Close"].shift(window) - 1
     daily["trend_quality"] = 0
@@ -127,12 +129,18 @@ def make_weekly_features(daily: pd.DataFrame) -> pd.DataFrame:
         .reset_index(drop=True)
     )
     weekly["ret"] = weekly["Close"] / weekly["Open"] - 1
-    weekly["close_pos"] = (weekly["Close"] - weekly["Low"]) / (weekly["High"] - weekly["Low"]).replace(0, np.nan)
-    weekly["vol_ratio20"] = weekly["Volume"] / weekly["Volume"].rolling(20, min_periods=8).median().shift(1)
+    weekly["close_pos"] = (weekly["Close"] - weekly["Low"]) / (
+        weekly["High"] - weekly["Low"]
+    ).replace(0, np.nan)
+    weekly["vol_ratio20"] = weekly["Volume"] / weekly["Volume"].rolling(
+        20, min_periods=8
+    ).median().shift(1)
     weekly["ret_8w"] = weekly["Close"] / weekly["Close"].shift(8) - 1
     weekly["sma10"] = weekly["Close"].rolling(10, min_periods=5).mean()
     weekly["sma30"] = weekly["Close"].rolling(30, min_periods=10).mean()
-    weekly["weekly_bull"] = (weekly["Close"] > weekly["sma10"]) & (weekly["sma10"] > weekly["sma30"])
+    weekly["weekly_bull"] = (weekly["Close"] > weekly["sma10"]) & (
+        weekly["sma10"] > weekly["sma30"]
+    )
     return weekly
 
 
@@ -144,7 +152,7 @@ def summarize_daily(symbol: str, daily: pd.DataFrame) -> dict[str, object]:
     cagr = float((last["Close"] / first["Close"]) ** (1 / years) - 1) if years > 0 else np.nan
     return {
         "symbol": symbol,
-        "days": int(len(daily)),
+        "days": len(daily),
         "start": str(first["Datetime"]),
         "end": str(last["Datetime"]),
         "first_close": round(float(first["Close"]), 2),
@@ -185,7 +193,20 @@ def top_table(daily: pd.DataFrame, symbol: str, direction: int, n: int = 12) -> 
 
 
 def top_weeks(weekly: pd.DataFrame, symbol: str, n: int = 10) -> pd.DataFrame:
-    cols = ["week_start", "week_end", "days", "Open", "High", "Low", "Close", "ret", "up_days", "close_pos", "vol_ratio20", "weekly_bull"]
+    cols = [
+        "week_start",
+        "week_end",
+        "days",
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "ret",
+        "up_days",
+        "close_pos",
+        "vol_ratio20",
+        "weekly_bull",
+    ]
     out = weekly[cols].sort_values("ret", ascending=False).head(n).copy()
     out["symbol"] = symbol
     for col in ["ret", "close_pos", "vol_ratio20"]:
@@ -229,28 +250,63 @@ def intraday_profile(symbol: str, daily: pd.DataFrame) -> tuple[dict[str, object
             }
         )
     intraday = pd.DataFrame(profiles)
-    merged = intraday.merge(daily[["date", "ret", "vol_ratio20", "regime"]], on="date", how="left", suffixes=("", "_daily"))
+    merged = intraday.merge(
+        daily[["date", "ret", "vol_ratio20", "regime"]],
+        on="date",
+        how="left",
+        suffixes=("", "_daily"),
+    )
     strong_up = merged[(merged["ret"] >= 0.03) & (merged["vol_ratio20"] >= 1.2)]
     strong_down = merged[(merged["ret"] <= -0.03) & (merged["vol_ratio20"] >= 1.2)]
     bull = merged[merged["regime"] == "bull_expansion"]
     summary = {
         "symbol": symbol,
-        "days": int(len(merged)),
+        "days": len(merged),
         "avg_first30_ret_bps": round(float(merged["first30_ret"].mean() * 10000), 2),
-        "first30_predicts_positive_day_pct": round(float((merged[merged["first30_ret"] > 0]["day_ret"] > 0).mean() * 100), 2),
+        "first30_predicts_positive_day_pct": round(
+            float((merged[merged["first30_ret"] > 0]["day_ret"] > 0).mean() * 100), 2
+        ),
         "orb_up_days": int(merged["orb_up"].sum()),
-        "orb_up_success_pct": round(float(merged.loc[merged["orb_up"], "orb_up_success"].mean() * 100), 2),
-        "orb_up_avg_close_bps": round(float(merged.loc[merged["orb_up"], "orb_up_close_ret"].mean() * 10000), 2),
+        "orb_up_success_pct": round(
+            float(merged.loc[merged["orb_up"], "orb_up_success"].mean() * 100), 2
+        ),
+        "orb_up_avg_close_bps": round(
+            float(merged.loc[merged["orb_up"], "orb_up_close_ret"].mean() * 10000), 2
+        ),
         "orb_down_days": int(merged["orb_down"].sum()),
-        "orb_down_success_pct": round(float(merged.loc[merged["orb_down"], "orb_down_success"].mean() * 100), 2),
-        "orb_down_avg_close_bps": round(float(merged.loc[merged["orb_down"], "orb_down_close_ret"].mean() * 10000), 2),
-        "bull_regime_orb_up_success_pct": round(float(bull.loc[bull["orb_up"], "orb_up_success"].mean() * 100), 2) if not bull.empty else 0.0,
-        "strong_up_days": int(len(strong_up)),
-        "strong_up_avg_first30_bps": round(float(strong_up["first30_ret"].mean() * 10000), 2) if not strong_up.empty else 0.0,
-        "strong_up_orb_up_success_pct": round(float(strong_up.loc[strong_up["orb_up"], "orb_up_success"].mean() * 100), 2) if not strong_up.empty else 0.0,
-        "strong_down_days": int(len(strong_down)),
-        "strong_down_avg_first30_bps": round(float(strong_down["first30_ret"].mean() * 10000), 2) if not strong_down.empty else 0.0,
-        "strong_down_orb_down_success_pct": round(float(strong_down.loc[strong_down["orb_down"], "orb_down_success"].mean() * 100), 2) if not strong_down.empty else 0.0,
+        "orb_down_success_pct": round(
+            float(merged.loc[merged["orb_down"], "orb_down_success"].mean() * 100), 2
+        ),
+        "orb_down_avg_close_bps": round(
+            float(merged.loc[merged["orb_down"], "orb_down_close_ret"].mean() * 10000), 2
+        ),
+        "bull_regime_orb_up_success_pct": (
+            round(float(bull.loc[bull["orb_up"], "orb_up_success"].mean() * 100), 2)
+            if not bull.empty
+            else 0.0
+        ),
+        "strong_up_days": len(strong_up),
+        "strong_up_avg_first30_bps": (
+            round(float(strong_up["first30_ret"].mean() * 10000), 2) if not strong_up.empty else 0.0
+        ),
+        "strong_up_orb_up_success_pct": (
+            round(float(strong_up.loc[strong_up["orb_up"], "orb_up_success"].mean() * 100), 2)
+            if not strong_up.empty
+            else 0.0
+        ),
+        "strong_down_days": len(strong_down),
+        "strong_down_avg_first30_bps": (
+            round(float(strong_down["first30_ret"].mean() * 10000), 2)
+            if not strong_down.empty
+            else 0.0
+        ),
+        "strong_down_orb_down_success_pct": (
+            round(
+                float(strong_down.loc[strong_down["orb_down"], "orb_down_success"].mean() * 100), 2
+            )
+            if not strong_down.empty
+            else 0.0
+        ),
     }
     return summary, merged
 
@@ -305,8 +361,8 @@ def strategy_summary(symbol: str) -> dict[str, object]:
     }
     return {
         "symbol": symbol,
-        "signals_before_regime": int(len(all_signals)),
-        "signals_after_regime": int(len(regime_signals)),
+        "signals_before_regime": len(all_signals),
+        "signals_after_regime": len(regime_signals),
         "final": gold.equity_stats(final),
         "by_side": by_side,
         "strength_bands": gold.strength_band_stats(final).to_dict(orient="records"),
@@ -348,9 +404,15 @@ def run() -> dict[str, object]:
             "regime_counts": daily["regime"].value_counts().to_dict(),
         }
 
-    pd.DataFrame(symbol_summaries).to_csv(OUTPUT_DIR / "deep_research_symbol_summary.csv", index=False)
-    pd.DataFrame(intraday_summaries).to_csv(OUTPUT_DIR / "deep_research_intraday_summary.csv", index=False)
-    pd.DataFrame(strategy_summaries).to_csv(OUTPUT_DIR / "deep_research_strategy_summary.csv", index=False)
+    pd.DataFrame(symbol_summaries).to_csv(
+        OUTPUT_DIR / "deep_research_symbol_summary.csv", index=False
+    )
+    pd.DataFrame(intraday_summaries).to_csv(
+        OUTPUT_DIR / "deep_research_intraday_summary.csv", index=False
+    )
+    pd.DataFrame(strategy_summaries).to_csv(
+        OUTPUT_DIR / "deep_research_strategy_summary.csv", index=False
+    )
     pd.concat(all_top_days).to_csv(OUTPUT_DIR / "deep_research_top_up_days.csv", index=False)
     pd.concat(all_bottom_days).to_csv(OUTPUT_DIR / "deep_research_top_down_days.csv", index=False)
     pd.concat(all_top_weeks).to_csv(OUTPUT_DIR / "deep_research_top_weeks.csv", index=False)

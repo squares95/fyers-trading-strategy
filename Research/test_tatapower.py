@@ -1,10 +1,12 @@
 """Test SUPER GOLD on newly downloaded stocks."""
+
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from Strategies.G01 import Gold
-from Strategies.G01.Core import prepare_features, generate_signals, backtest
+from Strategies.G01.Core import backtest, generate_signals, prepare_features
 
 
 def test_stock(symbol):
@@ -89,21 +91,25 @@ def main():
             print(f"  {symbol:15s} | {result.get('signals', 0)} signals - {result['note']}")
         elif result.get("best_stats"):
             stats = result["best_stats"]
-            profitable.append({
-                "symbol": symbol,
-                "days": result["days"],
-                "signals": result["signals"],
-                "trades": stats["trades"],
-                "net_pct": stats["net_pct"],
-                "win_rate": stats["win_rate_pct"],
-                "pf": stats["profit_factor"],
-                "max_dd": stats["max_dd_pct"],
-                "threshold": result["best_threshold"],
-            })
-            print(f"  {symbol:15s} | {result['days']:4d} days | {result['signals']:3d} signals | "
-                  f"{stats['trades']:3d} trades | net={stats['net_pct']:6.2f}% | "
-                  f"win={stats['win_rate_pct']:5.1f}% | pf={stats['profit_factor']:.2f} | "
-                  f"dd={stats['max_dd_pct']:6.2f}% | str>={result['best_threshold']}")
+            profitable.append(
+                {
+                    "symbol": symbol,
+                    "days": result["days"],
+                    "signals": result["signals"],
+                    "trades": stats["trades"],
+                    "net_pct": stats["net_pct"],
+                    "win_rate": stats["win_rate_pct"],
+                    "pf": stats["profit_factor"],
+                    "max_dd": stats["max_dd_pct"],
+                    "threshold": result["best_threshold"],
+                }
+            )
+            print(
+                f"  {symbol:15s} | {result['days']:4d} days | {result['signals']:3d} signals | "
+                f"{stats['trades']:3d} trades | net={stats['net_pct']:6.2f}% | "
+                f"win={stats['win_rate_pct']:5.1f}% | pf={stats['profit_factor']:.2f} | "
+                f"dd={stats['max_dd_pct']:6.2f}% | str>={result['best_threshold']}"
+            )
 
     # Summary
     print("\n" + "=" * 80)
@@ -113,8 +119,10 @@ def main():
     if profitable:
         profitable.sort(key=lambda x: x["net_pct"], reverse=True)
         for p in profitable:
-            print(f"  {p['symbol']:15s} | net={p['net_pct']:6.2f}% | pf={p['pf']:.2f} | "
-                  f"dd={p['max_dd']:6.2f}% | {p['trades']} trades")
+            print(
+                f"  {p['symbol']:15s} | net={p['net_pct']:6.2f}% | pf={p['pf']:.2f} | "
+                f"dd={p['max_dd']:6.2f}% | {p['trades']} trades"
+            )
 
         total = sum(p["net_pct"] for p in profitable)
         print(f"\nTotal net if traded all: {total:.2f}%")

@@ -11,6 +11,12 @@
     "range_med60_prev_gt": 0.02,
     "tradeable_days": 538
   },
+  "news_filter": {
+    "enabled": false,
+    "portfolio": [],
+    "gap_threshold": 0.025,
+    "blocked_days": 0
+  },
   "old_strategy_unfiltered": {
     "trades": 560,
     "net_pct": -44.57,
@@ -588,6 +594,7 @@
     "long_first_bar": 8,
     "long_last_signal_bar_exclusive": 60,
     "short_first_bar": 8,
-    "short_last_signal_bar_exclusive": 45
+    "short_last_signal_bar_exclusive": 45,
+    "gap_threshold": 0.025
   }
 }

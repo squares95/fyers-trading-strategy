@@ -9,7 +9,6 @@ from zoneinfo import ZoneInfo
 
 from .candle_builder import TickRecord, normalize_expected_symbol
 
-
 IST = ZoneInfo("Asia/Kolkata")
 
 

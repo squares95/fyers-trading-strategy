@@ -15,12 +15,12 @@ Beginner Note:
 
 import pandas as pd
 
-from .config import DEFAULT_DATA_PATH, MARKET_OPEN, MARKET_CLOSE, BARS_PER_DAY
-
+from .config import BARS_PER_DAY, DEFAULT_DATA_PATH, MARKET_CLOSE, MARKET_OPEN
 
 # ============================================================================
 # DATA LOADING
 # ============================================================================
+
 
 def load_regular_session(path=DEFAULT_DATA_PATH) -> pd.DataFrame:
     """
@@ -65,10 +65,7 @@ def load_regular_session(path=DEFAULT_DATA_PATH) -> pd.DataFrame:
     raw["time"] = raw["Datetime"].dt.strftime("%H:%M")  # "09:15"
 
     # Filter to regular trading hours only
-    regular = raw[
-        (raw["time"] >= MARKET_OPEN) &
-        (raw["time"] <= MARKET_CLOSE)
-    ].copy()
+    regular = raw[(raw["time"] >= MARKET_OPEN) & (raw["time"] <= MARKET_CLOSE)].copy()
 
     # Find days with exactly 75 bars (complete trading days)
     day_counts = regular.groupby("date").size()
@@ -117,6 +114,7 @@ def load_data_for_strategy(path=DEFAULT_DATA_PATH) -> pd.DataFrame:
 # DATA SUMMARY
 # ============================================================================
 
+
 def get_data_summary(df: pd.DataFrame) -> dict:
     """
     Get a quick summary of loaded data.
@@ -135,7 +133,7 @@ def get_data_summary(df: pd.DataFrame) -> dict:
         >>> print(f"Trading days: {summary['trading_days']}")
     """
     return {
-        "total_bars": int(len(df)),
+        "total_bars": len(df),
         "trading_days": int(df["date"].nunique()),
         "start_date": str(df["Datetime"].min()),
         "end_date": str(df["Datetime"].max()),

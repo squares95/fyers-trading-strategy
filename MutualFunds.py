@@ -4,12 +4,12 @@ import csv
 import json
 import os
 import time
+from collections.abc import Callable
 from datetime import date
 from html.parser import HTMLParser
 from io import StringIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Callable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -17,7 +17,6 @@ from urllib.request import Request, urlopen
 import pandas as pd
 
 from Config.MutualFunds import GetMutualFundDefinition, MutualFundDefinition
-
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_DATA_FOLDER = ROOT / "Data"
@@ -171,11 +170,11 @@ def ParseLatestAmfiNav(payload_text: str, fund: MutualFundDefinition) -> pd.Data
     date = pd.to_datetime(row[7].strip(), format="%d-%b-%Y", errors="coerce")
     nav = pd.to_numeric(row[6].strip(), errors="coerce")
     if pd.isna(date) or pd.isna(nav) or float(nav) <= 0:
-        raise MutualFundDataError(f"AMFI returned an invalid latest NAV for scheme {fund.SchemeCode}")
+        raise MutualFundDataError(
+            f"AMFI returned an invalid latest NAV for scheme {fund.SchemeCode}"
+        )
 
-    return pd.DataFrame(
-        [{"Date": date.normalize(), "NAV": float(nav), "Source": "AMFI"}]
-    )
+    return pd.DataFrame([{"Date": date.normalize(), "NAV": float(nav), "Source": "AMFI"}])
 
 
 def ParseOfficialHistory(payload_text: str, fund: MutualFundDefinition) -> pd.DataFrame:
@@ -233,7 +232,9 @@ def ParseAmfiHistoricalNav(
 def ValidateNavFrame(frame: pd.DataFrame, label: str = "NAV data") -> pd.DataFrame:
     required = {"Date", "NAV"}
     if not required.issubset(frame.columns):
-        raise MutualFundDataError(f"{label} is missing required columns: {sorted(required - set(frame.columns))}")
+        raise MutualFundDataError(
+            f"{label} is missing required columns: {sorted(required - set(frame.columns))}"
+        )
 
     result = frame.copy()
     result["Date"] = pd.to_datetime(result["Date"], errors="coerce").dt.normalize()
@@ -251,17 +252,21 @@ def ValidateNavFrame(frame: pd.DataFrame, label: str = "NAV data") -> pd.DataFra
         sample = conflicts.index[0].date().isoformat()
         raise MutualFundDataError(f"{label} contains conflicting NAV values on {sample}")
 
-    source_priority = result["Source"].map(
-        {
-            "LOCAL": 0,
-            "MFAPI": 1,
-            "MFAPI_PPFAS": 2,
-            "PPFAS": 3,
-            "PPFAS_CORRECTED": 4,
-            "AMFI_HISTORY": 5,
-            "AMFI": 6,
-        }
-    ).fillna(0)
+    source_priority = (
+        result["Source"]
+        .map(
+            {
+                "LOCAL": 0,
+                "MFAPI": 1,
+                "MFAPI_PPFAS": 2,
+                "PPFAS": 3,
+                "PPFAS_CORRECTED": 4,
+                "AMFI_HISTORY": 5,
+                "AMFI": 6,
+            }
+        )
+        .fillna(0)
+    )
     result = result.assign(_SourcePriority=source_priority)
     result = result.sort_values(["Date", "_SourcePriority"])
     result = result.drop_duplicates(subset=["Date"], keep="last")
@@ -310,10 +315,11 @@ def VerifyProviderOnlyRows(
     existing_verified = existing[existing["Source"].isin(["AMFI_HISTORY", "AMFI"])]
     for row in provider_only.itertuples(index=False):
         cached = existing_verified[existing_verified["Date"] == row.Date]
-        if not cached.empty and abs(float(cached.iloc[-1]["NAV"]) - float(row.NAV)) <= NAV_MATCH_TOLERANCE:
-            verified.append(
-                {"Date": row.Date, "NAV": float(row.NAV), "Source": "AMFI_HISTORY"}
-            )
+        if (
+            not cached.empty
+            and abs(float(cached.iloc[-1]["NAV"]) - float(row.NAV)) <= NAV_MATCH_TOLERANCE
+        ):
+            verified.append({"Date": row.Date, "NAV": float(row.NAV), "Source": "AMFI_HISTORY"})
             continue
 
         query = urlencode({"frmdate": _FormatAmfiDate(row.Date.date()), "rpt": "0"})
@@ -361,11 +367,15 @@ def MergeNavData(
     official_only_dates = set(comparison.loc[comparison["_merge"] == "right_only", "Date"])
 
     if set(verified_provider_only["Date"]) != provider_only_dates:
-        raise MutualFundDataError("Not all MFAPI provider-only NAV rows were independently verified")
+        raise MutualFundDataError(
+            "Not all MFAPI provider-only NAV rows were independently verified"
+        )
 
     official_history = official_history.copy()
     official_history.loc[official_history["Date"].isin(matched_dates), "Source"] = "MFAPI_PPFAS"
-    official_history.loc[official_history["Date"].isin(corrected_dates), "Source"] = "PPFAS_CORRECTED"
+    official_history.loc[official_history["Date"].isin(corrected_dates), "Source"] = (
+        "PPFAS_CORRECTED"
+    )
 
     latest_overlap = official_history.merge(latest, on="Date", suffixes=("_Ppfas", "_Amfi"))
     if not latest_overlap.empty:

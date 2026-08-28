@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 import Actions as Main
+
 from .backfill import fetch_history_between
 from .csv_store import CandleCsvStore
 
@@ -59,7 +60,9 @@ def compare_candle_frames(
 ) -> CandleValidationReport:
     local = Main.normalize_candles(local)
     reference = Main.normalize_candles(reference)
-    merged = reference.merge(local, on="Datetime", how="outer", suffixes=("_history", "_local"), indicator=True)
+    merged = reference.merge(
+        local, on="Datetime", how="outer", suffixes=("_history", "_local"), indicator=True
+    )
 
     missing_local = int((merged["_merge"] == "left_only").sum())
     missing_history = int((merged["_merge"] == "right_only").sum())

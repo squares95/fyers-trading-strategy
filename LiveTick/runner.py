@@ -1,19 +1,20 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable, Sequence
 from datetime import datetime
 from pathlib import Path
 from threading import Event, Thread
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import Actions as Main
+
 from .backfill import build_startup_plan, run_initial_backfill
 from .csv_store import CandleCsvStore
 from .live_tick import DEFAULT_DATA_TYPE, LiveTickClient
 from .pipeline import LiveTickPipeline
 from .session import RuntimeSession
 from .tick_store import TickJsonlStore
-
 
 EXPECTED_CONTROL_TYPES = {"cn", "ful", "sub", "unsub"}
 EXPECTED_TICK_TYPES = {"sf", "if"}
@@ -186,7 +187,9 @@ class LiveTickMultiSession:
             market_is_open = _market_is_open(fyers)
             plan = build_startup_plan(market_is_open=market_is_open)
 
-            self.stores = {symbol: CandleCsvStore(symbol, self.output_folder) for symbol in self.symbols}
+            self.stores = {
+                symbol: CandleCsvStore(symbol, self.output_folder) for symbol in self.symbols
+            }
 
             if not plan.stream_live:
                 results = {}
@@ -205,7 +208,9 @@ class LiveTickMultiSession:
                 if self.client is not None:
                     self.client.close()
 
-            self.tick_stores = {symbol: TickJsonlStore(symbol, self.tick_root) for symbol in self.symbols}
+            self.tick_stores = {
+                symbol: TickJsonlStore(symbol, self.tick_root) for symbol in self.symbols
+            }
             self.pipelines = {
                 symbol: LiveTickPipeline(
                     symbol,
@@ -310,7 +315,9 @@ class LiveTickMultiSession:
         self._persist_unexpected_payload(message, message_type, symbol)
         print(f"Unexpected live payload routed for review: {message}")
 
-    def _persist_unexpected_payload(self, message: Any, message_type: str | None, symbol: str | None) -> None:
+    def _persist_unexpected_payload(
+        self, message: Any, message_type: str | None, symbol: str | None
+    ) -> None:
         self._unexpected_payload_path.parent.mkdir(parents=True, exist_ok=True)
         payload = {
             "stored_at": datetime.now().isoformat(sep=" "),
@@ -428,7 +435,9 @@ def _market_is_open(fyers) -> bool | None:
             if "CLOSE" in status or "HOLIDAY" in status:
                 return False
 
-    joined = " ".join(str(item.get("status", "")) for item in statuses if isinstance(item, dict)).upper()
+    joined = " ".join(
+        str(item.get("status", "")) for item in statuses if isinstance(item, dict)
+    ).upper()
     if "OPEN" in joined:
         return True
     if "CLOSE" in joined or "HOLIDAY" in joined:

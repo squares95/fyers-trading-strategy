@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
 CHARTS = OUT / "session_charts"
@@ -21,8 +20,14 @@ COST_RATE = 0.001  # 5 bps per side.
 
 
 BOUNDARIES = {
-    "c5": "09:19", "c15": "09:29", "c30": "09:44", "c60": "10:14",
-    "c1430": "14:29", "c1500": "14:59", "c1515": "15:14", "close": "15:29",
+    "c5": "09:19",
+    "c15": "09:29",
+    "c30": "09:44",
+    "c60": "10:14",
+    "c1430": "14:29",
+    "c1500": "14:59",
+    "c1515": "15:14",
+    "close": "15:29",
 }
 
 _SESSION_CACHE: dict[int, dict[pd.Timestamp, pd.DataFrame]] = {}
@@ -82,7 +87,9 @@ def build_daily_features(minutes: pd.DataFrame) -> pd.DataFrame:
         open_price = float(day.iloc[0]["Open"])
         total_volume = max(float(day["Volume"].sum()), 1.0)
         typical = (day["High"] + day["Low"] + day["Close"]) / 3
-        day["CumVWAP"] = (typical * day["Volume"]).cumsum() / day["Volume"].cumsum().replace(0, np.nan)
+        day["CumVWAP"] = (typical * day["Volume"]).cumsum() / day["Volume"].cumsum().replace(
+            0, np.nan
+        )
         opening15 = _window(day, "09:15", "09:29")
         opening30 = _window(day, "09:15", "09:44")
         final60 = _window(day, "14:30", "15:29")
@@ -105,53 +112,84 @@ def build_daily_features(minutes: pd.DataFrame) -> pd.DataFrame:
         c = {key: _at(day, clock) for key, clock in BOUNDARIES.items()}
         open15_span = max(or_high - or_low, 1e-12)
         day_span = max(float(day["High"].max() - day["Low"].min()), 1e-12)
-        records.append({
-            "Date": date, "Open": open_price, "High": day["High"].max(), "Low": day["Low"].min(),
-            "Close": c["close"], "Volume": total_volume, "Bars": len(day),
-            "r5": c["c5"] / open_price - 1, "r15": c["c15"] / open_price - 1,
-            "r30": c["c30"] / open_price - 1, "r60": c["c60"] / open_price - 1,
-            "r_after15": c["close"] / c["c15"] - 1,
-            "r_mid": c["c1430"] / c["c60"] - 1,
-            "r_to1430": c["c1430"] / open_price - 1,
-            "r_close60": c["close"] / c["c1430"] - 1,
-            "r_close30": c["close"] / c["c1500"] - 1,
-            "r_close15": c["close"] / c["c1515"] - 1,
-            "opening15_volume_share": opening15["Volume"].sum() / total_volume,
-            "opening15_volume": opening15["Volume"].sum(),
-            "opening30_volume_share": opening30["Volume"].sum() / total_volume,
-            "closing60_volume_share": final60["Volume"].sum() / total_volume,
-            "closing30_volume_share": final30["Volume"].sum() / total_volume,
-            "closing15_volume_share": final15["Volume"].sum() / total_volume,
-            "opening15_close_position": (c["c15"] - or_low) / open15_span,
-            "day_close_position": (c["close"] - day["Low"].min()) / day_span,
-            "position_1430": (c["c1430"] - day.loc[day["Time"] <= "14:29", "Low"].min()) /
-                             max(day.loc[day["Time"] <= "14:29", "High"].max() - day.loc[day["Time"] <= "14:29", "Low"].min(), 1e-12),
-            "vwap_0929": _at(day, "09:29", "CumVWAP"), "vwap_1429": _at(day, "14:29", "CumVWAP"),
-            "vwap_close": _at(day, "15:29", "CumVWAP"),
-            "opening_range_pct": (or_high / or_low - 1), "opening_range_share": open15_span / day_span,
-            "or_high": or_high, "or_low": or_low, "break_type": break_type,
-            "first_high_break": first_high_time, "first_low_break": first_low_time,
-            "close_above_or": c["close"] > or_high, "close_below_or": c["close"] < or_low,
-        })
+        records.append(
+            {
+                "Date": date,
+                "Open": open_price,
+                "High": day["High"].max(),
+                "Low": day["Low"].min(),
+                "Close": c["close"],
+                "Volume": total_volume,
+                "Bars": len(day),
+                "r5": c["c5"] / open_price - 1,
+                "r15": c["c15"] / open_price - 1,
+                "r30": c["c30"] / open_price - 1,
+                "r60": c["c60"] / open_price - 1,
+                "r_after15": c["close"] / c["c15"] - 1,
+                "r_mid": c["c1430"] / c["c60"] - 1,
+                "r_to1430": c["c1430"] / open_price - 1,
+                "r_close60": c["close"] / c["c1430"] - 1,
+                "r_close30": c["close"] / c["c1500"] - 1,
+                "r_close15": c["close"] / c["c1515"] - 1,
+                "opening15_volume_share": opening15["Volume"].sum() / total_volume,
+                "opening15_volume": opening15["Volume"].sum(),
+                "opening30_volume_share": opening30["Volume"].sum() / total_volume,
+                "closing60_volume_share": final60["Volume"].sum() / total_volume,
+                "closing30_volume_share": final30["Volume"].sum() / total_volume,
+                "closing15_volume_share": final15["Volume"].sum() / total_volume,
+                "opening15_close_position": (c["c15"] - or_low) / open15_span,
+                "day_close_position": (c["close"] - day["Low"].min()) / day_span,
+                "position_1430": (c["c1430"] - day.loc[day["Time"] <= "14:29", "Low"].min())
+                / max(
+                    day.loc[day["Time"] <= "14:29", "High"].max()
+                    - day.loc[day["Time"] <= "14:29", "Low"].min(),
+                    1e-12,
+                ),
+                "vwap_0929": _at(day, "09:29", "CumVWAP"),
+                "vwap_1429": _at(day, "14:29", "CumVWAP"),
+                "vwap_close": _at(day, "15:29", "CumVWAP"),
+                "opening_range_pct": (or_high / or_low - 1),
+                "opening_range_share": open15_span / day_span,
+                "or_high": or_high,
+                "or_low": or_low,
+                "break_type": break_type,
+                "first_high_break": first_high_time,
+                "first_low_break": first_low_time,
+                "close_above_or": c["close"] > or_high,
+                "close_below_or": c["close"] < or_low,
+            }
+        )
     daily = pd.DataFrame(records).set_index("Date").sort_index()
     daily["PrevClose"] = daily["Close"].shift()
     daily["gap"] = daily["Open"] / daily["PrevClose"] - 1
     daily["daily_return"] = daily["Close"] / daily["PrevClose"] - 1
-    true_range = pd.concat([
-        daily["High"] - daily["Low"],
-        (daily["High"] - daily["PrevClose"]).abs(),
-        (daily["Low"] - daily["PrevClose"]).abs(),
-    ], axis=1).max(axis=1)
+    true_range = pd.concat(
+        [
+            daily["High"] - daily["Low"],
+            (daily["High"] - daily["PrevClose"]).abs(),
+            (daily["Low"] - daily["PrevClose"]).abs(),
+        ],
+        axis=1,
+    ).max(axis=1)
     daily["atr20_pct"] = (true_range / daily["PrevClose"]).shift().rolling(20).mean()
     daily["r15_atr"] = daily["r15"] / daily["atr20_pct"]
     daily["r_to1430_atr"] = daily["r_to1430"] / daily["atr20_pct"]
     daily["ema20"] = daily["Close"].ewm(span=20, adjust=False).mean()
     daily["ema50"] = daily["Close"].ewm(span=50, adjust=False).mean()
-    daily["trend_regime"] = np.where((daily["Close"] > daily["ema50"]) & (daily["ema20"] > daily["ema50"]), "uptrend",
-                              np.where((daily["Close"] < daily["ema50"]) & (daily["ema20"] < daily["ema50"]), "downtrend", "mixed"))
+    daily["trend_regime"] = np.where(
+        (daily["Close"] > daily["ema50"]) & (daily["ema20"] > daily["ema50"]),
+        "uptrend",
+        np.where(
+            (daily["Close"] < daily["ema50"]) & (daily["ema20"] < daily["ema50"]),
+            "downtrend",
+            "mixed",
+        ),
+    )
     daily["prior_trend_regime"] = pd.Series(daily["trend_regime"], index=daily.index).shift()
     daily["next_gap"] = daily["Open"].shift(-1) / daily["Close"] - 1
-    daily["opening15_rvol20"] = daily["opening15_volume"] / daily["opening15_volume"].shift().rolling(20).median()
+    daily["opening15_rvol20"] = (
+        daily["opening15_volume"] / daily["opening15_volume"].shift().rolling(20).median()
+    )
     return daily
 
 
@@ -180,11 +218,14 @@ def minute_profile(minutes: pd.DataFrame) -> pd.DataFrame:
 
 def conditional_tables(daily: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     work = daily.dropna(subset=["atr20_pct"]).copy()
-    work["opening_strength"] = pd.cut(work["r15_atr"],
+    work["opening_strength"] = pd.cut(
+        work["r15_atr"],
         [-np.inf, -0.35, -0.15, 0.15, 0.35, np.inf],
-        labels=["strong_down", "moderate_down", "flat", "moderate_up", "strong_up"])
+        labels=["strong_down", "moderate_down", "flat", "moderate_up", "strong_up"],
+    )
     opening = work.groupby("opening_strength", observed=True).agg(
-        Days=("Close", "size"), MedianFirst15=("r15", "median"),
+        Days=("Close", "size"),
+        MedianFirst15=("r15", "median"),
         MedianRestOfDay=("r_after15", "median"),
         ContinueRate=("r_after15", lambda x: np.nan),
         MedianClosePosition=("day_close_position", "median"),
@@ -194,34 +235,48 @@ def conditional_tables(daily: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame,
         direction = np.sign(subset["r15"])
         opening.loc[label, "ContinueRate"] = (np.sign(subset["r_after15"]) == direction).mean()
 
-    breakouts = work.groupby("break_type").agg(
-        Days=("Close", "size"), MedianDayReturn=("daily_return", "median"),
-        MedianClosePosition=("day_close_position", "median"),
-        CloseAboveOR=("close_above_or", "mean"), CloseBelowOR=("close_below_or", "mean"),
-    ).sort_values("Days", ascending=False)
+    breakouts = (
+        work.groupby("break_type")
+        .agg(
+            Days=("Close", "size"),
+            MedianDayReturn=("daily_return", "median"),
+            MedianClosePosition=("day_close_position", "median"),
+            CloseAboveOR=("close_above_or", "mean"),
+            CloseBelowOR=("close_below_or", "mean"),
+        )
+        .sort_values("Days", ascending=False)
+    )
 
-    work["preclose_strength"] = pd.cut(work["r_to1430_atr"],
+    work["preclose_strength"] = pd.cut(
+        work["r_to1430_atr"],
         [-np.inf, -0.5, -0.2, 0.2, 0.5, np.inf],
-        labels=["strong_down", "moderate_down", "flat", "moderate_up", "strong_up"])
+        labels=["strong_down", "moderate_down", "flat", "moderate_up", "strong_up"],
+    )
     closing = work.groupby("preclose_strength", observed=True).agg(
-        Days=("Close", "size"), MedianTo1430=("r_to1430", "median"),
-        MedianFinalHour=("r_close60", "median"), MedianFinal30=("r_close30", "median"),
+        Days=("Close", "size"),
+        MedianTo1430=("r_to1430", "median"),
+        MedianFinalHour=("r_close60", "median"),
+        MedianFinal30=("r_close30", "median"),
         MedianNextGap=("next_gap", "median"),
     )
     for label in closing.index:
         subset = work[work["preclose_strength"] == label]
         direction = np.sign(subset["r_to1430"])
-        closing.loc[label, "FinalHourContinueRate"] = (np.sign(subset["r_close60"]) == direction).mean()
+        closing.loc[label, "FinalHourContinueRate"] = (
+            np.sign(subset["r_close60"]) == direction
+        ).mean()
     return opening, breakouts, closing
 
 
-def simulate_trade(day: pd.DataFrame, direction: int, entry_time: str, exit_time: str,
-                   stop: float, target: float) -> float:
+def simulate_trade(
+    day: pd.DataFrame, direction: int, entry_time: str, exit_time: str, stop: float, target: float
+) -> float:
     return simulate_trade_detail(day, direction, entry_time, exit_time, stop, target)["NetReturn"]
 
 
-def simulate_trade_detail(day: pd.DataFrame, direction: int, entry_time: str, exit_time: str,
-                          stop: float, target: float) -> dict[str, float | str]:
+def simulate_trade_detail(
+    day: pd.DataFrame, direction: int, entry_time: str, exit_time: str, stop: float, target: float
+) -> dict[str, float | str]:
     future = day[day["Time"].between(entry_time, exit_time)].sort_values("Datetime")
     if future.empty:
         return {"NetReturn": np.nan}
@@ -246,15 +301,27 @@ def simulate_trade_detail(day: pd.DataFrame, direction: int, entry_time: str, ex
             break
     gross = direction * (exit_price / entry - 1)
     return {
-        "EntryTime": entry_time, "EntryPrice": entry, "Stop": stop, "Target": target,
-        "ExitTime": actual_exit_time, "ExitPrice": exit_price, "ExitReason": exit_reason,
-        "GrossReturn": gross, "NetReturn": gross - COST_RATE,
+        "EntryTime": entry_time,
+        "EntryPrice": entry,
+        "Stop": stop,
+        "Target": target,
+        "ExitTime": actual_exit_time,
+        "ExitPrice": exit_price,
+        "ExitReason": exit_reason,
+        "GrossReturn": gross,
+        "NetReturn": gross - COST_RATE,
     }
 
 
-def evaluate_rule(rule: Rule, daily: pd.DataFrame, minutes: pd.DataFrame, volume_cutoff: float,
-                  start: pd.Timestamp | None = None, end: pd.Timestamp | None = None,
-                  max_risk_pct: float = 0.012) -> pd.DataFrame:
+def evaluate_rule(
+    rule: Rule,
+    daily: pd.DataFrame,
+    minutes: pd.DataFrame,
+    volume_cutoff: float,
+    start: pd.Timestamp | None = None,
+    end: pd.Timestamp | None = None,
+    max_risk_pct: float = 0.012,
+) -> pd.DataFrame:
     eligible = daily.copy()
     if start is not None:
         eligible = eligible[eligible.index >= start]
@@ -266,7 +333,11 @@ def evaluate_rule(rule: Rule, daily: pd.DataFrame, minutes: pd.DataFrame, volume
         if pd.isna(row["r15_atr"]) or abs(row["r15_atr"]) < rule.strength_atr:
             continue
         direction = 1 if row["r15_atr"] > 0 else -1
-        directional_position = row["opening15_close_position"] if direction > 0 else 1 - row["opening15_close_position"]
+        directional_position = (
+            row["opening15_close_position"]
+            if direction > 0
+            else 1 - row["opening15_close_position"]
+        )
         if directional_position < rule.position_min or row["opening15_rvol20"] < volume_cutoff:
             continue
         day = sessions[date]
@@ -283,19 +354,29 @@ def evaluate_rule(rule: Rule, daily: pd.DataFrame, minutes: pd.DataFrame, volume
 
 def metrics(trades: pd.DataFrame) -> dict[str, float]:
     if trades.empty:
-        return {"Trades": 0, "WinRate": np.nan, "ProfitFactor": np.nan, "Expectancy": np.nan, "MaxDrawdown": np.nan}
+        return {
+            "Trades": 0,
+            "WinRate": np.nan,
+            "ProfitFactor": np.nan,
+            "Expectancy": np.nan,
+            "MaxDrawdown": np.nan,
+        }
     r = trades["NetReturn"]
     gross_profit, gross_loss = r[r > 0].sum(), -r[r < 0].sum()
     equity = (1 + r).cumprod()
     drawdown = equity / equity.cummax() - 1
     return {
-        "Trades": len(r), "WinRate": (r > 0).mean(),
+        "Trades": len(r),
+        "WinRate": (r > 0).mean(),
         "ProfitFactor": gross_profit / gross_loss if gross_loss > 0 else np.inf,
-        "Expectancy": r.mean(), "MaxDrawdown": drawdown.min(),
+        "Expectancy": r.mean(),
+        "MaxDrawdown": drawdown.min(),
     }
 
 
-def discover_opening_rule(daily: pd.DataFrame, minutes: pd.DataFrame) -> tuple[pd.DataFrame, Rule, float]:
+def discover_opening_rule(
+    daily: pd.DataFrame, minutes: pd.DataFrame
+) -> tuple[pd.DataFrame, Rule, float]:
     train = daily[daily.index <= TRAIN_END].dropna(subset=["r15_atr"])
     quantiles = {q: train["opening15_rvol20"].quantile(q) for q in (0.25, 0.50, 0.75)}
     results = []
@@ -311,27 +392,48 @@ def discover_opening_rule(daily: pd.DataFrame, minutes: pd.DataFrame) -> tuple[p
     robust = grid[(grid["Trades"] >= 30) & (grid["Expectancy"] > 0)].copy()
     if robust.empty:
         robust = grid[grid["Trades"] >= 20].copy()
-    robust["score"] = robust["ProfitFactor"].clip(upper=4) * np.sqrt(robust["Trades"]) * (1 + robust["Expectancy"] * 100)
+    robust["score"] = (
+        robust["ProfitFactor"].clip(upper=4)
+        * np.sqrt(robust["Trades"])
+        * (1 + robust["Expectancy"] * 100)
+    )
     best = robust.sort_values(["score", "ProfitFactor"], ascending=False).iloc[0]
-    rule = Rule("opening_drive", best["strength_atr"], best["position_min"], best["volume_quantile"], best["target_r"])
+    rule = Rule(
+        "opening_drive",
+        best["strength_atr"],
+        best["position_min"],
+        best["volume_quantile"],
+        best["target_r"],
+    )
     return grid, rule, float(best["volume_cutoff"])
 
 
-def strategy_summary(rule: Rule, cutoff: float, daily: pd.DataFrame, minutes: pd.DataFrame) -> pd.DataFrame:
+def strategy_summary(
+    rule: Rule, cutoff: float, daily: pd.DataFrame, minutes: pd.DataFrame
+) -> pd.DataFrame:
     train_trades = evaluate_rule(rule, daily, minutes, cutoff, end=TRAIN_END)
     holdout_trades = evaluate_rule(rule, daily, minutes, cutoff, start=HOLDOUT_START)
     rows = []
-    for sample, trades in ((f"Discovery_through_{TRAIN_END.date()}", train_trades),
-                           (f"Holdout_from_{HOLDOUT_START.date()}", holdout_trades)):
+    for sample, trades in (
+        (f"Discovery_through_{TRAIN_END.date()}", train_trades),
+        (f"Holdout_from_{HOLDOUT_START.date()}", holdout_trades),
+    ):
         row = {"Sample": sample, **metrics(trades)}
         rows.append(row)
     return pd.DataFrame(rows)
 
 
-def evaluate_sweep_rule(daily: pd.DataFrame, minutes: pd.DataFrame, latest_signal: str,
-                        stop_mode: str, target_r: float, rvol_cutoff: float,
-                        start: pd.Timestamp | None = None, end: pd.Timestamp | None = None,
-                        max_risk_pct: float = 0.012) -> pd.DataFrame:
+def evaluate_sweep_rule(
+    daily: pd.DataFrame,
+    minutes: pd.DataFrame,
+    latest_signal: str,
+    stop_mode: str,
+    target_r: float,
+    rvol_cutoff: float,
+    start: pd.Timestamp | None = None,
+    end: pd.Timestamp | None = None,
+    max_risk_pct: float = 0.012,
+) -> pd.DataFrame:
     eligible = daily.copy()
     if start is not None:
         eligible = eligible[eligible.index >= start]
@@ -365,16 +467,25 @@ def evaluate_sweep_rule(daily: pd.DataFrame, minutes: pd.DataFrame, latest_signa
             continue
         target = entry + direction * target_r * risk
         trade = simulate_trade_detail(day, direction, entry_time, "15:14", stop, target)
-        rows.append({
-            "Date": date, "Direction": direction, "BreakType": row["break_type"],
-            "SignalTime": str(day.loc[signal_idx, "Time"]), "Opening15Return": row["r15"],
-            "Opening15RVOL": row["opening15_rvol20"], "Gap": row["gap"],
-            "NiftyDayReturn": row.get("nifty_daily_return", np.nan), **trade,
-        })
+        rows.append(
+            {
+                "Date": date,
+                "Direction": direction,
+                "BreakType": row["break_type"],
+                "SignalTime": str(day.loc[signal_idx, "Time"]),
+                "Opening15Return": row["r15"],
+                "Opening15RVOL": row["opening15_rvol20"],
+                "Gap": row["gap"],
+                "NiftyDayReturn": row.get("nifty_daily_return", np.nan),
+                **trade,
+            }
+        )
     return pd.DataFrame(rows)
 
 
-def discover_sweep_rule(daily: pd.DataFrame, minutes: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, float | str]]:
+def discover_sweep_rule(
+    daily: pd.DataFrame, minutes: pd.DataFrame
+) -> tuple[pd.DataFrame, dict[str, float | str]]:
     train = daily[daily.index <= TRAIN_END]
     rvol_levels = {
         "none": 0.0,
@@ -386,36 +497,68 @@ def discover_sweep_rule(daily: pd.DataFrame, minutes: pd.DataFrame) -> tuple[pd.
         for stop_mode in ("midpoint", "opposite_boundary"):
             for target_r in (1.0, 1.5, 2.0):
                 for rvol_name, cutoff in rvol_levels.items():
-                    trades = evaluate_sweep_rule(daily, minutes, latest, stop_mode, target_r, cutoff, end=TRAIN_END)
-                    rows.append({"latest_signal": latest, "stop_mode": stop_mode, "target_r": target_r,
-                                 "rvol_filter": rvol_name, "rvol_cutoff": cutoff, **metrics(trades)})
+                    trades = evaluate_sweep_rule(
+                        daily, minutes, latest, stop_mode, target_r, cutoff, end=TRAIN_END
+                    )
+                    rows.append(
+                        {
+                            "latest_signal": latest,
+                            "stop_mode": stop_mode,
+                            "target_r": target_r,
+                            "rvol_filter": rvol_name,
+                            "rvol_cutoff": cutoff,
+                            **metrics(trades),
+                        }
+                    )
     grid = pd.DataFrame(rows)
     candidates = grid[(grid["Trades"] >= 40) & (grid["Expectancy"] > 0)].copy()
     if candidates.empty:
         candidates = grid[grid["Trades"] >= 30].copy()
-    candidates["score"] = candidates["ProfitFactor"].clip(upper=3) * np.sqrt(candidates["Trades"]) * (1 + candidates["Expectancy"] * 100)
+    candidates["score"] = (
+        candidates["ProfitFactor"].clip(upper=3)
+        * np.sqrt(candidates["Trades"])
+        * (1 + candidates["Expectancy"] * 100)
+    )
     best = candidates.sort_values(["score", "ProfitFactor"], ascending=False).iloc[0]
     return grid, best.to_dict()
 
 
-def sweep_summary(best: dict[str, float | str], daily: pd.DataFrame, minutes: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    kwargs = dict(latest_signal=str(best["latest_signal"]), stop_mode=str(best["stop_mode"]),
-                  target_r=float(best["target_r"]), rvol_cutoff=float(best["rvol_cutoff"]))
+def sweep_summary(
+    best: dict[str, float | str], daily: pd.DataFrame, minutes: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    kwargs = dict(
+        latest_signal=str(best["latest_signal"]),
+        stop_mode=str(best["stop_mode"]),
+        target_r=float(best["target_r"]),
+        rvol_cutoff=float(best["rvol_cutoff"]),
+    )
     train = evaluate_sweep_rule(daily, minutes, **kwargs, end=TRAIN_END)
     holdout = evaluate_sweep_rule(daily, minutes, **kwargs, start=HOLDOUT_START)
-    summary = pd.DataFrame([
-        {"Sample": f"Discovery_through_{TRAIN_END.date()}", **metrics(train)},
-        {"Sample": f"Holdout_from_{HOLDOUT_START.date()}", **metrics(holdout)},
-    ])
-    replay = pd.concat([holdout.nlargest(3, "NetReturn"), holdout.nsmallest(3, "NetReturn")]).drop_duplicates("Date")
+    summary = pd.DataFrame(
+        [
+            {"Sample": f"Discovery_through_{TRAIN_END.date()}", **metrics(train)},
+            {"Sample": f"Holdout_from_{HOLDOUT_START.date()}", **metrics(holdout)},
+        ]
+    )
+    replay = pd.concat(
+        [holdout.nlargest(3, "NetReturn"), holdout.nsmallest(3, "NetReturn")]
+    ).drop_duplicates("Date")
     return summary, replay.sort_values("Date")
 
 
-def evaluate_orb_rule(daily: pd.DataFrame, minutes: pd.DataFrame, latest_signal: str,
-                      stop_mode: str, target_r: float, rvol_cutoff: float,
-                      position_min: float, require_gap_alignment: bool,
-                      start: pd.Timestamp | None = None, end: pd.Timestamp | None = None,
-                      max_risk_pct: float = 0.012) -> pd.DataFrame:
+def evaluate_orb_rule(
+    daily: pd.DataFrame,
+    minutes: pd.DataFrame,
+    latest_signal: str,
+    stop_mode: str,
+    target_r: float,
+    rvol_cutoff: float,
+    position_min: float,
+    require_gap_alignment: bool,
+    start: pd.Timestamp | None = None,
+    end: pd.Timestamp | None = None,
+    max_risk_pct: float = 0.012,
+) -> pd.DataFrame:
     eligible = daily.copy()
     if start is not None:
         eligible = eligible[eligible.index >= start]
@@ -436,7 +579,11 @@ def evaluate_orb_rule(daily: pd.DataFrame, minutes: pd.DataFrame, latest_signal:
             continue
         direction = 1 if first_high < first_low else -1
         signal_idx = int(min(first_high, first_low))
-        directional_position = row["opening15_close_position"] if direction > 0 else 1 - row["opening15_close_position"]
+        directional_position = (
+            row["opening15_close_position"]
+            if direction > 0
+            else 1 - row["opening15_close_position"]
+        )
         if directional_position < position_min:
             continue
         if require_gap_alignment and np.sign(row["gap"]) != direction:
@@ -446,21 +593,34 @@ def evaluate_orb_rule(daily: pd.DataFrame, minutes: pd.DataFrame, latest_signal:
         entry_time = str(day.loc[signal_idx + 1, "Time"])
         entry = float(day.loc[signal_idx + 1, "Open"])
         midpoint = (row["or_high"] + row["or_low"]) / 2
-        stop = midpoint if stop_mode == "midpoint" else (row["or_low"] if direction > 0 else row["or_high"])
+        stop = (
+            midpoint
+            if stop_mode == "midpoint"
+            else (row["or_low"] if direction > 0 else row["or_high"])
+        )
         risk = direction * (entry - stop)
         if risk <= 0 or risk / entry > max_risk_pct:
             continue
         target = entry + direction * target_r * risk
         trade = simulate_trade_detail(day, direction, entry_time, "15:14", stop, target)
-        rows.append({
-            "Date": date, "Direction": direction, "SignalTime": str(day.loc[signal_idx, "Time"]),
-            "Opening15Return": row["r15"], "Opening15RVOL": row["opening15_rvol20"],
-            "Gap": row["gap"], "NiftyDayReturn": row.get("nifty_daily_return", np.nan), **trade,
-        })
+        rows.append(
+            {
+                "Date": date,
+                "Direction": direction,
+                "SignalTime": str(day.loc[signal_idx, "Time"]),
+                "Opening15Return": row["r15"],
+                "Opening15RVOL": row["opening15_rvol20"],
+                "Gap": row["gap"],
+                "NiftyDayReturn": row.get("nifty_daily_return", np.nan),
+                **trade,
+            }
+        )
     return pd.DataFrame(rows)
 
 
-def discover_orb_rule(daily: pd.DataFrame, minutes: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, float | str | bool]]:
+def discover_orb_rule(
+    daily: pd.DataFrame, minutes: pd.DataFrame
+) -> tuple[pd.DataFrame, dict[str, float | str | bool]]:
     train = daily[daily.index <= TRAIN_END]
     rvol_levels = {"none": 0.0, "median": float(train["opening15_rvol20"].median())}
     rows = []
@@ -470,31 +630,66 @@ def discover_orb_rule(daily: pd.DataFrame, minutes: pd.DataFrame) -> tuple[pd.Da
                 for rvol_name, cutoff in rvol_levels.items():
                     for position_min in (0.70,):
                         for gap_alignment in (False, True):
-                            trades = evaluate_orb_rule(daily, minutes, latest, stop_mode, target_r, cutoff,
-                                                       position_min, gap_alignment, end=TRAIN_END)
-                            rows.append({"latest_signal": latest, "stop_mode": stop_mode, "target_r": target_r,
-                                         "rvol_filter": rvol_name, "rvol_cutoff": cutoff,
-                                         "position_min": position_min, "gap_alignment": gap_alignment,
-                                         **metrics(trades)})
+                            trades = evaluate_orb_rule(
+                                daily,
+                                minutes,
+                                latest,
+                                stop_mode,
+                                target_r,
+                                cutoff,
+                                position_min,
+                                gap_alignment,
+                                end=TRAIN_END,
+                            )
+                            rows.append(
+                                {
+                                    "latest_signal": latest,
+                                    "stop_mode": stop_mode,
+                                    "target_r": target_r,
+                                    "rvol_filter": rvol_name,
+                                    "rvol_cutoff": cutoff,
+                                    "position_min": position_min,
+                                    "gap_alignment": gap_alignment,
+                                    **metrics(trades),
+                                }
+                            )
     grid = pd.DataFrame(rows)
     candidates = grid[(grid["Trades"] >= 40) & (grid["Expectancy"] > 0)].copy()
     if candidates.empty:
         candidates = grid[grid["Trades"] >= 30].copy()
-    candidates["score"] = candidates["ProfitFactor"].clip(upper=3) * np.sqrt(candidates["Trades"]) * (1 + candidates["Expectancy"] * 100)
-    return grid, candidates.sort_values(["score", "ProfitFactor"], ascending=False).iloc[0].to_dict()
+    candidates["score"] = (
+        candidates["ProfitFactor"].clip(upper=3)
+        * np.sqrt(candidates["Trades"])
+        * (1 + candidates["Expectancy"] * 100)
+    )
+    return (
+        grid,
+        candidates.sort_values(["score", "ProfitFactor"], ascending=False).iloc[0].to_dict(),
+    )
 
 
-def orb_summary(best: dict[str, float | str | bool], daily: pd.DataFrame, minutes: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    kwargs = dict(latest_signal=str(best["latest_signal"]), stop_mode=str(best["stop_mode"]),
-                  target_r=float(best["target_r"]), rvol_cutoff=float(best["rvol_cutoff"]),
-                  position_min=float(best["position_min"]), require_gap_alignment=bool(best["gap_alignment"]))
+def orb_summary(
+    best: dict[str, float | str | bool], daily: pd.DataFrame, minutes: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    kwargs = dict(
+        latest_signal=str(best["latest_signal"]),
+        stop_mode=str(best["stop_mode"]),
+        target_r=float(best["target_r"]),
+        rvol_cutoff=float(best["rvol_cutoff"]),
+        position_min=float(best["position_min"]),
+        require_gap_alignment=bool(best["gap_alignment"]),
+    )
     train = evaluate_orb_rule(daily, minutes, **kwargs, end=TRAIN_END)
     holdout = evaluate_orb_rule(daily, minutes, **kwargs, start=HOLDOUT_START)
-    summary = pd.DataFrame([
-        {"Sample": f"Discovery_through_{TRAIN_END.date()}", **metrics(train)},
-        {"Sample": f"Holdout_from_{HOLDOUT_START.date()}", **metrics(holdout)},
-    ])
-    replay = pd.concat([holdout.nlargest(3, "NetReturn"), holdout.nsmallest(3, "NetReturn")]).drop_duplicates("Date")
+    summary = pd.DataFrame(
+        [
+            {"Sample": f"Discovery_through_{TRAIN_END.date()}", **metrics(train)},
+            {"Sample": f"Holdout_from_{HOLDOUT_START.date()}", **metrics(holdout)},
+        ]
+    )
+    replay = pd.concat(
+        [holdout.nlargest(3, "NetReturn"), holdout.nsmallest(3, "NetReturn")]
+    ).drop_duplicates("Date")
     return summary, replay.sort_values("Date")
 
 
@@ -510,7 +705,11 @@ def chart_activity(profile: pd.DataFrame, symbol: str = "CGPOWER") -> None:
     ax1.set_xticks(ticks, [profile.index[i] for i in ticks])
     ax1.axvspan(0, 29, color="#4C78A8", alpha=0.08)
     ax1.axvspan(len(profile) - 60, len(profile) - 1, color="#F28E2B", alpha=0.08)
-    ax1.set_title(f"{symbol} intraday activity: the open dominates volatility, the close regains volume", loc="left", weight="bold")
+    ax1.set_title(
+        f"{symbol} intraday activity: the open dominates volatility, the close regains volume",
+        loc="left",
+        weight="bold",
+    )
     ax1.grid(axis="y", alpha=0.18)
     fig.tight_layout()
     fig.savefig(CHARTS / "01_intraday_activity_curve.png", dpi=180)
@@ -540,11 +739,27 @@ def chart_breakouts(breakouts: pd.DataFrame) -> None:
     display = breakouts.copy()
     fig, ax = plt.subplots(figsize=(10, 5.5))
     x = np.arange(len(display))
-    ax.bar(x - 0.18, display["CloseAboveOR"] * 100, width=0.36, label="Closes above opening range", color="#4C78A8")
-    ax.bar(x + 0.18, display["CloseBelowOR"] * 100, width=0.36, label="Closes below opening range", color="#F28E2B")
+    ax.bar(
+        x - 0.18,
+        display["CloseAboveOR"] * 100,
+        width=0.36,
+        label="Closes above opening range",
+        color="#4C78A8",
+    )
+    ax.bar(
+        x + 0.18,
+        display["CloseBelowOR"] * 100,
+        width=0.36,
+        label="Closes below opening range",
+        color="#F28E2B",
+    )
     ax.set_xticks(x, display.index)
     ax.set_ylabel("Sessions (%)")
-    ax.set_title("Opening-range breaks: one-sided acceptance versus two-sided noise", loc="left", weight="bold")
+    ax.set_title(
+        "Opening-range breaks: one-sided acceptance versus two-sided noise",
+        loc="left",
+        weight="bold",
+    )
     ax.legend(frameon=False)
     ax.grid(axis="y", alpha=0.18)
     fig.tight_layout()
@@ -552,11 +767,22 @@ def chart_breakouts(breakouts: pd.DataFrame) -> None:
     plt.close(fig)
 
 
-def write_report(daily: pd.DataFrame, profile: pd.DataFrame, opening: pd.DataFrame, breakouts: pd.DataFrame,
-                 closing: pd.DataFrame, rule: Rule, cutoff: float, strategy: pd.DataFrame,
-                 sweep_best: dict[str, float | str], sweep_results: pd.DataFrame,
-                 replay: pd.DataFrame, orb_best: dict[str, float | str | bool],
-                 orb_results: pd.DataFrame, orb_replay: pd.DataFrame) -> None:
+def write_report(
+    daily: pd.DataFrame,
+    profile: pd.DataFrame,
+    opening: pd.DataFrame,
+    breakouts: pd.DataFrame,
+    closing: pd.DataFrame,
+    rule: Rule,
+    cutoff: float,
+    strategy: pd.DataFrame,
+    sweep_best: dict[str, float | str],
+    sweep_results: pd.DataFrame,
+    replay: pd.DataFrame,
+    orb_best: dict[str, float | str | bool],
+    orb_results: pd.DataFrame,
+    orb_replay: pd.DataFrame,
+) -> None:
     train_days = (daily.index <= TRAIN_END).sum()
     holdout_days = (daily.index >= HOLDOUT_START).sum()
     first30_vol = daily["opening30_volume_share"].median() * 100
@@ -657,8 +883,22 @@ def main() -> None:
     chart_activity(profile)
     chart_conditionals(opening, closing)
     chart_breakouts(breakouts)
-    write_report(daily, profile, opening, breakouts, closing, rule, cutoff, strategy,
-                 sweep_best, sweep_results, replay, orb_best, orb_results, orb_replay)
+    write_report(
+        daily,
+        profile,
+        opening,
+        breakouts,
+        closing,
+        rule,
+        cutoff,
+        strategy,
+        sweep_best,
+        sweep_results,
+        replay,
+        orb_best,
+        orb_results,
+        orb_replay,
+    )
     print(f"Session study complete: {len(daily)} sessions, rule={rule}, volume_cutoff={cutoff:.4f}")
     print(strategy.to_string(index=False))
     print(f"Liquidity sweep rule: {sweep_best}")

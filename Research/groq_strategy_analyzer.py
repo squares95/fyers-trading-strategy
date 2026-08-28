@@ -6,6 +6,7 @@ and generate insights for next experiments.
 
 Run: python Research/groq_strategy_analyzer.py
 """
+
 import json
 import os
 import sys
@@ -16,10 +17,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pandas as pd
-import numpy as np
 
 # Import strategy
-from Strategies.G01 import Gold
 
 # Groq client
 try:
@@ -35,10 +34,7 @@ def get_groq_client():
     if not api_key:
         raise ValueError("GROQ_API_KEY not set. Run: export GROQ_API_KEY='your_key'")
 
-    return OpenAI(
-        base_url="https://api.groq.com/openai/v1",
-        api_key=api_key
-    )
+    return OpenAI(base_url="https://api.groq.com/openai/v1", api_key=api_key)
 
 
 def run_backtest(symbol: str, config_name: str = "SUPER_GOLD") -> dict:
@@ -51,16 +47,18 @@ def run_backtest(symbol: str, config_name: str = "SUPER_GOLD") -> dict:
         # Get config
         if config_name == "SUPER_GOLD":
             from Strategies.G01.Gold import get_super_gold_config
+
             config = get_super_gold_config()
         elif config_name == "GOLD":
             from Strategies.G01.Gold import get_gold_config
+
             config = get_gold_config()
         else:
             from Strategies.G01.Gold import get_gold_config
+
             config = get_gold_config()
 
         # Run backtest using Gold.run() method
-        from Strategies.G01.Gold import Gold
 
         # Check if data exists
         data_path = Path(f"Data/{symbol}/{symbol}_5MIN.csv")
@@ -68,10 +66,11 @@ def run_backtest(symbol: str, config_name: str = "SUPER_GOLD") -> dict:
             return {"error": f"Data not found: {data_path}"}
 
         # Load data
-        df = pd.read_csv(data_path, parse_dates=['datetime'])
+        df = pd.read_csv(data_path, parse_dates=["datetime"])
 
         # Prepare features
-        from Strategies.G01 import prepare_features, generate_signals, backtest, summarize_trades
+        from Strategies.G01 import backtest, generate_signals, prepare_features, summarize_trades
+
         df = prepare_features(df, config)
         signals = generate_signals(df, config)
         trades = backtest(signals, config)
@@ -79,8 +78,10 @@ def run_backtest(symbol: str, config_name: str = "SUPER_GOLD") -> dict:
 
         # Gold-specific: regime + strength filtering
         from Strategies.G01.Gold import (
-            daily_regime_table, filter_signals_by_regime,
-            attach_signal_strength, filter_by_strength
+            attach_signal_strength,
+            daily_regime_table,
+            filter_by_strength,
+            filter_signals_by_regime,
         )
 
         regime = daily_regime_table(df)
@@ -99,8 +100,8 @@ def run_backtest(symbol: str, config_name: str = "SUPER_GOLD") -> dict:
             "num_trades_gold": len(trades_gold),
             "regime_stats": {
                 "total_days": len(regime),
-                "tradeable_days": len(regime[regime['tradeable'] == True])
-            }
+                "tradeable_days": len(regime[regime["tradeable"] == True]),
+            },
         }
 
     except Exception as e:
@@ -165,27 +166,30 @@ Format your response as:
 3. Any red flags or concerns
 """
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("SENDING TO GROQ...")
-    print("="*60)
+    print("=" * 60)
 
     response = client.chat.completions.create(
         model="openai/gpt-oss-120b",
         messages=[
-            {"role": "system", "content": "You are an expert quantitative trading researcher. Be concise, specific, and actionable."},
-            {"role": "user", "content": prompt}
+            {
+                "role": "system",
+                "content": "You are an expert quantitative trading researcher. Be concise, specific, and actionable.",
+            },
+            {"role": "user", "content": prompt},
         ],
         max_tokens=1500,
-        temperature=0.3
+        temperature=0.3,
     )
 
     return response.choices[0].message.content
 
 
 def main():
-    print("="*60)
+    print("=" * 60)
     print("GROQ STRATEGY ANALYZER")
-    print("="*60)
+    print("=" * 60)
     print(f"Time: {datetime.now():%Y-%m-%d %H:%M:%S}")
 
     # Check API key
@@ -206,15 +210,15 @@ def main():
         print(json.dumps(result, indent=2, default=str)[:500] + "...")
 
     # Get Groq insights
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("ASKING GROQ FOR INSIGHTS...")
-    print("="*60)
+    print("=" * 60)
 
     insights = ask_groq_for_insights(results)
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("GROQ INSIGHTS")
-    print("="*60)
+    print("=" * 60)
     print(insights)
 
     # Save results
@@ -229,7 +233,7 @@ def main():
 
     # Save insights
     with open(output_dir / f"groq_insights_{timestamp}.txt", "w") as f:
-        f.write(f"# Groq Strategy Analysis\n")
+        f.write("# Groq Strategy Analysis\n")
         f.write(f"# Time: {datetime.now():%Y-%m-%d %H:%M:%S}\n\n")
         f.write(insights)
 
@@ -244,7 +248,7 @@ if __name__ == "__main__":
     insights = main()
 
     # Print just the insights for easy copying
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("INSIGHTS (copy below this line)")
-    print("="*60)
+    print("=" * 60)
     print(insights)

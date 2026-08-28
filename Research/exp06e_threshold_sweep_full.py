@@ -6,6 +6,7 @@ Finds the best balance of net return, profit factor, and max drawdown.
 
 Output: Research/GroqAnalysis/exp06e_<timestamp>.json
 """
+
 from __future__ import annotations
 
 import json
@@ -18,16 +19,20 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from exp06_news_filter import (
-    compute_gap_filter,
-    run_gold_with_filter,
     calc_metrics,
+    compute_gap_filter,
     resolve_data_path,
-    SLIM_DIR,
+    run_gold_with_filter,
 )
 
 FULL_PORTFOLIO = [
-    "CGPOWER", "DRREDDY", "INDUSINDBK", "BHEL",
-    "HCLTECH", "TITAN", "M&M",
+    "CGPOWER",
+    "DRREDDY",
+    "INDUSINDBK",
+    "BHEL",
+    "HCLTECH",
+    "TITAN",
+    "M&M",
 ]
 INDEX_SYMBOL = "BANKNIFTY"
 OOS_START = pd.Timestamp("2025-01-01")
@@ -47,7 +52,12 @@ def run_scenario_full(symbols, blocked, label):
             continue
         t = run_gold_with_filter(sym, blocked)
         if len(t) > 0:
-            t = t[pd.to_datetime(t["entry_time"] if "entry_time" in t.columns else t.get("signal_time")) >= OOS_START].copy()
+            t = t[
+                pd.to_datetime(
+                    t["entry_time"] if "entry_time" in t.columns else t.get("signal_time")
+                )
+                >= OOS_START
+            ].copy()
             if len(t) > 0:
                 t["symbol"] = sym
                 all_trades.append(t)

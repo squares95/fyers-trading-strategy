@@ -1,4 +1,4 @@
-from Actions import RunExample, ClearScreen
+from Actions import ClearScreen, RunExample
 
 if __name__ == "__main__":
     ClearScreen()

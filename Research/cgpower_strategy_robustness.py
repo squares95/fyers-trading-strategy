@@ -20,7 +20,6 @@ from Strategies.G01.Core import (
     summarize_trades,
 )
 
-
 OUTPUT_DIR = Path(__file__).resolve().parent
 RNG_SEED = 20260601
 
@@ -41,7 +40,7 @@ def equity_stats(returns: pd.Series | np.ndarray) -> dict[str, float | int]:
     gp = ret[ret > 0].sum()
     gl = -ret[ret < 0].sum()
     return {
-        "trades": int(len(ret)),
+        "trades": len(ret),
         "net_pct": round(float((equity.iloc[-1] - 1) * 100), 2),
         "avg_bps": round(float(ret.mean() * 10000), 2),
         "win_rate_pct": round(float((ret > 0).mean() * 100), 2),
@@ -194,12 +193,12 @@ def neighborhood_summary() -> dict[str, float | int]:
     ]
     return {
         "available": 1,
-        "pullback_candidates": int(len(pullbacks)),
-        "pullback_train_and_test_profitable": int(len(both_profitable)),
-        "pullback_robust_pf_cluster": int(len(robust)),
-        "best_robust_pf_avg_bps": round(float(robust["all_avg_bps"].max()), 2)
-        if not robust.empty
-        else 0.0,
+        "pullback_candidates": len(pullbacks),
+        "pullback_train_and_test_profitable": len(both_profitable),
+        "pullback_robust_pf_cluster": len(robust),
+        "best_robust_pf_avg_bps": (
+            round(float(robust["all_avg_bps"].max()), 2) if not robust.empty else 0.0
+        ),
     }
 
 
@@ -246,25 +245,33 @@ def main() -> None:
         "long_leg": summarize_trades(trades[trades["direction"] == 1]),
         "short_leg": summarize_trades(trades[trades["direction"] == -1]),
         "quarters_positive": int((quarter_stats["net_pct"] > 0).sum()),
-        "quarters_total": int(len(quarter_stats)),
+        "quarters_total": len(quarter_stats),
         "months_positive": int((month_stats["net_pct"] > 0).sum()),
-        "months_total": int(len(month_stats)),
+        "months_total": len(month_stats),
         "random_entry_control": {
-            "simulations": int(len(random_control)),
+            "simulations": len(random_control),
             "net_pct_percentiles": percentile_summary(random_control["net_pct"]),
             "profit_factor_percentiles": percentile_summary(random_control["profit_factor"]),
-            "actual_net_pct_rank_pct": round(float((random_control["net_pct"] < actual_net).mean() * 100), 2),
-            "actual_pf_rank_pct": round(float((random_control["profit_factor"] < actual_pf).mean() * 100), 2),
+            "actual_net_pct_rank_pct": round(
+                float((random_control["net_pct"] < actual_net).mean() * 100), 2
+            ),
+            "actual_pf_rank_pct": round(
+                float((random_control["profit_factor"] < actual_pf).mean() * 100), 2
+            ),
         },
         "bootstrap_actual_returns": {
-            "simulations": int(len(bootstrap)),
+            "simulations": len(bootstrap),
             "net_pct_percentiles": percentile_summary(bootstrap["net_pct"]),
             "profit_factor_percentiles": percentile_summary(bootstrap["profit_factor"]),
-            "probability_net_positive_pct": round(float((bootstrap["net_pct"] > 0).mean() * 100), 2),
-            "probability_pf_above_1_pct": round(float((bootstrap["profit_factor"] > 1).mean() * 100), 2),
+            "probability_net_positive_pct": round(
+                float((bootstrap["net_pct"] > 0).mean() * 100), 2
+            ),
+            "probability_pf_above_1_pct": round(
+                float((bootstrap["profit_factor"] > 1).mean() * 100), 2
+            ),
         },
         "shuffled_trade_order_drawdown": {
-            "simulations": int(len(dd_shuffle)),
+            "simulations": len(dd_shuffle),
             "max_dd_pct_percentiles": percentile_summary(dd_shuffle["max_dd_pct"]),
         },
         "parameter_neighborhood": neighborhood_summary(),

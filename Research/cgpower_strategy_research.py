@@ -3,13 +3,12 @@ from __future__ import annotations
 import itertools
 import json
 import math
+from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable, Iterable
 
 import numpy as np
 import pandas as pd
-
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "Data" / "NSE30" / "CGPOWER.csv"
@@ -150,9 +149,9 @@ def load_data() -> pd.DataFrame:
     df["vol_ratio20"] = df["Volume"] / df["vol_avg20_samebar"]
 
     df["range_pct"] = (df["High"] - df["Low"]) / df["Open"]
-    df["body_pct_of_range"] = (df["Close"] - df["Open"]).abs() / (
-        df["High"] - df["Low"]
-    ).replace(0, np.nan)
+    df["body_pct_of_range"] = (df["Close"] - df["Open"]).abs() / (df["High"] - df["Low"]).replace(
+        0, np.nan
+    )
 
     for n in [10, 15, 20, 30, 40]:
         df[f"donch_hi_{n}"] = df["High"].shift(1).rolling(n, min_periods=n).max()
@@ -456,7 +455,10 @@ def vwap_reversion_signal_fn(
                     yield pos, 1, stop_distance
                     return
             if side in ("short", "both"):
-                if row["Close"] > row["vwap"] + band_atr * atr and row["rsi14"] >= 100 - rsi_extreme:
+                if (
+                    row["Close"] > row["vwap"] + band_atr * atr
+                    and row["rsi14"] >= 100 - rsi_extreme
+                ):
                     yield pos, -1, stop_distance
                     return
 
@@ -504,7 +506,7 @@ def summarize_trades(
     net, max_dd = equity_drawdown(ret)
     pf = gross_profit / gross_loss if gross_loss > 0 else math.inf
     return {
-        f"{label}_trades": int(len(rows)),
+        f"{label}_trades": len(rows),
         f"{label}_net_pct": round(net * 100, 2),
         f"{label}_avg_bps": round(ret.mean() * 10000, 2),
         f"{label}_win_rate": round((ret > 0).mean() * 100, 2),
@@ -535,7 +537,7 @@ def movement_study(df: pd.DataFrame) -> dict[str, object]:
     ].copy()
     trend_days = daily[daily["trend_efficiency"] >= 0.55]
     stats = {
-        "days": int(len(daily)),
+        "days": len(daily),
         "median_day_range_pct": round(daily["range_pct"].median() * 100, 2),
         "p75_day_range_pct": round(daily["range_pct"].quantile(0.75) * 100, 2),
         "p90_day_range_pct": round(daily["range_pct"].quantile(0.90) * 100, 2),
@@ -579,12 +581,12 @@ def movement_study(df: pd.DataFrame) -> dict[str, object]:
         if not r.empty:
             filt = r[(r["volume_ratio"] >= 1.2) & (r["adx"] >= 18)]
             continuation[f"or_{bars * 5}m_all"] = {
-                "events": int(len(r)),
+                "events": len(r),
                 "avg_bps_to_close": round(r["from_break_to_close"].mean() * 10000, 2),
                 "positive_pct": round((r["from_break_to_close"] > 0).mean() * 100, 2),
             }
             continuation[f"or_{bars * 5}m_vol_adx"] = {
-                "events": int(len(filt)),
+                "events": len(filt),
                 "avg_bps_to_close": round(filt["from_break_to_close"].mean() * 10000, 2),
                 "positive_pct": round((filt["from_break_to_close"] > 0).mean() * 100, 2),
             }
@@ -652,7 +654,18 @@ def run_family_search(df: pd.DataFrame, train_end_date: str) -> tuple[pd.DataFra
         [50],
         [False, True],
     ):
-        lookback, side, ema_pair, adx_min, vol_min, stop_atr, target_r, earliest, latest, prev_filter = params
+        (
+            lookback,
+            side,
+            ema_pair,
+            adx_min,
+            vol_min,
+            stop_atr,
+            target_r,
+            earliest,
+            latest,
+            prev_filter,
+        ) = params
         fast, slow = ema_pair
         if earliest >= latest:
             continue
@@ -891,7 +904,9 @@ def simulate_index_trades(
     return trades
 
 
-def run_family_search_fast(df: pd.DataFrame, train_end_date: str) -> tuple[pd.DataFrame, list[Trade]]:
+def run_family_search_fast(
+    df: pd.DataFrame, train_end_date: str
+) -> tuple[pd.DataFrame, list[Trade]]:
     candidates: list[dict[str, object]] = []
     trade_bank: dict[str, list[Trade]] = {}
 
@@ -943,7 +958,17 @@ def run_family_search_fast(df: pd.DataFrame, train_end_date: str) -> tuple[pd.Da
         candidates.append(summary)
         trade_bank[f"{strategy}|{variant}"] = trades
 
-    for or_bars, side, ema_pair, adx_min, vol_min, stop_atr, target_r, latest_bar, daily in itertools.product(
+    for (
+        or_bars,
+        side,
+        ema_pair,
+        adx_min,
+        vol_min,
+        stop_atr,
+        target_r,
+        latest_bar,
+        daily,
+    ) in itertools.product(
         [3, 6, 9],
         ["long", "short"],
         [(9, 21), (13, 34), (21, 55)],
@@ -988,7 +1013,18 @@ def run_family_search_fast(df: pd.DataFrame, train_end_date: str) -> tuple[pd.Da
         )
         add_candidate("opening_range_breakout", variant, mask, direction, stop_atr, target_r)
 
-    for lookback, side, ema_pair, adx_min, vol_min, stop_atr, target_r, earliest, latest, prev_filter in itertools.product(
+    for (
+        lookback,
+        side,
+        ema_pair,
+        adx_min,
+        vol_min,
+        stop_atr,
+        target_r,
+        earliest,
+        latest,
+        prev_filter,
+    ) in itertools.product(
         [15, 20, 30, 40],
         ["long", "short"],
         [(8, 21), (13, 34), (21, 55)],
@@ -1034,7 +1070,17 @@ def run_family_search_fast(df: pd.DataFrame, train_end_date: str) -> tuple[pd.Da
         )
         add_candidate("donchian_breakout", variant, mask, direction, stop_atr, target_r)
 
-    for side, ema_pair, adx_min, vol_min, stop_atr, target_r, earliest, latest, rsi_band in itertools.product(
+    for (
+        side,
+        ema_pair,
+        adx_min,
+        vol_min,
+        stop_atr,
+        target_r,
+        earliest,
+        latest,
+        rsi_band,
+    ) in itertools.product(
         ["long", "short"],
         [(9, 34), (13, 34), (21, 55)],
         [14, 18, 22],
@@ -1117,7 +1163,9 @@ def run_family_search_fast(df: pd.DataFrame, train_end_date: str) -> tuple[pd.Da
             f"side={side} band={band_atr}ATR rsi_extreme={rsi_extreme} "
             f"stop={stop_atr}ATR target={target_r}R bars={earliest}-{latest}"
         )
-        add_candidate("vwap_reversion", variant, mask, direction, stop_atr, target_r, max_hold_bars=18)
+        add_candidate(
+            "vwap_reversion", variant, mask, direction, stop_atr, target_r, max_hold_bars=18
+        )
 
     results = pd.DataFrame(candidates)
     if results.empty:
@@ -1172,7 +1220,7 @@ def stress_costs(trades: list[Trade], costs_bps: list[float]) -> list[dict[str, 
         out.append(
             {
                 "cost_bps_per_side": cost,
-                "trades": int(len(net)),
+                "trades": len(net),
                 "net_pct": round(total * 100, 2),
                 "avg_bps": round(net.mean() * 10000, 2),
                 "win_rate_pct": round((net > 0).mean() * 100, 2),
@@ -1227,7 +1275,7 @@ def main() -> None:
         json.dumps(
             {
                 "data_path": str(DATA_PATH),
-                "rows_used": int(len(df)),
+                "rows_used": len(df),
                 "date_range": [str(df["Datetime"].min()), str(df["Datetime"].max())],
                 "trading_days_used": int(df["date"].nunique()),
                 "train_end_date": train_end_date,

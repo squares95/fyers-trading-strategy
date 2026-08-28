@@ -2,12 +2,12 @@
 Experiment 1: Power Sector Deep Dive
 Uses existing Gold.run() for CGPOWER + Core for other stocks.
 """
+
 import json
 import sys
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # ============================================================================
 # CONFIG LOADER
 # ============================================================================
+
 
 def load_config() -> dict:
     config_path = Path("Config/groq_config.json")
@@ -46,31 +47,32 @@ def get_stock_characteristics(symbol: str) -> dict:
 
     try:
         df = pd.read_csv(data_path)
-        dt_col = next((c for c in ['Datetime', 'datetime', 'date'] if c in df.columns), None)
+        dt_col = next((c for c in ["Datetime", "datetime", "date"] if c in df.columns), None)
         if not dt_col:
             return {"symbol": symbol, "error": "No datetime col"}
-        df = df.rename(columns={dt_col: 'Datetime'})
-        df['Datetime'] = pd.to_datetime(df['Datetime'])
-        df = df.sort_values('Datetime').reset_index(drop=True)
+        df = df.rename(columns={dt_col: "Datetime"})
+        df["Datetime"] = pd.to_datetime(df["Datetime"])
+        df = df.sort_values("Datetime").reset_index(drop=True)
 
-        df['date'] = df['Datetime'].dt.date
-        daily = df.groupby('date').agg({
-            'Close': 'last', 'High': 'max', 'Low': 'min',
-            'Open': 'first', 'Volume': 'sum'
-        }).reset_index()
+        df["date"] = df["Datetime"].dt.date
+        daily = (
+            df.groupby("date")
+            .agg({"Close": "last", "High": "max", "Low": "min", "Open": "first", "Volume": "sum"})
+            .reset_index()
+        )
 
-        daily['range_pct'] = (daily['High'] - daily['Low']) / daily['Low'] * 100
-        daily['return_pct'] = daily['Close'].pct_change()
+        daily["range_pct"] = (daily["High"] - daily["Low"]) / daily["Low"] * 100
+        daily["return_pct"] = daily["Close"].pct_change()
 
-        df['5min_ret'] = df['Close'].pct_change()
+        df["5min_ret"] = df["Close"].pct_change()
 
         return {
             "symbol": symbol,
             "data_days": len(daily),
-            "avg_5min_vol": round(df['5min_ret'].std() * 100, 4),
-            "avg_daily_range": round(daily['range_pct'].mean(), 3),
-            "return_vol": round(daily['return_pct'].std(), 3),
-            "high_range_days_pct": round((daily['range_pct'] > 2).sum() / len(daily) * 100, 1),
+            "avg_5min_vol": round(df["5min_ret"].std() * 100, 4),
+            "avg_daily_range": round(daily["range_pct"].mean(), 3),
+            "return_vol": round(daily["return_pct"].std(), 3),
+            "high_range_days_pct": round((daily["range_pct"] > 2).sum() / len(daily) * 100, 1),
         }
     except Exception as e:
         return {"symbol": symbol, "error": str(e)}
@@ -94,12 +96,12 @@ def run_gold_strategy(symbol: str) -> dict:
         stats = summarize_trades(trades)
         return {
             "symbol": symbol,
-            "net_return_pct": round(stats.get('net_pct', 0), 2),
-            "profit_factor": round(stats.get('profit_factor', 0), 3),
-            "win_rate_pct": round(stats.get('win_rate_pct', 0), 1),
-            "max_dd_pct": round(stats.get('max_dd_pct', 0), 2),
+            "net_return_pct": round(stats.get("net_pct", 0), 2),
+            "profit_factor": round(stats.get("profit_factor", 0), 3),
+            "win_rate_pct": round(stats.get("win_rate_pct", 0), 1),
+            "max_dd_pct": round(stats.get("max_dd_pct", 0), 2),
             "trades": len(trades),
-            "avg_bps": round(stats.get('avg_bps', 0), 2),
+            "avg_bps": round(stats.get("avg_bps", 0), 2),
         }
     except Exception as e:
         return {"symbol": symbol, "error": str(e)}
@@ -116,8 +118,7 @@ def ask_groq(chars: list, results: list) -> str:
         return "ERROR: GROQ_API_KEY not set"
 
     client = OpenAI(
-        base_url=CONFIG.get("groq_base_url", "https://api.groq.com/openai/v1"),
-        api_key=GROQ_API_KEY
+        base_url=CONFIG.get("groq_base_url", "https://api.groq.com/openai/v1"), api_key=GROQ_API_KEY
     )
 
     char_text = "\n".join([json.dumps(c, indent=2) for c in chars])
@@ -150,21 +151,24 @@ Format:
         response = client.chat.completions.create(
             model=CONFIG.get("default_model", "openai/gpt-oss-120b"),
             messages=[
-                {"role": "system", "content": "You are a quantitative researcher. Output strict JSON."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are a quantitative researcher. Output strict JSON.",
+                },
+                {"role": "user", "content": prompt},
             ],
             max_tokens=2000,
-            temperature=0.2
+            temperature=0.2,
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"ERROR: {str(e)}"
+        return f"ERROR: {e!s}"
 
 
 def main():
-    print("="*60)
+    print("=" * 60)
     print("EXPERIMENT 1: Power Sector Deep Dive")
-    print("="*60)
+    print("=" * 60)
     print(f"Time: {datetime.now():%Y-%m-%d %H:%M:%S}\n")
 
     if not GROQ_API_KEY:
@@ -201,10 +205,10 @@ def main():
     print("\nStep 3: Asking Groq...")
     analysis = ask_groq(chars, results)
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("GROQ ANALYSIS")
-    print("="*60)
-    print(analysis.encode('ascii', 'replace').decode())
+    print("=" * 60)
+    print(analysis.encode("ascii", "replace").decode())
 
     # Save
     output_dir = Path("Research/GroqAnalysis")

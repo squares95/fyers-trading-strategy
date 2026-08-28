@@ -5,11 +5,10 @@ import json
 import os
 import subprocess
 import threading
-import time
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable
-
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RUNTIME_DIR = ROOT / "Runtime"
@@ -37,7 +36,9 @@ def stop_request_file(name: str, session_dir: str | Path = DEFAULT_RUNTIME_DIR) 
     return runtime_dir(session_dir) / f"{_clean_name(name)}.stop"
 
 
-def request_stop(name: str, session_dir: str | Path = DEFAULT_RUNTIME_DIR, reason: str = "user_request") -> Path:
+def request_stop(
+    name: str, session_dir: str | Path = DEFAULT_RUNTIME_DIR, reason: str = "user_request"
+) -> Path:
     path = stop_request_file(name, session_dir)
     payload = {
         "name": _clean_name(name),
@@ -206,7 +207,9 @@ class RuntimeSession:
 
 
 def _clean_name(name: str) -> str:
-    cleaned = "".join(ch if ch.isalnum() or ch in ("_", "-") else "_" for ch in str(name).strip().lower())
+    cleaned = "".join(
+        ch if ch.isalnum() or ch in ("_", "-") else "_" for ch in str(name).strip().lower()
+    )
     if not cleaned:
         raise ValueError("session name cannot be empty")
     return cleaned

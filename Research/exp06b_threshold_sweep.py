@@ -9,6 +9,7 @@ Reuses exp06 logic via import.
 
 Output: Research/GroqAnalysis/exp06b_<timestamp>.json
 """
+
 from __future__ import annotations
 
 import json
@@ -20,13 +21,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # Import helpers from Exp 6A
 from exp06_news_filter import (
-    PORTFOLIO_STOCKS,
     INDEX_SYMBOL,
-    compute_gap_filter,
-    run_scenario,
-    resolve_data_path,
+    PORTFOLIO_STOCKS,
     SLIM_DIR,
-    DATA_DIR,
+    compute_gap_filter,
+    resolve_data_path,
+    run_scenario,
 )
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "Research" / "GroqAnalysis"
@@ -109,7 +109,9 @@ def main() -> None:
         f"{baseline['total_trades']:<8}"
     )
     for r in sweep_results:
-        marker = "  <-- BEST NET" if r["net_pct"] == max(s["net_pct"] for s in sweep_results) else ""
+        marker = (
+            "  <-- BEST NET" if r["net_pct"] == max(s["net_pct"] for s in sweep_results) else ""
+        )
         print(
             f"{r['threshold']:.1%}      {r['blocked_dates']:<8} "
             f"{r['net_pct']:>+9.2f} "

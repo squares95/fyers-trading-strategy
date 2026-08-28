@@ -33,10 +33,42 @@ class ReliabilityScreenTests(unittest.TestCase):
     def test_best_family_requires_cross_sample_consistency(self):
         results = pd.DataFrame(
             [
-                {"Family": "flashy", "Sample": "Development", "Trades": 30, "WinRate": 0.7, "ProfitFactor": 3.0, "Expectancy": 0.01, "MaxDrawdown": -0.02},
-                {"Family": "flashy", "Sample": "Validation", "Trades": 20, "WinRate": 0.3, "ProfitFactor": 0.5, "Expectancy": -0.01, "MaxDrawdown": -0.10},
-                {"Family": "stable", "Sample": "Development", "Trades": 25, "WinRate": 0.55, "ProfitFactor": 1.2, "Expectancy": 0.002, "MaxDrawdown": -0.03},
-                {"Family": "stable", "Sample": "Validation", "Trades": 18, "WinRate": 0.55, "ProfitFactor": 1.1, "Expectancy": 0.001, "MaxDrawdown": -0.03},
+                {
+                    "Family": "flashy",
+                    "Sample": "Development",
+                    "Trades": 30,
+                    "WinRate": 0.7,
+                    "ProfitFactor": 3.0,
+                    "Expectancy": 0.01,
+                    "MaxDrawdown": -0.02,
+                },
+                {
+                    "Family": "flashy",
+                    "Sample": "Validation",
+                    "Trades": 20,
+                    "WinRate": 0.3,
+                    "ProfitFactor": 0.5,
+                    "Expectancy": -0.01,
+                    "MaxDrawdown": -0.10,
+                },
+                {
+                    "Family": "stable",
+                    "Sample": "Development",
+                    "Trades": 25,
+                    "WinRate": 0.55,
+                    "ProfitFactor": 1.2,
+                    "Expectancy": 0.002,
+                    "MaxDrawdown": -0.03,
+                },
+                {
+                    "Family": "stable",
+                    "Sample": "Validation",
+                    "Trades": 18,
+                    "WinRate": 0.55,
+                    "ProfitFactor": 1.1,
+                    "Expectancy": 0.001,
+                    "MaxDrawdown": -0.03,
+                },
             ]
         )
 

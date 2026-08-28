@@ -24,61 +24,54 @@ Modules used:
 """
 
 import json
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+from .backtest import backtest
+
+# Re-export from base modules
 # Re-export from gold_config
 from .gold_config import (
     DATA_PATH,
     OUTPUT_DIR,
     TRAIN_CUTOFF,
     get_gold_config,
-    get_super_gold_config,
     get_shorts_only_config,
-)
-
-# Re-export from regime_filter
-from .regime_filter import (
-    daily_regime_table,
-    get_tradeable_dates,
-    filter_signals_by_regime,
-    REGIME_TURNOVER_MIN,
-    REGIME_RANGE_MIN,
+    get_super_gold_config,
 )
 
 # News/sentiment filter (Exp 6 — validated 2.5% gap filter)
 from .news_filter import (
-    compute_gap_filter_dates,
     compute_portfolio_gap_dates,
-    compute_news_filter_dates,
-    filter_signals_by_news,
+)
+
+# Re-export from regime_filter
+from .regime_filter import (
+    REGIME_RANGE_MIN,
+    REGIME_TURNOVER_MIN,
+    daily_regime_table,
+    filter_signals_by_regime,
+    get_tradeable_dates,
+)
+from .stats import (
+    analyze_by_direction,
+    analyze_by_period,
+    analyze_exit_reasons,
+    summarize_trades,
 )
 
 # Re-export from strength_scorer
 from .strength_scorer import (
-    signal_strength_table,
-    filter_by_strength,
-    attach_signal_strength,
-    SIGNAL_STRENGTH_WEIGHTS,
-    SIGNAL_STRENGTH_SCALES,
     MIN_SIGNAL_STRENGTH,
     MIN_TRIGGER_COMPONENT,
-    STRENGTH_BINS,
+    SIGNAL_STRENGTH_SCALES,
+    SIGNAL_STRENGTH_WEIGHTS,
     STRENGTH_LABELS,
+    attach_signal_strength,
+    filter_by_strength,
+    signal_strength_table,
 )
-
-# Re-export from base modules
-from .config import StrategyConfig
-from .stats import (
-    summarize_trades,
-    analyze_by_direction,
-    analyze_by_period,
-    analyze_exit_reasons,
-)
-from .backtest import backtest, calculate_performance_metrics
-
 
 # ============================================================================
 # GOLD CONFIG INSTANCE
@@ -106,6 +99,7 @@ Best risk-adjusted returns: PF 1.724, DD -4.09%.
 # ============================================================================
 # EQUITY STATISTICS (Gold-specific)
 # ============================================================================
+
 
 def equity_stats(trades: pd.DataFrame) -> dict:
     """
@@ -148,7 +142,7 @@ def equity_stats(trades: pd.DataFrame) -> dict:
     gross_loss = -returns[returns < 0].sum()
 
     return {
-        "trades": int(len(returns)),
+        "trades": len(returns),
         "net_pct": round(float((equity.iloc[-1] - 1) * 100), 2),
         "avg_bps": round(float(returns.mean() * 10000), 2),
         "win_rate_pct": round(float((returns > 0).mean() * 100), 2),
@@ -160,6 +154,7 @@ def equity_stats(trades: pd.DataFrame) -> dict:
 # ============================================================================
 # PERIOD ANALYSIS
 # ============================================================================
+
 
 def add_period_columns(trades: pd.DataFrame) -> pd.DataFrame:
     """
@@ -245,6 +240,7 @@ def strength_band_stats(trades: pd.DataFrame) -> pd.DataFrame:
 # ============================================================================
 # COST & BOOTSTRAP ANALYSIS
 # ============================================================================
+
 
 def cost_stress(trades: pd.DataFrame, costs: list = None) -> list:
     """
@@ -351,7 +347,9 @@ def strength_threshold_stats(trades: pd.DataFrame) -> pd.DataFrame:
         segments = {
             "all": filtered,
             "train_before_2025": filtered[filtered["entry_time"] < pd.Timestamp(TRAIN_CUTOFF)],
-            "validation_2025_onward": filtered[filtered["entry_time"] >= pd.Timestamp(TRAIN_CUTOFF)],
+            "validation_2025_onward": filtered[
+                filtered["entry_time"] >= pd.Timestamp(TRAIN_CUTOFF)
+            ],
         }
         for segment, group in segments.items():
             row = equity_stats(group)
@@ -365,6 +363,7 @@ def strength_threshold_stats(trades: pd.DataFrame) -> pd.DataFrame:
 # ============================================================================
 # COMPLETE GOLD PIPELINE
 # ============================================================================
+
 
 def run(portfolio: list[str] | None = None, gap_threshold: float | None = None) -> dict:
     """
@@ -458,19 +457,19 @@ def run(portfolio: list[str] | None = None, gap_threshold: float | None = None) 
     # Build summary
     summary = {
         "data_path": str(DATA_PATH),
-        "data_rows_used": int(len(df)),
+        "data_rows_used": len(df),
         "complete_trading_days_used": int(df["date"].nunique()),
         "date_range": [str(df["Datetime"].min()), str(df["Datetime"].max())],
         "regime_rule": {
             "turnover_med60_prev_gt": REGIME_TURNOVER_MIN,
             "range_med60_prev_gt": REGIME_RANGE_MIN,
-            "tradeable_days": int(len(tradeable_dates)),
+            "tradeable_days": len(tradeable_dates),
         },
         "news_filter": {
             "enabled": bool(news_blocked_dates),
             "portfolio": portfolio or [],
             "gap_threshold": gap_threshold,
-            "blocked_days": int(len(news_blocked_dates)),
+            "blocked_days": len(news_blocked_dates),
         },
         "old_strategy_unfiltered": equity_stats(old_trades),
         "old_strategy_off_regime": equity_stats(off_regime_trades),
@@ -496,15 +495,29 @@ def run(portfolio: list[str] | None = None, gap_threshold: float | None = None) 
     # Step 8: Save outputs
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     suffix = "_newsfiltered" if news_blocked_dates else ""
-    gold_setup_trades.to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_all_setup_trades{suffix}.csv", index=False)
+    gold_setup_trades.to_csv(
+        OUTPUT_DIR / f"cgpower_gold_strategy_all_setup_trades{suffix}.csv", index=False
+    )
     gold_trades.to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_trades{suffix}.csv", index=False)
-    gold_strength_signals.to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_signals_with_strength{suffix}.csv", index=False)
+    gold_strength_signals.to_csv(
+        OUTPUT_DIR / f"cgpower_gold_strategy_signals_with_strength{suffix}.csv", index=False
+    )
     regime.to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_daily_regime{suffix}.csv", index=False)
-    grouped_stats(gold_trades, "year").to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_by_year{suffix}.csv", index=False)
-    grouped_stats(gold_trades, "month").to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_by_month{suffix}.csv", index=False)
-    grouped_stats(gold_trades, "quarter").to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_by_quarter{suffix}.csv", index=False)
-    strength_band_stats(gold_setup_trades).to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_strength_by_band{suffix}.csv", index=False)
-    strength_threshold_stats(gold_setup_trades).to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_strength_thresholds{suffix}.csv", index=False)
+    grouped_stats(gold_trades, "year").to_csv(
+        OUTPUT_DIR / f"cgpower_gold_strategy_by_year{suffix}.csv", index=False
+    )
+    grouped_stats(gold_trades, "month").to_csv(
+        OUTPUT_DIR / f"cgpower_gold_strategy_by_month{suffix}.csv", index=False
+    )
+    grouped_stats(gold_trades, "quarter").to_csv(
+        OUTPUT_DIR / f"cgpower_gold_strategy_by_quarter{suffix}.csv", index=False
+    )
+    strength_band_stats(gold_setup_trades).to_csv(
+        OUTPUT_DIR / f"cgpower_gold_strategy_strength_by_band{suffix}.csv", index=False
+    )
+    strength_threshold_stats(gold_setup_trades).to_csv(
+        OUTPUT_DIR / f"cgpower_gold_strategy_strength_thresholds{suffix}.csv", index=False
+    )
     (OUTPUT_DIR / f"cgpower_gold_strategy_summary{suffix}.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
     )
@@ -524,21 +537,18 @@ __all__ = [
     "TRAIN_CUTOFF",
     "DATA_PATH",
     "OUTPUT_DIR",
-
     # Regime
     "daily_regime_table",
     "get_tradeable_dates",
     "filter_signals_by_regime",
     "REGIME_TURNOVER_MIN",
     "REGIME_RANGE_MIN",
-
     # Strength
     "signal_strength_table",
     "filter_by_strength",
     "attach_signal_strength",
     "MIN_SIGNAL_STRENGTH",
     "MIN_TRIGGER_COMPONENT",
-
     # Stats
     "equity_stats",
     "add_period_columns",
@@ -551,7 +561,6 @@ __all__ = [
     "analyze_by_direction",
     "analyze_by_period",
     "analyze_exit_reasons",
-
     # Pipeline
     "run",
     "backtest",

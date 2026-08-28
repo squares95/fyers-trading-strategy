@@ -14,7 +14,6 @@ Beginner Note:
 from dataclasses import dataclass
 from pathlib import Path
 
-
 # ============================================================================
 # TRADING SESSION CONSTANTS
 # ============================================================================
@@ -56,6 +55,7 @@ DEFAULT_DATA_PATH = ROOT / "Data" / "CGPOWER" / "CGPOWER_5MIN.csv"
 # ============================================================================
 # STRATEGY CONFIGURATION DATACLASS
 # ============================================================================
+
 
 @dataclass(frozen=True)
 class StrategyConfig:

@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[3]
 NAV_PATH = ROOT / "Data" / "MutualFunds" / "PPFCF_DIRECT_GROWTH" / "PPFCF_DIRECT_GROWTH_1D.csv"
 NIFTY_PATH = ROOT / "Data" / "NIFTY" / "NIFTY_1D.csv"
@@ -99,8 +98,7 @@ def SelectSignalIndices(
     cooldown: int = SIGNAL_COOLDOWN_DAYS,
 ) -> list[int]:
     candidates = nav.index[
-        signal.fillna(False)
-        & nav["Date"].between(period.Start, period.End)
+        signal.fillna(False) & nav["Date"].between(period.Start, period.End)
     ].tolist()
     selected = []
     last_index = -10_000
@@ -116,8 +114,7 @@ def SelectSignalIndices(
 
 def BaselineForwardReturns(nav: pd.DataFrame, period: Period, horizon: int) -> pd.Series:
     eligible = nav[
-        nav["Date"].between(period.Start, period.End)
-        & nav["Date"].shift(-horizon).le(period.End)
+        nav["Date"].between(period.Start, period.End) & nav["Date"].shift(-horizon).le(period.End)
     ].index
     return nav.loc[eligible + horizon, "NAV"].to_numpy() / nav.loc[eligible, "NAV"].to_numpy() - 1
 
@@ -140,10 +137,18 @@ def EvaluateSignals(nav: pd.DataFrame, rules: dict[str, pd.Series]) -> pd.DataFr
                 baseline = BaselineForwardReturns(nav, period, horizon)
                 returns_array = np.asarray(returns, dtype=float)
                 row[f"Count{horizon}"] = len(returns_array)
-                row[f"Mean{horizon}Pct"] = np.mean(returns_array) * 100 if len(returns_array) else np.nan
-                row[f"Median{horizon}Pct"] = np.median(returns_array) * 100 if len(returns_array) else np.nan
-                row[f"Positive{horizon}Pct"] = np.mean(returns_array > 0) * 100 if len(returns_array) else np.nan
-                row[f"BaselineMedian{horizon}Pct"] = np.median(baseline) * 100 if len(baseline) else np.nan
+                row[f"Mean{horizon}Pct"] = (
+                    np.mean(returns_array) * 100 if len(returns_array) else np.nan
+                )
+                row[f"Median{horizon}Pct"] = (
+                    np.median(returns_array) * 100 if len(returns_array) else np.nan
+                )
+                row[f"Positive{horizon}Pct"] = (
+                    np.mean(returns_array > 0) * 100 if len(returns_array) else np.nan
+                )
+                row[f"BaselineMedian{horizon}Pct"] = (
+                    np.median(baseline) * 100 if len(baseline) else np.nan
+                )
                 row[f"MedianLift{horizon}Pct"] = (
                     row[f"Median{horizon}Pct"] - row[f"BaselineMedian{horizon}Pct"]
                     if len(returns_array) and len(baseline)
@@ -173,7 +178,9 @@ def SelectResearchRule(signal_summary: pd.DataFrame) -> tuple[str | None, pd.Dat
     )
     passing = candidates[candidates["Pass"]].sort_values("Score", ascending=False)
     selected = passing.index[0] if not passing.empty else None
-    return selected, candidates.reset_index().sort_values(["Pass", "Score"], ascending=[False, False])
+    return selected, candidates.reset_index().sort_values(
+        ["Pass", "Score"], ascending=[False, False]
+    )
 
 
 def MonthlyInvestmentResult(
@@ -208,7 +215,9 @@ def MonthlyInvestmentResult(
             continue
 
         signal_window = month_indices[: max(1, min(wait_days, len(month_indices)))]
-        signal_candidates = [i for i in signal_window if bool(signal.fillna(False).at[i]) and i + 1 <= last_index]
+        signal_candidates = [
+            i for i in signal_window if bool(signal.fillna(False).at[i]) and i + 1 <= last_index
+        ]
         if signal_candidates:
             buy_index = signal_candidates[0] + 1
             signal_buys += 1
@@ -291,8 +300,7 @@ def SelectMonthlyStrategy(monthly: pd.DataFrame) -> tuple[dict | None, pd.DataFr
         & (candidates["SignalBuys_Val"] >= 2)
     )
     candidates["Score"] = (
-        candidates["UnitLiftVsImmediatePct_Dev"]
-        + candidates["UnitLiftVsImmediatePct_Val"]
+        candidates["UnitLiftVsImmediatePct_Dev"] + candidates["UnitLiftVsImmediatePct_Val"]
     )
     candidates = candidates.sort_values(["Pass", "Score"], ascending=[False, False])
     passing = candidates[candidates["Pass"]]
@@ -335,9 +343,7 @@ def RecentMarketContext(nav: pd.DataFrame, nifty: pd.DataFrame) -> tuple[pd.Data
             prior_nav = nav.at[nav_index - 1, "NAV"] if nav_index > 0 else nav.at[nav_index, "NAV"]
             later = nav.loc[nav_index + 1 :]
             recovered = later[later["NAV"] >= prior_nav]
-            recovery.append(
-                int(recovered.index[0] - nav_index) if not recovered.empty else np.nan
-            )
+            recovery.append(int(recovered.index[0] - nav_index) if not recovered.empty else np.nan)
         events[f"Forward{horizon}Pct"] = values
         if horizon == 20:
             events["RecoveryNavDays"] = recovery
@@ -349,7 +355,9 @@ def RecentMarketContext(nav: pd.DataFrame, nifty: pd.DataFrame) -> tuple[pd.Data
         "RecentRows": len(recent),
         "RecentReturnPct": (recent.iloc[-1]["NAV"] / recent.iloc[0]["NAV"] - 1) * 100,
         "RecentMaxDrawdownPct": (recent["NAV"] / recent["NAV"].cummax() - 1).min() * 100,
-        "NiftyNavDailyCorrelation": correlation_rows["Return1"].corr(correlation_rows["NiftyReturn1"]),
+        "NiftyNavDailyCorrelation": correlation_rows["Return1"].corr(
+            correlation_rows["NiftyReturn1"]
+        ),
     }
     columns = [
         "Date",
@@ -385,18 +393,15 @@ def MarketShockDiagnostics(nav: pd.DataFrame, nifty: pd.DataFrame) -> pd.DataFra
         "Nifty5DayDown4": aligned["NiftyReturn5"] <= -0.04,
         "Nifty5DayDown5": aligned["NiftyReturn5"] <= -0.05,
         "NiftyDay1_FundDD3": (
-            (aligned["NiftyReturn1"] <= -0.01)
-            & (aligned["Drawdown20"] <= -0.03)
+            (aligned["NiftyReturn1"] <= -0.01) & (aligned["Drawdown20"] <= -0.03)
         ),
         "Nifty5Day3_FundDD5": (
-            (aligned["NiftyReturn5"] <= -0.03)
-            & (aligned["Drawdown20"] <= -0.05)
+            (aligned["NiftyReturn5"] <= -0.03) & (aligned["Drawdown20"] <= -0.05)
         ),
     }
     period = Period("RecentDescriptive", start, min(nav["Date"].max(), market["Date"].max()))
     baseline = aligned[
-        aligned["Date"].between(period.Start, period.End)
-        & aligned["NiftyClose"].notna()
+        aligned["Date"].between(period.Start, period.End) & aligned["NiftyClose"].notna()
     ]
     rows = []
     for name, signal in rules.items():
@@ -501,7 +506,9 @@ def CalendarDiagnostics(nav: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     weekday["median"] *= 100
     weekday = weekday.reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 
-    lows = recent.loc[recent.groupby(recent["Date"].dt.to_period("M"))["NAV"].idxmin(), ["Date", "NAV"]]
+    lows = recent.loc[
+        recent.groupby(recent["Date"].dt.to_period("M"))["NAV"].idxmin(), ["Date", "NAV"]
+    ]
     lows["DayOfMonth"] = lows["Date"].dt.day
     lows["MonthSegment"] = pd.cut(
         lows["DayOfMonth"],
@@ -536,7 +543,9 @@ def WriteReport(
     month_segments.to_csv(OUTPUT_FOLDER / "monthly_low_segments.csv", index=False)
     market_shocks.to_csv(OUTPUT_FOLDER / "market_shock_diagnostics.csv", index=False)
 
-    selected_rows = signal_summary[signal_summary["Rule"] == selected_rule] if selected_rule else pd.DataFrame()
+    selected_rows = (
+        signal_summary[signal_summary["Rule"] == selected_rule] if selected_rule else pd.DataFrame()
+    )
     if selected_monthly:
         selected_monthly_rows = monthly[
             (monthly["Strategy"] == selected_monthly["Strategy"])

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import os
 import sys
 import unittest
-import os
 from contextlib import redirect_stdout
-from datetime import datetime, timedelta
+from datetime import datetime
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -22,7 +22,6 @@ from LiveTick.pipeline import LiveTickPipeline
 from LiveTick.session import RuntimeSession, RuntimeSessionError, load_session
 from LiveTick.tick_store import TickJsonlStore
 from LiveTick.validator import compare_candle_frames
-
 
 IST = ZoneInfo("Asia/Kolkata")
 
@@ -69,14 +68,18 @@ class LiveTickPipelineTests(unittest.TestCase):
                 session.finish()
 
     def test_startup_plan_before_open_streams_without_required_target(self):
-        plan = build_startup_plan(now=datetime(2026, 6, 19, 8, 55, tzinfo=IST), market_is_open=False)
+        plan = build_startup_plan(
+            now=datetime(2026, 6, 19, 8, 55, tzinfo=IST), market_is_open=False
+        )
 
         self.assertEqual(plan.phase, "BEFORE_OPEN")
         self.assertTrue(plan.stream_live)
         self.assertFalse(plan.require_fetch_end)
 
     def test_startup_plan_market_open_waits_for_current_minute_close(self):
-        plan = build_startup_plan(now=datetime(2026, 6, 19, 11, 12, 50, tzinfo=IST), market_is_open=True)
+        plan = build_startup_plan(
+            now=datetime(2026, 6, 19, 11, 12, 50, tzinfo=IST), market_is_open=True
+        )
 
         self.assertEqual(plan.phase, "MARKET_OPEN")
         self.assertTrue(plan.stream_live)
@@ -85,7 +88,9 @@ class LiveTickPipelineTests(unittest.TestCase):
         self.assertTrue(plan.require_fetch_end)
 
     def test_startup_plan_after_close_reconciles_without_streaming(self):
-        plan = build_startup_plan(now=datetime(2026, 6, 19, 16, 1, tzinfo=IST), market_is_open=False)
+        plan = build_startup_plan(
+            now=datetime(2026, 6, 19, 16, 1, tzinfo=IST), market_is_open=False
+        )
 
         self.assertEqual(plan.phase, "AFTER_CLOSE")
         self.assertFalse(plan.stream_live)
@@ -98,7 +103,9 @@ class LiveTickPipelineTests(unittest.TestCase):
 
         with TemporaryDirectory(dir=str(Path.cwd())) as tmp:
             store = CandleCsvStore("CGPOWER", tmp)
-            plan = build_startup_plan(now=datetime(2026, 6, 19, 8, 55, tzinfo=IST), market_is_open=False)
+            plan = build_startup_plan(
+                now=datetime(2026, 6, 19, 8, 55, tzinfo=IST), market_is_open=False
+            )
             result = run_initial_backfill(EmptyFyers(), "CGPOWER", store, plan=plan)
 
             self.assertEqual(result.appended_rows, 0)
@@ -125,7 +132,9 @@ class LiveTickPipelineTests(unittest.TestCase):
                 ],
                 strict_minutes=1,
             )
-            plan = build_startup_plan(now=datetime(2026, 6, 19, 8, 55, tzinfo=IST), market_is_open=False)
+            plan = build_startup_plan(
+                now=datetime(2026, 6, 19, 8, 55, tzinfo=IST), market_is_open=False
+            )
 
             result = run_initial_backfill(EmptyFyers(), "CGPOWER", store, plan=plan)
 
@@ -153,7 +162,9 @@ class LiveTickPipelineTests(unittest.TestCase):
                     ],
                     strict_minutes=1,
                 )
-            plan = build_startup_plan(now=datetime(2026, 6, 19, 9, 16, 50, tzinfo=IST), market_is_open=True)
+            plan = build_startup_plan(
+                now=datetime(2026, 6, 19, 9, 16, 50, tzinfo=IST), market_is_open=True
+            )
             plan = type(plan)(
                 phase=plan.phase,
                 stream_live=plan.stream_live,
@@ -174,7 +185,9 @@ class LiveTickPipelineTests(unittest.TestCase):
 
         with TemporaryDirectory(dir=str(Path.cwd())) as tmp:
             store = CandleCsvStore("CGPOWER", tmp)
-            plan = build_startup_plan(now=datetime(2026, 6, 19, 11, 12, 50, tzinfo=IST), market_is_open=True)
+            plan = build_startup_plan(
+                now=datetime(2026, 6, 19, 11, 12, 50, tzinfo=IST), market_is_open=True
+            )
             plan = type(plan)(
                 phase=plan.phase,
                 stream_live=plan.stream_live,
@@ -209,7 +222,9 @@ class LiveTickPipelineTests(unittest.TestCase):
                 ],
                 strict_minutes=1,
             )
-            plan = build_startup_plan(now=datetime(2026, 6, 19, 9, 17, 50, tzinfo=IST), market_is_open=True)
+            plan = build_startup_plan(
+                now=datetime(2026, 6, 19, 9, 17, 50, tzinfo=IST), market_is_open=True
+            )
             plan = type(plan)(
                 phase=plan.phase,
                 stream_live=plan.stream_live,
@@ -318,7 +333,9 @@ class LiveTickPipelineTests(unittest.TestCase):
 
         builder.process(first)
         candles = builder.flush_ready(datetime(2026, 6, 19, 9, 16, 3), settle_seconds=2)
-        late = builder.process(TickRecord("NSE:CGPOWER-EQ", datetime(2026, 6, 19, 9, 15, 30), 101, 1010, {}))
+        late = builder.process(
+            TickRecord("NSE:CGPOWER-EQ", datetime(2026, 6, 19, 9, 15, 30), 101, 1010, {})
+        )
 
         self.assertEqual(len(candles), 1)
         self.assertEqual(candles[0].datetime, datetime(2026, 6, 19, 9, 15))
@@ -330,12 +347,17 @@ class LiveTickPipelineTests(unittest.TestCase):
         builder.process(TickRecord("NSE:CGPOWER-EQ", datetime(2026, 6, 19, 9, 15), 100, 1005, {}))
         builder.flush_ready(datetime(2026, 6, 19, 9, 16, 3), settle_seconds=2)
 
-        gap_candles = builder.process(TickRecord("NSE:CGPOWER-EQ", datetime(2026, 6, 19, 9, 18), 101, 1010, {}))
+        gap_candles = builder.process(
+            TickRecord("NSE:CGPOWER-EQ", datetime(2026, 6, 19, 9, 18), 101, 1010, {})
+        )
 
-        self.assertEqual([item.datetime for item in gap_candles], [
-            datetime(2026, 6, 19, 9, 16),
-            datetime(2026, 6, 19, 9, 17),
-        ])
+        self.assertEqual(
+            [item.datetime for item in gap_candles],
+            [
+                datetime(2026, 6, 19, 9, 16),
+                datetime(2026, 6, 19, 9, 17),
+            ],
+        )
         self.assertEqual([item.volume for item in gap_candles], [0, 0])
         self.assertEqual([item.close for item in gap_candles], [100, 100])
 
@@ -343,12 +365,17 @@ class LiveTickPipelineTests(unittest.TestCase):
         builder = MinuteCandleBuilder(baseline_cumulative_volume=1000)
         builder.seed_last_finalized(datetime(2026, 6, 19, 9, 31), 100)
 
-        gap_candles = builder.process(TickRecord("NSE:CGPOWER-EQ", datetime(2026, 6, 19, 9, 34), 101, 1010, {}))
+        gap_candles = builder.process(
+            TickRecord("NSE:CGPOWER-EQ", datetime(2026, 6, 19, 9, 34), 101, 1010, {})
+        )
 
-        self.assertEqual([item.datetime for item in gap_candles], [
-            datetime(2026, 6, 19, 9, 32),
-            datetime(2026, 6, 19, 9, 33),
-        ])
+        self.assertEqual(
+            [item.datetime for item in gap_candles],
+            [
+                datetime(2026, 6, 19, 9, 32),
+                datetime(2026, 6, 19, 9, 33),
+            ],
+        )
         self.assertEqual([item.volume for item in gap_candles], [0, 0])
         self.assertEqual([item.open for item in gap_candles], [100, 100])
 
@@ -358,10 +385,13 @@ class LiveTickPipelineTests(unittest.TestCase):
 
         gap_candles = builder.flush_ready(datetime(2026, 6, 19, 9, 38, 3), settle_seconds=2)
 
-        self.assertEqual([item.datetime for item in gap_candles], [
-            datetime(2026, 6, 19, 9, 36),
-            datetime(2026, 6, 19, 9, 37),
-        ])
+        self.assertEqual(
+            [item.datetime for item in gap_candles],
+            [
+                datetime(2026, 6, 19, 9, 36),
+                datetime(2026, 6, 19, 9, 37),
+            ],
+        )
         self.assertEqual([item.volume for item in gap_candles], [0, 0])
         self.assertEqual([item.close for item in gap_candles], [100, 100])
 
@@ -404,8 +434,16 @@ class LiveTickPipelineTests(unittest.TestCase):
                 "Volume": 1002,
             }
 
-            self.assertEqual(store.append_raw_rows(Main.TIMEFRAME_1MIN, [first], strict_minutes=1).rows_appended, 1)
-            self.assertEqual(store.append_raw_rows(Main.TIMEFRAME_1MIN, [second], strict_minutes=1).rows_appended, 1)
+            self.assertEqual(
+                store.append_raw_rows(Main.TIMEFRAME_1MIN, [first], strict_minutes=1).rows_appended,
+                1,
+            )
+            self.assertEqual(
+                store.append_raw_rows(
+                    Main.TIMEFRAME_1MIN, [second], strict_minutes=1
+                ).rows_appended,
+                1,
+            )
             with self.assertRaises(DataContinuityError):
                 store.append_raw_rows(Main.TIMEFRAME_1MIN, [gap], strict_minutes=1)
 
@@ -457,7 +495,9 @@ class LiveTickPipelineTests(unittest.TestCase):
             self.assertIsNone(pipeline.fatal_error)
             saved = pd.read_csv(store.path(Main.TIMEFRAME_1MIN), parse_dates=["Datetime"])
             self.assertEqual(len(saved), 1)
-            self.assertEqual(saved.iloc[0]["Datetime"].to_pydatetime(), datetime(2026, 6, 19, 9, 15))
+            self.assertEqual(
+                saved.iloc[0]["Datetime"].to_pydatetime(), datetime(2026, 6, 19, 9, 15)
+            )
             tick_files = list((root / "TickData" / "CGPOWER").glob("*_ticks.jsonl"))
             self.assertEqual(len(tick_files), 1)
             self.assertGreater(tick_files[0].stat().st_size, 0)
@@ -608,18 +648,34 @@ class LiveTickPipelineTests(unittest.TestCase):
             pipeline.join(timeout=5)
 
             saved_5min = pd.read_csv(store.path(Main.TIMEFRAME_5MIN), parse_dates=["Datetime"])
-            self.assertIn(datetime(2026, 6, 19, 11, 10), set(saved_5min["Datetime"].dt.to_pydatetime()))
+            self.assertIn(
+                datetime(2026, 6, 19, 11, 10), set(saved_5min["Datetime"].dt.to_pydatetime())
+            )
 
     def test_validation_report_flags_ohlcv_mismatch(self):
         dt = datetime(2026, 6, 19, 9, 15)
         local = pd.DataFrame(
             [
-                {"Datetime": dt, "Open": 100, "High": 101, "Low": 99, "Close": 100.5, "Volume": 1000},
+                {
+                    "Datetime": dt,
+                    "Open": 100,
+                    "High": 101,
+                    "Low": 99,
+                    "Close": 100.5,
+                    "Volume": 1000,
+                },
             ]
         )
         reference = pd.DataFrame(
             [
-                {"Datetime": dt, "Open": 100, "High": 101, "Low": 98, "Close": 100.5, "Volume": 1000},
+                {
+                    "Datetime": dt,
+                    "Open": 100,
+                    "High": 101,
+                    "Low": 98,
+                    "Close": 100.5,
+                    "Volume": 1000,
+                },
             ]
         )
 

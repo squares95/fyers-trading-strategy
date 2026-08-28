@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass
-from datetime import timedelta
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -12,16 +11,9 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import brentq
 
-
 ROOT = Path(__file__).resolve().parents[3]
 OUTPUT_FOLDER = Path(__file__).resolve().parent
-PPFCF_PATH = (
-    ROOT
-    / "Data"
-    / "MutualFunds"
-    / "PPFCF_DIRECT_GROWTH"
-    / "PPFCF_DIRECT_GROWTH_1D.csv"
-)
+PPFCF_PATH = ROOT / "Data" / "MutualFunds" / "PPFCF_DIRECT_GROWTH" / "PPFCF_DIRECT_GROWTH_1D.csv"
 TRI_ENDPOINT = "https://www.niftyindices.com/BackPage/getTotalReturnIndexString"
 SOURCE_PAGE = "https://www.niftyindices.com/reports/historical-data"
 START_DATE = pd.Timestamp("2013-05-28")
@@ -183,9 +175,11 @@ def LoadAlignedData() -> pd.DataFrame:
     aligned = frames[0]
     for frame in frames[1:]:
         aligned = aligned.merge(frame, on="Date", how="inner")
-    aligned = aligned[
-        aligned["Date"].between(START_DATE, END_DATE)
-    ].sort_values("Date").reset_index(drop=True)
+    aligned = (
+        aligned[aligned["Date"].between(START_DATE, END_DATE)]
+        .sort_values("Date")
+        .reset_index(drop=True)
+    )
     expected = {"Date", "PPFCF", "MIDCAP150_TRI", "SMALLCAP250_TRI"}
     if set(aligned.columns) != expected or len(aligned) < 3_000:
         raise ValueError("Aligned long-term dataset failed coverage checks")
@@ -240,9 +234,9 @@ def AssetMetrics(name: str, series: pd.Series) -> dict:
     years = (series.index[-1] - series.index[0]).days / 365.25
     daily_returns = series.pct_change().dropna()
     annual = CalendarReturns(series)
-    complete_annual = annual[
-        annual.index < series.index[-1].year
-    ] if series.index[-1].month < 12 else annual
+    complete_annual = (
+        annual[annual.index < series.index[-1].year] if series.index[-1].month < 12 else annual
+    )
     rolling3 = RollingReturns(series, 36)
     rolling5 = RollingReturns(series, 60)
     return {
@@ -276,8 +270,7 @@ def CalculateXirr(cashflows: list[tuple[pd.Timestamp, float]]) -> float:
 
     def Xnpv(rate: float) -> float:
         return sum(
-            value / ((1 + rate) ** ((date - base_date).days / 365.0))
-            for date, value in ordered
+            value / ((1 + rate) ** ((date - base_date).days / 365.0)) for date, value in ordered
         )
 
     try:
@@ -293,7 +286,7 @@ def SimulateSip(
 ) -> dict:
     if not np.isclose(sum(weights.values()), 1.0):
         raise ValueError("SIP weights must sum to one")
-    units = {asset: 0.0 for asset in weights}
+    units = dict.fromkeys(weights, 0.0)
     cashflows = []
     contributions = 0.0
     months = pd.period_range(
@@ -306,10 +299,7 @@ def SimulateSip(
         due = pd.Timestamp(month.year, month.month, min(SIP_DAY, month.days_in_month))
         if due < levels["Date"].min():
             continue
-        eligible = levels[
-            (levels["Date"].dt.to_period("M") == month)
-            & (levels["Date"] >= due)
-        ]
+        eligible = levels[(levels["Date"].dt.to_period("M") == month) & (levels["Date"] >= due)]
         if eligible.empty:
             continue
         row = eligible.iloc[0]

@@ -21,10 +21,10 @@ import pandas as pd
 
 from .config import BARS_PER_DAY, StrategyConfig
 
-
 # ============================================================================
 # TRADE SIMULATION
 # ============================================================================
+
 
 def simulate_single_trade(
     df: pd.DataFrame,
@@ -141,6 +141,7 @@ def simulate_single_trade(
 # BACKTEST ORCHESTRATOR
 # ============================================================================
 
+
 def backtest(
     df: pd.DataFrame,
     signals: pd.DataFrame,
@@ -207,6 +208,7 @@ def backtest(
 # PERFORMANCE METRICS
 # ============================================================================
 
+
 def calculate_performance_metrics(trades: pd.DataFrame) -> dict:
     """
     Calculate key performance metrics from backtest results.
@@ -254,7 +256,7 @@ def calculate_performance_metrics(trades: pd.DataFrame) -> dict:
     gross_loss = -returns[returns < 0].sum()
 
     return {
-        "trades": int(len(trades)),
+        "trades": len(trades),
         "net_pct": round(float((equity.iloc[-1] - 1) * 100), 2),
         "avg_bps": round(float(returns.mean() * 10000), 2),
         "win_rate_pct": round(float((returns > 0).mean() * 100), 2),

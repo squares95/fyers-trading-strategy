@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from threading import RLock
-from typing import Any, Callable
-
+from typing import Any
 
 DEFAULT_DATA_TYPE = "SymbolUpdate"
 VALID_DATA_TYPES = {"SymbolUpdate", "DepthUpdate"}
@@ -102,12 +102,16 @@ class LiveTickClient:
             if normalized.lower() == valid_data_type.lower():
                 return valid_data_type
         if normalized not in VALID_DATA_TYPES:
-            raise ValueError(f"Unsupported data_type {data_type!r}. Use one of {sorted(VALID_DATA_TYPES)}")
+            raise ValueError(
+                f"Unsupported data_type {data_type!r}. Use one of {sorted(VALID_DATA_TYPES)}"
+            )
         return normalized
 
     def subscriptions(self) -> tuple[Subscription, ...]:
         with self._lock:
-            return tuple(sorted(self._subscriptions, key=lambda item: (item.data_type, item.symbol)))
+            return tuple(
+                sorted(self._subscriptions, key=lambda item: (item.data_type, item.symbol))
+            )
 
     def _socket_access_token(self) -> str:
         if self.access_token:
@@ -178,7 +182,9 @@ class LiveTickClient:
         try:
             from fyers_apiv3.FyersWebsocket import data_ws
         except ImportError as exc:
-            raise RuntimeError("Install fyers-apiv3 before using LiveTick websocket streaming.") from exc
+            raise RuntimeError(
+                "Install fyers-apiv3 before using LiveTick websocket streaming."
+            ) from exc
 
         def on_message(message):
             self.on_tick(message)
@@ -208,7 +214,9 @@ class LiveTickClient:
                     )
                     print(f"Subscribed to {subscription.symbol} ({subscription.data_type}).")
                 except Exception as exc:
-                    print(f"Failed to subscribe {subscription.symbol} ({subscription.data_type}): {exc}")
+                    print(
+                        f"Failed to subscribe {subscription.symbol} ({subscription.data_type}): {exc}"
+                    )
             self._socket.keep_running()
 
         self._socket = data_ws.FyersDataSocket(

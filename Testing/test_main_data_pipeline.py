@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import unittest
+import sys
 import types
+import unittest
 from contextlib import redirect_stdout
 from datetime import datetime, timedelta
 from io import StringIO
@@ -11,11 +12,8 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 
-import sys
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import Actions as Main
-
 
 IST = ZoneInfo("Asia/Kolkata")
 
@@ -94,8 +92,12 @@ class MainDataPipelineTests(unittest.TestCase):
             df.to_csv(symbol_folder / f"{symbol}_1MIN.csv", index=False)
 
             result = Main.materialize_timeframe_files(symbol, str(output))
-            self.assertEqual(result["rows"][Main.TIMEFRAME_1MIN], 30 * Main.EXPECTED_1MIN_BARS_PER_DAY)
-            self.assertEqual(result["rows"][Main.TIMEFRAME_5MIN], 30 * Main.EXPECTED_5MIN_BARS_PER_DAY)
+            self.assertEqual(
+                result["rows"][Main.TIMEFRAME_1MIN], 30 * Main.EXPECTED_1MIN_BARS_PER_DAY
+            )
+            self.assertEqual(
+                result["rows"][Main.TIMEFRAME_5MIN], 30 * Main.EXPECTED_5MIN_BARS_PER_DAY
+            )
             self.assertTrue((output / symbol / f"{symbol}_1MIN.csv").exists())
             self.assertTrue((output / symbol / f"{symbol}_5MIN.csv").exists())
             self.assertTrue((output / symbol / f"{symbol}_15MIN.csv").exists())
@@ -147,7 +149,13 @@ class MainDataPipelineTests(unittest.TestCase):
                 buf = StringIO()
 
                 with redirect_stdout(buf):
-                    Main.download([symbol], output_folder=str(output), chunk_days=60, total_days=2, downloadStats=True)
+                    Main.download(
+                        [symbol],
+                        output_folder=str(output),
+                        chunk_days=60,
+                        total_days=2,
+                        downloadStats=True,
+                    )
 
                 text = buf.getvalue()
                 self.assertIn(f"API calls: {len(fake.requests)}", text)
@@ -243,7 +251,9 @@ class MainDataPipelineTests(unittest.TestCase):
         try:
             with TemporaryDirectory(dir=str(Path.cwd())) as tmp:
                 output = Path(tmp)
-                Main.download(["RATELIMIT"], output_folder=str(output), chunk_days=30, total_days=10)
+                Main.download(
+                    ["RATELIMIT"], output_folder=str(output), chunk_days=30, total_days=10
+                )
                 self.assertEqual(len(fake.requests), 1)
                 self.assertFalse((output / "RATELIMIT").exists())
         finally:

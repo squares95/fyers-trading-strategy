@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 MODULE_PATH = (
     Path(__file__).resolve().parents[1]
     / "Research"
@@ -34,7 +33,9 @@ class SipDiversificationAnalysisTests(unittest.TestCase):
 
         result = Analysis.ParseEtfHistory(html, "TESTETF")
 
-        self.assertEqual(result["Date"].dt.strftime("%Y-%m-%d").tolist(), ["2026-01-01", "2026-01-02"])
+        self.assertEqual(
+            result["Date"].dt.strftime("%Y-%m-%d").tolist(), ["2026-01-01", "2026-01-02"]
+        )
         self.assertEqual(result["Close"].tolist(), [100, 101])
         self.assertEqual(result["Volume"].tolist(), [900, 1000])
 

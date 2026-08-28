@@ -10,6 +10,7 @@ Uses exp06's run_scenario + entry_time filtering for OOS split.
 
 Output: Research/GroqAnalysis/exp06c_<timestamp>.json
 """
+
 from __future__ import annotations
 
 import json
@@ -22,14 +23,13 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from exp06_news_filter import (
-    PORTFOLIO_STOCKS,
     INDEX_SYMBOL,
-    compute_gap_filter,
-    run_gold_with_filter,
-    calc_metrics,
-    resolve_data_path,
+    PORTFOLIO_STOCKS,
     SLIM_DIR,
-    DATA_DIR,
+    calc_metrics,
+    compute_gap_filter,
+    resolve_data_path,
+    run_gold_with_filter,
 )
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "Research" / "GroqAnalysis"
@@ -142,7 +142,9 @@ def main() -> None:
         f"{baseline['total_trades']:<8}"
     )
     for r in sweep_results:
-        marker = "  <-- BEST NET" if r["net_pct"] == max(s["net_pct"] for s in sweep_results) else ""
+        marker = (
+            "  <-- BEST NET" if r["net_pct"] == max(s["net_pct"] for s in sweep_results) else ""
+        )
         print(
             f"{r['threshold']:.1%}      {r['blocked_dates']:<8} "
             f"{r['net_pct']:>+9.2f} "

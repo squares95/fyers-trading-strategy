@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 MODULE_PATH = (
     Path(__file__).resolve().parents[1]
     / "Research"
@@ -56,7 +55,9 @@ class LongTermFundAnalysisTests(unittest.TestCase):
         result = Analysis.ParseTriPayload(payload, definition)
 
         self.assertEqual(result[definition.Key].tolist(), [100.0, 101.5])
-        self.assertEqual(result["Date"].dt.strftime("%Y-%m-%d").tolist(), ["2026-01-01", "2026-01-02"])
+        self.assertEqual(
+            result["Date"].dt.strftime("%Y-%m-%d").tolist(), ["2026-01-01", "2026-01-02"]
+        )
 
         wrong = payload.replace("Nifty Midcap 150", "Nifty Smallcap 250")
         with self.assertRaisesRegex(ValueError, "identity mismatch"):

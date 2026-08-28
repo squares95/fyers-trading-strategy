@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import json
 import math
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from datetime import time
 from pathlib import Path
-from typing import Iterable
 
 import numpy as np
 import pandas as pd
-
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = ROOT / "Data"
@@ -170,7 +169,9 @@ def resample_hourly_from_5m(df5: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def add_structure_bias(htf: pd.DataFrame, lookback: int, available_after_minutes: int) -> pd.DataFrame:
+def add_structure_bias(
+    htf: pd.DataFrame, lookback: int, available_after_minutes: int
+) -> pd.DataFrame:
     out = htf.copy()
     prior_high = out["High"].rolling(lookback, min_periods=lookback).max().shift(1)
     prior_low = out["Low"].rolling(lookback, min_periods=lookback).min().shift(1)
@@ -182,9 +183,13 @@ def add_structure_bias(htf: pd.DataFrame, lookback: int, available_after_minutes
 
 def attach_bias(df5: pd.DataFrame, df15: pd.DataFrame) -> pd.DataFrame:
     base = df5.sort_values("Datetime").copy()
-    bias15 = add_structure_bias(df15, lookback=8, available_after_minutes=15).rename(columns={"Bias": "Bias15"})
+    bias15 = add_structure_bias(df15, lookback=8, available_after_minutes=15).rename(
+        columns={"Bias": "Bias15"}
+    )
     hourly = resample_hourly_from_5m(df5)
-    bias60 = add_structure_bias(hourly, lookback=4, available_after_minutes=60).rename(columns={"Bias": "Bias60"})
+    bias60 = add_structure_bias(hourly, lookback=4, available_after_minutes=60).rename(
+        columns={"Bias": "Bias60"}
+    )
 
     base = pd.merge_asof(
         base,
@@ -270,8 +275,12 @@ def detect_sweep(row: pd.Series, variant: Variant) -> tuple[int, float] | None:
 
     long_breach = (low_level - row["Low"]) / low_level if low_level else 0
     short_breach = (row["High"] - high_level) / high_level if high_level else 0
-    swept_low = row["Low"] < low_level and row["Close"] > low_level and long_breach >= SWEEP_BREACH_PCT
-    swept_high = row["High"] > high_level and row["Close"] < high_level and short_breach >= SWEEP_BREACH_PCT
+    swept_low = (
+        row["Low"] < low_level and row["Close"] > low_level and long_breach >= SWEEP_BREACH_PCT
+    )
+    swept_high = (
+        row["High"] > high_level and row["Close"] < high_level and short_breach >= SWEEP_BREACH_PCT
+    )
 
     if swept_low and swept_high:
         return None
@@ -282,7 +291,9 @@ def detect_sweep(row: pd.Series, variant: Variant) -> tuple[int, float] | None:
     return None
 
 
-def find_order_block(df5_day: pd.DataFrame, start_idx: int, end_idx: int, direction: int) -> tuple[int, float, float] | None:
+def find_order_block(
+    df5_day: pd.DataFrame, start_idx: int, end_idx: int, direction: int
+) -> tuple[int, float, float] | None:
     left = max(0, start_idx - 4)
     for idx in range(end_idx - 1, left - 1, -1):
         candle = df5_day.iloc[idx]
@@ -295,7 +306,9 @@ def find_order_block(df5_day: pd.DataFrame, start_idx: int, end_idx: int, direct
     return None
 
 
-def has_1m_fvg(df1_day: pd.DataFrame, direction: int, start: pd.Timestamp, end: pd.Timestamp) -> tuple[str, float]:
+def has_1m_fvg(
+    df1_day: pd.DataFrame, direction: int, start: pd.Timestamp, end: pd.Timestamp
+) -> tuple[str, float]:
     window = df1_day[(df1_day["Datetime"] >= start) & (df1_day["Datetime"] <= end)]
     if window.empty:
         return "", 0.0
@@ -333,11 +346,19 @@ def find_5m_confirmation(
         body = abs(bar["Close"] - bar["Open"])
         atr = max(float(bar.get("ATR", 0.0)), 0.01)
         if direction == 1:
-            displacement = bar["Close"] > prior["High"].max() and bar["Close"] > bar["Open"] and body >= 0.35 * atr
+            displacement = (
+                bar["Close"] > prior["High"].max()
+                and bar["Close"] > bar["Open"]
+                and body >= 0.35 * atr
+            )
             fvg_time = str(bar["Datetime"]) if bool(bar["BullFVG"]) else ""
             fvg_size = float(bar["BullFVGSize"]) if bool(bar["BullFVG"]) else 0.0
         else:
-            displacement = bar["Close"] < prior["Low"].min() and bar["Close"] < bar["Open"] and body >= 0.35 * atr
+            displacement = (
+                bar["Close"] < prior["Low"].min()
+                and bar["Close"] < bar["Open"]
+                and body >= 0.35 * atr
+            )
             fvg_time = str(bar["Datetime"]) if bool(bar["BearFVG"]) else ""
             fvg_size = float(bar["BearFVGSize"]) if bool(bar["BearFVG"]) else 0.0
 
@@ -402,15 +423,24 @@ def find_1m_mss_entry(
     df["PriorLow5"] = df1_day["Low"].rolling(5).min().shift(1).reindex(df.index)
     for _, minute in df.iterrows():
         if direction == 1:
-            structural_shift = minute["Close"] > minute["PriorHigh5"] and minute["Close"] > minute["Open"]
+            structural_shift = (
+                minute["Close"] > minute["PriorHigh5"] and minute["Close"] > minute["Open"]
+            )
             has_fvg = bool(minute["BullFVG"])
             fvg_size = float(minute["BullFVGSize"]) if has_fvg else 0.0
         else:
-            structural_shift = minute["Close"] < minute["PriorLow5"] and minute["Close"] < minute["Open"]
+            structural_shift = (
+                minute["Close"] < minute["PriorLow5"] and minute["Close"] < minute["Open"]
+            )
             has_fvg = bool(minute["BearFVG"])
             fvg_size = float(minute["BearFVGSize"]) if has_fvg else 0.0
         if structural_shift and has_fvg:
-            return pd.Timestamp(minute["Datetime"]), float(minute["Close"]), str(minute["Datetime"]), fvg_size
+            return (
+                pd.Timestamp(minute["Datetime"]),
+                float(minute["Close"]),
+                str(minute["Datetime"]),
+                fvg_size,
+            )
     return None
 
 
@@ -548,12 +578,16 @@ def generate_trades_for_variant(
         if df1_day.empty:
             continue
 
-        session = df5_day[(df5_day["Time"] >= SETUP_START) & (df5_day["Time"] <= SETUP_END)].reset_index(drop=True)
+        session = df5_day[
+            (df5_day["Time"] >= SETUP_START) & (df5_day["Time"] <= SETUP_END)
+        ].reset_index(drop=True)
         full_day = df5_day.reset_index(drop=True)
         trade_taken = False
 
         for _, sweep_row in session.iterrows():
-            full_pos_matches = full_day.index[full_day["Datetime"] == sweep_row["Datetime"]].tolist()
+            full_pos_matches = full_day.index[
+                full_day["Datetime"] == sweep_row["Datetime"]
+            ].tolist()
             if not full_pos_matches:
                 continue
             sweep_pos = full_pos_matches[0]
@@ -564,7 +598,9 @@ def generate_trades_for_variant(
             direction, sweep_level = detected
             if not higher_timeframe_allows(direction, sweep_row):
                 continue
-            if variant.banknifty_filter and not bank_filter_allows(bank_vwap, direction, pd.Timestamp(sweep_row["Datetime"])):
+            if variant.banknifty_filter and not bank_filter_allows(
+                bank_vwap, direction, pd.Timestamp(sweep_row["Datetime"])
+            ):
                 continue
 
             confirmation = find_5m_confirmation(full_day, df1_day, sweep_pos, direction)
@@ -580,7 +616,9 @@ def generate_trades_for_variant(
                 fvg_time = confirmation["fvg_time"]
                 fvg_size = confirmation["fvg_size"]
             elif variant.entry_trigger == "market_1m_mss":
-                mss_entry = find_1m_mss_entry(df1_day, pd.Timestamp(sweep_row["Datetime"]), direction)
+                mss_entry = find_1m_mss_entry(
+                    df1_day, pd.Timestamp(sweep_row["Datetime"]), direction
+                )
                 if mss_entry is None:
                     continue
                 entry_time, entry_price, fvg_time, fvg_size = mss_entry
@@ -681,9 +719,13 @@ def metrics(trades: Iterable[Trade]) -> dict:
     gross_loss = -r[losses].sum()
     equity = r.cumsum()
     drawdown = equity - equity.cummax()
-    pf = math.inf if gross_loss == 0 and gross_profit > 0 else (gross_profit / gross_loss if gross_loss else 0.0)
+    pf = (
+        math.inf
+        if gross_loss == 0 and gross_profit > 0
+        else (gross_profit / gross_loss if gross_loss else 0.0)
+    )
     return {
-        "trades": int(len(df)),
+        "trades": len(df),
         "win_rate": float(wins.mean() * 100),
         "decisive_win_rate": float((wins[decisive].mean() * 100) if decisive.any() else 0.0),
         "profit_factor": float(pf) if math.isfinite(pf) else "inf",
@@ -704,7 +746,9 @@ def choose_best(summary: pd.DataFrame) -> str | None:
         & (summary["trades"] >= MIN_TRAIN_TRADES_FOR_SELECTION)
     ].copy()
     if train.empty:
-        train = summary[(summary["set_name"] == "train") & (summary["available"]) & (summary["trades"] > 0)].copy()
+        train = summary[
+            (summary["set_name"] == "train") & (summary["available"]) & (summary["trades"] > 0)
+        ].copy()
     if train.empty:
         return None
 
@@ -749,8 +793,12 @@ def run_research() -> dict:
     max_ts = df5["Datetime"].max().normalize()
     start_ts = max_ts - pd.DateOffset(months=RESEARCH_MONTHS)
     test_start = max_ts - pd.DateOffset(months=TEST_MONTHS)
-    df1 = df1[(df1["Datetime"] >= start_ts) & (df1["Datetime"] <= max_ts + pd.Timedelta(days=1))].copy()
-    df5 = df5[(df5["Datetime"] >= start_ts) & (df5["Datetime"] <= max_ts + pd.Timedelta(days=1))].copy()
+    df1 = df1[
+        (df1["Datetime"] >= start_ts) & (df1["Datetime"] <= max_ts + pd.Timedelta(days=1))
+    ].copy()
+    df5 = df5[
+        (df5["Datetime"] >= start_ts) & (df5["Datetime"] <= max_ts + pd.Timedelta(days=1))
+    ].copy()
 
     bank_vwap = load_banknifty_vwap()
     variants = [
@@ -781,7 +829,11 @@ def run_research() -> dict:
     summary_rows = []
     for variant in variants:
         for set_name in ("train", "test"):
-            subset = [trade for trade in all_trades if trade.variant == variant.label and trade.set_name == set_name]
+            subset = [
+                trade
+                for trade in all_trades
+                if trade.variant == variant.label and trade.set_name == set_name
+            ]
             row = metrics(subset)
             row.update(
                 {
@@ -824,7 +876,9 @@ def run_research() -> dict:
             "training_months": RESEARCH_MONTHS - TEST_MONTHS,
             "test_months": TEST_MONTHS,
         },
-        "banknifty_filter_source": str(find_banknifty_source()) if find_banknifty_source() else None,
+        "banknifty_filter_source": (
+            str(find_banknifty_source()) if find_banknifty_source() else None
+        ),
         "unavailable_variants": unavailable_variants,
         "selected_variant_from_training_only": best_variant,
         "outputs": {
@@ -836,7 +890,9 @@ def run_research() -> dict:
     }
     metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
-    selected_train = summary[(summary["variant"] == best_variant) & (summary["set_name"] == "train")]
+    selected_train = summary[
+        (summary["variant"] == best_variant) & (summary["set_name"] == "train")
+    ]
     selected_test = summary[(summary["variant"] == best_variant) & (summary["set_name"] == "test")]
     report = build_markdown_report(metadata, selected_train, selected_test, summary, failures)
     report_path.write_text(report, encoding="utf-8")
@@ -890,10 +946,10 @@ def build_markdown_report(
     if not selected_train.empty:
         train = selected_train.iloc[0].to_dict()
         lines.append(
-        f"- Training: trades={train['trades']}, win_rate={train['win_rate']:.2f}%, "
-        f"decisive_win_rate={train['decisive_win_rate']:.2f}%, "
-        f"PF={train['profit_factor']}, expectancy={train['expectancy_r']:.3f}R, "
-        f"max_drawdown={train['max_drawdown_r']:.2f}R, breakevens={train['breakevens']}"
+            f"- Training: trades={train['trades']}, win_rate={train['win_rate']:.2f}%, "
+            f"decisive_win_rate={train['decisive_win_rate']:.2f}%, "
+            f"PF={train['profit_factor']}, expectancy={train['expectancy_r']:.3f}R, "
+            f"max_drawdown={train['max_drawdown_r']:.2f}R, breakevens={train['breakevens']}"
         )
     if not selected_test.empty:
         test = selected_test.iloc[0].to_dict()
@@ -954,4 +1010,15 @@ if __name__ == "__main__":
     print(f"Selected variant: {metadata['selected_variant_from_training_only']}")
     selected = summary[summary["variant"] == metadata["selected_variant_from_training_only"]]
     if not selected.empty:
-        print(selected[["set_name", "trades", "win_rate", "profit_factor", "expectancy_r", "max_drawdown_r"]].to_string(index=False))
+        print(
+            selected[
+                [
+                    "set_name",
+                    "trades",
+                    "win_rate",
+                    "profit_factor",
+                    "expectancy_r",
+                    "max_drawdown_r",
+                ]
+            ].to_string(index=False)
+        )

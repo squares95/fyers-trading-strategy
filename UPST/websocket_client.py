@@ -2,26 +2,24 @@
 import asyncio
 import json
 import ssl
-import websockets
+
+import MarketDataFeedV3_pb2 as pb
 import requests
+import websockets
 from google.protobuf.json_format import MessageToDict
-import sys
-import os
+from Test import getOHLCVFromFeed, save_dict
+
 # sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'UPST')))
 from UPFunctions import get_property
-import MarketDataFeedV3_pb2 as pb
-from Test import getOHLCVFromFeed, save_dict
 
 i = 0
 
+
 def get_market_data_feed_authorize_v3():
     """Get authorization for market data feed."""
-    access_token = get_property('token')
-    headers = {
-        'Accept': 'application/json',
-        'Authorization': f'Bearer {access_token}'
-    }
-    url = 'https://api.upstox.com/v3/feed/market-data-feed/authorize'
+    access_token = get_property("token")
+    headers = {"Accept": "application/json", "Authorization": f"Bearer {access_token}"}
+    url = "https://api.upstox.com/v3/feed/market-data-feed/authorize"
     api_response = requests.get(url=url, headers=headers)
     return api_response.json()
 
@@ -44,8 +42,10 @@ async def fetch_market_data():
     # Get market data feed authorization
     response = get_market_data_feed_authorize_v3()
     # Connect to the WebSocket with SSL context
-    async with websockets.connect(response["data"]["authorized_redirect_uri"], ssl=ssl_context) as websocket:
-        print('Connection established')
+    async with websockets.connect(
+        response["data"]["authorized_redirect_uri"], ssl=ssl_context
+    ) as websocket:
+        print("Connection established")
 
         await asyncio.sleep(1)  # Wait for 1 second
 
@@ -53,14 +53,11 @@ async def fetch_market_data():
         data = {
             "guid": "someguid",
             "method": "sub",
-            "data": {
-                "mode": "full",
-                "instrumentKeys": ["NSE_EQ|INE062A01020"]
-            }
+            "data": {"mode": "full", "instrumentKeys": ["NSE_EQ|INE062A01020"]},
         }
 
         # Convert data to binary and send over WebSocket
-        binary_data = json.dumps(data).encode('utf-8')
+        binary_data = json.dumps(data).encode("utf-8")
         await websocket.send(binary_data)
 
         # Continuously receive and decode data from WebSocket

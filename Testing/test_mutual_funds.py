@@ -15,7 +15,6 @@ import Actions as Main
 import MutualFunds
 from Config.MutualFunds import PARAG_PARIKH_FLEXI_CAP_DIRECT_GROWTH
 
-
 FUND = PARAG_PARIKH_FLEXI_CAP_DIRECT_GROWTH
 
 
@@ -81,7 +80,9 @@ class MutualFundTests(unittest.TestCase):
     def test_historical_parser_validates_identity_and_sorts_dates(self):
         frame = MutualFunds.ParseHistoricalNav(HistoricalPayload(), FUND)
 
-        self.assertEqual(frame["Date"].dt.strftime("%Y-%m-%d").tolist(), ["2026-08-22", "2026-08-23"])
+        self.assertEqual(
+            frame["Date"].dt.strftime("%Y-%m-%d").tolist(), ["2026-08-22", "2026-08-23"]
+        )
         self.assertEqual(frame["Source"].unique().tolist(), ["MFAPI"])
 
         with self.assertRaises(MutualFunds.MutualFundDataError):

@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 OUT = Path(__file__).resolve().parent
 FEATURES_PATH = OUT / "session_daily_features.csv"
 MINUTE_PATH = OUT.parents[1] / "Data" / "CGPOWER" / "CGPOWER_1MIN.csv"
@@ -22,17 +21,23 @@ COST_RATE = 0.001
 
 def fetch_yahoo(symbol: str) -> pd.DataFrame:
     encoded = quote(symbol, safe="")
-    url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded}"
-           f"?period1={START_EPOCH}&period2={END_EPOCH}&interval=1d&events=history")
+    url = (
+        f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded}"
+        f"?period1={START_EPOCH}&period2={END_EPOCH}&interval=1d&events=history"
+    )
     request = Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urlopen(request, timeout=30) as response:
         payload = json.load(response)
     result = payload["chart"]["result"][0]
     quote_data = result["indicators"]["quote"][0]
-    df = pd.DataFrame({
-        "Date": pd.to_datetime(result["timestamp"], unit="s", utc=True).tz_convert(None).normalize(),
-        "Close": quote_data["close"],
-    }).dropna()
+    df = pd.DataFrame(
+        {
+            "Date": pd.to_datetime(result["timestamp"], unit="s", utc=True)
+            .tz_convert(None)
+            .normalize(),
+            "Close": quote_data["close"],
+        }
+    ).dropna()
     df["Return"] = df["Close"].pct_change()
     return df
 
@@ -40,9 +45,11 @@ def fetch_yahoo(symbol: str) -> pd.DataFrame:
 def make_available_next_day(df: pd.DataFrame, prefix: str) -> pd.DataFrame:
     result = df.copy()
     result["AvailableDate"] = result["Date"] + pd.Timedelta(days=1)
-    return result[["AvailableDate", "Close", "Return"]].rename(
-        columns={"Close": f"{prefix}_close", "Return": f"{prefix}_return"}
-    ).sort_values("AvailableDate")
+    return (
+        result[["AvailableDate", "Close", "Return"]]
+        .rename(columns={"Close": f"{prefix}_close", "Return": f"{prefix}_return"})
+        .sort_values("AvailableDate")
+    )
 
 
 def summarize(group: pd.core.groupby.generic.DataFrameGroupBy, label: str) -> pd.DataFrame:
@@ -66,42 +73,70 @@ def trade_metrics(returns: pd.Series) -> dict[str, float]:
         return {"Trades": 0, "WinRate": np.nan, "ProfitFactor": np.nan, "Expectancy": np.nan}
     profit, loss = returns[returns > 0].sum(), -returns[returns < 0].sum()
     return {
-        "Trades": len(returns), "WinRate": (returns > 0).mean(),
-        "ProfitFactor": profit / loss if loss else np.inf, "Expectancy": returns.mean(),
+        "Trades": len(returns),
+        "WinRate": (returns > 0).mean(),
+        "ProfitFactor": profit / loss if loss else np.inf,
+        "Expectancy": returns.mean(),
     }
 
 
 def context_trade_tests(context: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    work = context[context["combined_proxy"].isin(["bullish_agreement", "bearish_agreement"])].copy()
+    work = context[
+        context["combined_proxy"].isin(["bullish_agreement", "bearish_agreement"])
+    ].copy()
     work["Direction"] = np.where(work["combined_proxy"] == "bullish_agreement", 1, -1)
-    directional_position = np.where(work["Direction"] > 0, work["opening15_close_position"], 1 - work["opening15_close_position"])
+    directional_position = np.where(
+        work["Direction"] > 0,
+        work["opening15_close_position"],
+        1 - work["opening15_close_position"],
+    )
     variants = {
         "agreement_only_0930": pd.Series(True, index=work.index),
         "plus_cg_first15_confirmation": np.sign(work["r15"]) == work["Direction"],
-        "plus_first15_and_range_acceptance": (np.sign(work["r15"]) == work["Direction"]) & (directional_position >= 0.70),
-        "plus_range_acceptance_and_rvol": (np.sign(work["r15"]) == work["Direction"]) &
-                                              (directional_position >= 0.70) &
-                                              (work["opening15_rvol20"] >= 1.0),
+        "plus_first15_and_range_acceptance": (np.sign(work["r15"]) == work["Direction"])
+        & (directional_position >= 0.70),
+        "plus_range_acceptance_and_rvol": (np.sign(work["r15"]) == work["Direction"])
+        & (directional_position >= 0.70)
+        & (work["opening15_rvol20"] >= 1.0),
     }
     rows = []
     chosen = pd.DataFrame()
     for name, mask in variants.items():
         trades = work[mask].copy()
         trades["NetReturn"] = trades["Direction"] * trades["r_after15"] - COST_RATE
-        for period, subset in (("All", trades), ("2024", trades[trades["Date"].dt.year == 2024]),
-                               ("2025", trades[trades["Date"].dt.year == 2025]),
-                               ("2026", trades[trades["Date"].dt.year == 2026])):
+        for period, subset in (
+            ("All", trades),
+            ("2024", trades[trades["Date"].dt.year == 2024]),
+            ("2025", trades[trades["Date"].dt.year == 2025]),
+            ("2026", trades[trades["Date"].dt.year == 2026]),
+        ):
             rows.append({"Variant": name, "Period": period, **trade_metrics(subset["NetReturn"])})
         if name == "plus_first15_and_range_acceptance":
             chosen = trades
-    replay = pd.concat([chosen.nlargest(3, "NetReturn"), chosen.nsmallest(3, "NetReturn")]).drop_duplicates("Date")
-    columns = ["Date", "combined_proxy", "Direction", "nasdaq_return", "dow_return", "vix_close",
-               "nifty_gap", "gap", "r15", "opening15_rvol20", "r_after15", "NetReturn"]
+    replay = pd.concat(
+        [chosen.nlargest(3, "NetReturn"), chosen.nsmallest(3, "NetReturn")]
+    ).drop_duplicates("Date")
+    columns = [
+        "Date",
+        "combined_proxy",
+        "Direction",
+        "nasdaq_return",
+        "dow_return",
+        "vix_close",
+        "nifty_gap",
+        "gap",
+        "r15",
+        "opening15_rvol20",
+        "r_after15",
+        "NetReturn",
+    ]
     return pd.DataFrame(rows), replay[columns].sort_values("Date")
 
 
 def chart_replays(replay: pd.DataFrame) -> None:
-    minutes = pd.read_csv(MINUTE_PATH, usecols=["Datetime", "Open", "Close"], parse_dates=["Datetime"])
+    minutes = pd.read_csv(
+        MINUTE_PATH, usecols=["Datetime", "Open", "Close"], parse_dates=["Datetime"]
+    )
     minutes["Date"] = minutes["Datetime"].dt.normalize()
     wanted = set(replay["Date"].dt.normalize())
     minutes = minutes[minutes["Date"].isin(wanted)].copy()
@@ -114,12 +149,23 @@ def chart_replays(replay: pd.DataFrame) -> None:
         ax.plot(x, path, color=color, linewidth=1.4)
         ax.axvline(14, color="#6B7280", linestyle="--", linewidth=0.8)
         ax.axhline(0, color="#6B7280", linewidth=0.7)
-        ax.set_title(f"{row['Date'].date()} | {row['combined_proxy']} | net {row['NetReturn']:.2%}", loc="left", fontsize=10, weight="bold")
+        ax.set_title(
+            f"{row['Date'].date()} | {row['combined_proxy']} | net {row['NetReturn']:.2%}",
+            loc="left",
+            fontsize=10,
+            weight="bold",
+        )
         ax.set_ylabel("From open (%)")
         ax.grid(alpha=0.15)
     for ax in axes[-1]:
         ax.set_xlabel("Minutes after 09:15 (dashed line = 09:29)")
-    fig.suptitle("Mental paper trades: identical morning confirmation, opposite outcomes", x=0.06, ha="left", weight="bold", fontsize=15)
+    fig.suptitle(
+        "Mental paper trades: identical morning confirmation, opposite outcomes",
+        x=0.06,
+        ha="left",
+        weight="bold",
+        fontsize=15,
+    )
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(OUT / "session_charts" / "05_premarket_mental_replays.png", dpi=180)
     plt.close(fig)
@@ -164,32 +210,55 @@ def main() -> None:
     context = cg.copy()
     for data, prefix in ((nasdaq, "nasdaq"), (dow, "dow"), (india_vix, "vix")):
         context = pd.merge_asof(
-            context.sort_values("Date"), make_available_next_day(data, prefix),
-            left_on="Date", right_on="AvailableDate", direction="backward",
+            context.sort_values("Date"),
+            make_available_next_day(data, prefix),
+            left_on="Date",
+            right_on="AvailableDate",
+            direction="backward",
             tolerance=pd.Timedelta(days=4),
         ).drop(columns=["AvailableDate"])
 
     context["us_context"] = np.select(
-        [(context["nasdaq_return"] > 0) & (context["dow_return"] > 0),
-         (context["nasdaq_return"] < 0) & (context["dow_return"] < 0)],
-        ["both_green", "both_red"], default="mixed",
+        [
+            (context["nasdaq_return"] > 0) & (context["dow_return"] > 0),
+            (context["nasdaq_return"] < 0) & (context["dow_return"] < 0),
+        ],
+        ["both_green", "both_red"],
+        default="mixed",
     )
     context["vix_regime"] = np.where(context["vix_close"] > 15, "above_15", "at_or_below_15")
     context["nifty_gap_proxy"] = pd.cut(
-        context["nifty_gap"], [-np.inf, -0.002, 0.002, np.inf],
+        context["nifty_gap"],
+        [-np.inf, -0.002, 0.002, np.inf],
         labels=["red_below_-0.2%", "flat_+-0.2%", "green_above_+0.2%"],
     )
     context["combined_proxy"] = np.select(
-        [(context["us_context"] == "both_green") & (context["nifty_gap"] > 0.002),
-         (context["us_context"] == "both_red") & (context["nifty_gap"] < -0.002)],
-        ["bullish_agreement", "bearish_agreement"], default="mixed_or_conflict",
+        [
+            (context["us_context"] == "both_green") & (context["nifty_gap"] > 0.002),
+            (context["us_context"] == "both_red") & (context["nifty_gap"] < -0.002),
+        ],
+        ["bullish_agreement", "bearish_agreement"],
+        default="mixed_or_conflict",
     )
 
     tables = [
-        summarize(context.dropna(subset=["nasdaq_return", "dow_return"]).groupby("us_context"), "Previous US close"),
-        summarize(context.dropna(subset=["vix_close"]).groupby("vix_regime"), "Previous India VIX close"),
-        summarize(context.dropna(subset=["nifty_gap"]).groupby("nifty_gap_proxy", observed=True), "NIFTY opening-gap proxy"),
-        summarize(context.dropna(subset=["nifty_gap", "nasdaq_return", "dow_return"]).groupby("combined_proxy"), "US + NIFTY-gap agreement"),
+        summarize(
+            context.dropna(subset=["nasdaq_return", "dow_return"]).groupby("us_context"),
+            "Previous US close",
+        ),
+        summarize(
+            context.dropna(subset=["vix_close"]).groupby("vix_regime"), "Previous India VIX close"
+        ),
+        summarize(
+            context.dropna(subset=["nifty_gap"]).groupby("nifty_gap_proxy", observed=True),
+            "NIFTY opening-gap proxy",
+        ),
+        summarize(
+            context.dropna(subset=["nifty_gap", "nasdaq_return", "dow_return"]).groupby(
+                "combined_proxy"
+            ),
+            "US + NIFTY-gap agreement",
+        ),
     ]
     results = pd.concat(tables, ignore_index=True)
     results.to_csv(OUT / "premarket_context_results.csv", index=False)
@@ -200,7 +269,9 @@ def main() -> None:
     chart_replays(replay)
     write_findings(results, trade_results)
 
-    directional = results[results["Test"].isin(["Previous US close", "US + NIFTY-gap agreement"])].copy()
+    directional = results[
+        results["Test"].isin(["Previous US close", "US + NIFTY-gap agreement"])
+    ].copy()
     directional["Category"] = directional["us_context"].fillna(directional["combined_proxy"])
     fig, ax = plt.subplots(figsize=(12, 6))
     labels = directional["Category"].astype(str)

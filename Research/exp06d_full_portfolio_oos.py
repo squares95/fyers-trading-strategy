@@ -10,6 +10,7 @@ Also tests baseline for comparison.
 
 Output: Research/GroqAnalysis/exp06d_<timestamp>.json
 """
+
 from __future__ import annotations
 
 import json
@@ -20,17 +21,21 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from exp06_news_filter import (
-    compute_gap_filter,
-    compute_crash_filter,
-    calc_metrics,
-    resolve_data_path,
     SLIM_DIR,
+    calc_metrics,
+    compute_gap_filter,
+    resolve_data_path,
 )
 
 # FULL portfolio (all 7 from SUPER GOLD)
 FULL_PORTFOLIO = [
-    "CGPOWER", "DRREDDY", "INDUSINDBK", "BHEL",
-    "HCLTECH", "TITAN", "M&M",
+    "CGPOWER",
+    "DRREDDY",
+    "INDUSINDBK",
+    "BHEL",
+    "HCLTECH",
+    "TITAN",
+    "M&M",
 ]
 INDEX_SYMBOL = "BANKNIFTY"
 OOS_START = "2025-01-01"
@@ -57,7 +62,13 @@ def run_scenario_full(symbols: list[str], blocked: set, label: str) -> dict:
         if len(t) > 0:
             # Filter to OOS by entry_time
             import pandas as pd
-            t = t[pd.to_datetime(t["entry_time"] if "entry_time" in t.columns else t.get("signal_time")) >= OOS_START].copy()
+
+            t = t[
+                pd.to_datetime(
+                    t["entry_time"] if "entry_time" in t.columns else t.get("signal_time")
+                )
+                >= OOS_START
+            ].copy()
             if len(t) > 0:
                 t["symbol"] = sym
                 all_trades.append(t)
@@ -93,7 +104,7 @@ def main() -> None:
     print(f"Portfolio (7 stocks): {FULL_PORTFOLIO}")
     print(f"Index: {INDEX_SYMBOL}")
     print(f"OOS start: {OOS_START}")
-    print(f"Filter: 2.5% gap (validated best from Exp 6B/6C)\n")
+    print("Filter: 2.5% gap (validated best from Exp 6B/6C)\n")
 
     # Check which stocks have full data (slim bundle or full)
     print("Checking full data availability (slim or full path)...")
@@ -103,7 +114,9 @@ def main() -> None:
         p5 = resolve_data_path(sym, "5MIN")
         has = p1.exists() and p5.exists()
         source = "slim" if str(SLIM_DIR) in str(p1) else "full"
-        print(f"  {'[OK]' if has else '[MS]'} {sym}: 1D={p1.name} ({source}), 5MIN={p5.name} ({source})")
+        print(
+            f"  {'[OK]' if has else '[MS]'} {sym}: 1D={p1.name} ({source}), 5MIN={p5.name} ({source})"
+        )
         if has:
             available.append(sym)
     if INDEX_SYMBOL not in available:
@@ -134,11 +147,19 @@ def main() -> None:
     print("RECOMMENDATION — FULL PORTFOLIO")
     print("=" * 70)
     if filtered["net_return_pct"] > baseline["net_return_pct"]:
-        print(f"✓ FILTER IMPROVES OOS NET: {baseline['net_return_pct']:+.2f}% → {filtered['net_return_pct']:+.2f}%")
+        print(
+            f"✓ FILTER IMPROVES OOS NET: {baseline['net_return_pct']:+.2f}% → {filtered['net_return_pct']:+.2f}%"
+        )
     else:
-        print(f"✗ FILTER DECREASES OOS NET: {baseline['net_return_pct']:+.2f}% → {filtered['net_return_pct']:+.2f}%")
-    print(f"  Baseline:  {baseline['net_return_pct']:+.2f}% net, PF {baseline['profit_factor']:.3f}, DD {baseline['max_drawdown_pct']:.2f}%")
-    print(f"  Filtered:  {filtered['net_return_pct']:+.2f}% net, PF {filtered['profit_factor']:.3f}, DD {filtered['max_drawdown_pct']:.2f}%")
+        print(
+            f"✗ FILTER DECREASES OOS NET: {baseline['net_return_pct']:+.2f}% → {filtered['net_return_pct']:+.2f}%"
+        )
+    print(
+        f"  Baseline:  {baseline['net_return_pct']:+.2f}% net, PF {baseline['profit_factor']:.3f}, DD {baseline['max_drawdown_pct']:.2f}%"
+    )
+    print(
+        f"  Filtered:  {filtered['net_return_pct']:+.2f}% net, PF {filtered['profit_factor']:.3f}, DD {filtered['max_drawdown_pct']:.2f}%"
+    )
 
     # Save
     out_path = OUT_DIR / f"exp06d_{datetime.now():%Y%m%d_%H%M%S}.json"

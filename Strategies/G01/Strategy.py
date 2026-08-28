@@ -1,15 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
 
 import pandas as pd
 
 import Download as DataDownload
-from . import Core, Gold
 
+from . import Core, Gold
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATA_FOLDER = ROOT / "Data"
@@ -48,7 +48,9 @@ def LastTradingDates(df: pd.DataFrame, days: int) -> set[str]:
     return set(dates[-days:])
 
 
-def BuildTrades(symbol: str, data_folder: str | Path = DEFAULT_DATA_FOLDER) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def BuildTrades(
+    symbol: str, data_folder: str | Path = DEFAULT_DATA_FOLDER
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     path = SymbolDataPath(symbol, data_folder)
     if not path.exists():
         raise FileNotFoundError(f"Missing 5MIN data for {CleanSymbol(symbol)} at {path}")
@@ -78,7 +80,9 @@ def BuildTrades(symbol: str, data_folder: str | Path = DEFAULT_DATA_FOLDER) -> t
     return df, strength_signals, final_trades
 
 
-def SummarizeTrades(symbol: str, df: pd.DataFrame, trades: pd.DataFrame, selected_dates: set[str]) -> dict[str, object]:
+def SummarizeTrades(
+    symbol: str, df: pd.DataFrame, trades: pd.DataFrame, selected_dates: set[str]
+) -> dict[str, object]:
     filtered = trades[trades["date"].isin(selected_dates)].copy() if not trades.empty else trades
     stats = Gold.equity_stats(filtered)
     return {
@@ -86,12 +90,14 @@ def SummarizeTrades(symbol: str, df: pd.DataFrame, trades: pd.DataFrame, selecte
         "scan_days": len(selected_dates),
         "date_start": min(selected_dates) if selected_dates else "",
         "date_end": max(selected_dates) if selected_dates else "",
-        "data_rows": int(len(df)),
+        "data_rows": len(df),
         **stats,
     }
 
 
-def SaveScanReport(result: StrategyScanResult, report_folder: str | Path = DEFAULT_REPORT_FOLDER) -> Path:
+def SaveScanReport(
+    result: StrategyScanResult, report_folder: str | Path = DEFAULT_REPORT_FOLDER
+) -> Path:
     folder = Path(report_folder)
     folder.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -146,7 +152,9 @@ class G01Strategy:
             return False
 
         scan_days = max(1, int(days)) if int(days) > 0 else 1
-        refresh_window = max(scan_days, int(refreshDays if refreshDays is not None else self.refreshDays))
+        refresh_window = max(
+            scan_days, int(refreshDays if refreshDays is not None else self.refreshDays)
+        )
         DataDownload.Download(
             list(symbols),
             output_folder=str(self.data_folder),
@@ -182,8 +190,14 @@ class G01Strategy:
         for symbol in clean_symbols:
             df, signals, trades = BuildTrades(symbol, self.data_folder)
             selected_dates = LastTradingDates(df, int(days))
-            scan_signals = signals[signals["date"].isin(selected_dates)].copy() if not signals.empty else signals
-            scan_trades = trades[trades["date"].isin(selected_dates)].copy() if not trades.empty else trades
+            scan_signals = (
+                signals[signals["date"].isin(selected_dates)].copy()
+                if not signals.empty
+                else signals
+            )
+            scan_trades = (
+                trades[trades["date"].isin(selected_dates)].copy() if not trades.empty else trades
+            )
             all_summary.append(SummarizeTrades(symbol, df, trades, selected_dates))
             all_signals.append(scan_signals)
             all_trades.append(scan_trades)
@@ -261,4 +275,8 @@ class G01Strategy:
             "signal_strength",
             "net_return_pct",
         ]
-        print(result.trades[[col for col in display_cols if col in result.trades.columns]].to_string(index=False))
+        print(
+            result.trades[[col for col in display_cols if col in result.trades.columns]].to_string(
+                index=False
+            )
+        )

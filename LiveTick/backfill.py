@@ -10,9 +10,9 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 
 import Actions as Main
+
 from .candle_builder import Candle
 from .csv_store import CandleCsvStore, RollingDerivedTimeframes, read_csv_tail
-
 
 IST = ZoneInfo("Asia/Kolkata")
 MARKET_OPEN_TIME = time(9, 15)
@@ -90,7 +90,9 @@ def build_startup_plan(
             ),
         )
 
-    wait_until = current.replace(second=0, microsecond=0) + timedelta(minutes=1, seconds=settle_seconds)
+    wait_until = current.replace(second=0, microsecond=0) + timedelta(
+        minutes=1, seconds=settle_seconds
+    )
     target_end = wait_until.replace(second=0, microsecond=0) - timedelta(minutes=1)
     target_end = min(target_end, market_close)
     return StartupPlan(
@@ -141,7 +143,9 @@ def run_initial_backfill(
     target_end = plan.fetch_end
     if target_end is None:
         baseline = baseline_volume_for_plan(store, plan, datetime.now(IST).replace(tzinfo=None))
-        return BackfillResult(0, None, None, baseline, "No safe history backfill target is available yet.")
+        return BackfillResult(
+            0, None, None, baseline, "No safe history backfill target is available yet."
+        )
 
     last_dt = store.last_1min_datetime()
     if last_dt is None and target_end.time() < MARKET_OPEN_TIME:
@@ -158,7 +162,9 @@ def run_initial_backfill(
         start_dt = target_end.replace(hour=9, minute=15, second=0, microsecond=0)
     elif last_dt >= target_end:
         baseline = baseline_volume_for_plan(store, plan, target_end)
-        return BackfillResult(0, None, None, baseline, "Local 1MIN CSV already covers the safe live range.")
+        return BackfillResult(
+            0, None, None, baseline, "Local 1MIN CSV already covers the safe live range."
+        )
     else:
         start_dt = last_dt + timedelta(minutes=1)
 
@@ -176,7 +182,9 @@ def run_initial_backfill(
                     filled.to_dict("records"),
                     strict_minutes=1,
                 )
-                replay_derived_timeframes(store, affected_replay_start(start_dt, target_end), target_end)
+                replay_derived_timeframes(
+                    store, affected_replay_start(start_dt, target_end), target_end
+                )
                 baseline = baseline_volume_for_plan(store, plan, target_end)
                 return BackfillResult(
                     append_result.rows_appended,
@@ -185,7 +193,9 @@ def run_initial_backfill(
                     baseline,
                     f"Zero-filled {append_result.rows_appended} no-trade 1MIN rows through {target_end}.",
                 )
-            raise BackfillError(f"Fyers returned no candles for required gap {start_dt} to {target_end}.")
+            raise BackfillError(
+                f"Fyers returned no candles for required gap {start_dt} to {target_end}."
+            )
         baseline = baseline_volume_for_plan(store, plan, target_end)
         return BackfillResult(
             0,
@@ -203,11 +213,15 @@ def run_initial_backfill(
             f"Fyers history did not fully cover gap {start_dt} to {target_end}; "
             f"got {fetched_start} to {fetched_end}."
         )
-    effective_end = target_end if same_session_gap and plan.require_fetch_end else min(fetched_end, target_end)
+    effective_end = (
+        target_end if same_session_gap and plan.require_fetch_end else min(fetched_end, target_end)
+    )
     if same_session_gap:
         fetched = fill_intraday_history_gaps(store, fetched, start_dt, effective_end)
         if fetched.empty:
-            raise BackfillError(f"Could not fill required same-session gap {start_dt} to {effective_end}.")
+            raise BackfillError(
+                f"Could not fill required same-session gap {start_dt} to {effective_end}."
+            )
 
     append_result = store.append_raw_rows(
         Main.TIMEFRAME_1MIN,
@@ -270,7 +284,9 @@ def cumulative_volume_until(path: str | Path, end_dt: datetime) -> int | None:
 
     total = 0
     found = False
-    for chunk in pd.read_csv(file_path, usecols=["Datetime", "Volume"], parse_dates=["Datetime"], chunksize=100_000):
+    for chunk in pd.read_csv(
+        file_path, usecols=["Datetime", "Volume"], parse_dates=["Datetime"], chunksize=100_000
+    ):
         rows = chunk[(chunk["Datetime"].dt.date == end_dt.date()) & (chunk["Datetime"] <= end_dt)]
         if not rows.empty:
             total += pd.to_numeric(rows["Volume"], errors="coerce").fillna(0).astype(int).sum()
@@ -278,7 +294,9 @@ def cumulative_volume_until(path: str | Path, end_dt: datetime) -> int | None:
     return int(total) if found else None
 
 
-def baseline_volume_for_plan(store: CandleCsvStore, plan: StartupPlan, end_dt: datetime) -> int | None:
+def baseline_volume_for_plan(
+    store: CandleCsvStore, plan: StartupPlan, end_dt: datetime
+) -> int | None:
     if plan.phase == "BEFORE_OPEN":
         return 0
     return cumulative_volume_until(store.path(Main.TIMEFRAME_1MIN), end_dt)
@@ -294,7 +312,9 @@ def last_1min_close(store: CandleCsvStore) -> float | None:
     return float(close)
 
 
-def zero_fill_history_gap(store: CandleCsvStore, start_dt: datetime, end_dt: datetime) -> pd.DataFrame:
+def zero_fill_history_gap(
+    store: CandleCsvStore, start_dt: datetime, end_dt: datetime
+) -> pd.DataFrame:
     if start_dt.date() != end_dt.date():
         return pd.DataFrame(columns=Main.RAW_COLUMNS)
     minute_count = int((end_dt - start_dt).total_seconds() // 60) + 1
@@ -387,7 +407,9 @@ def floor_intraday_bucket(dt: datetime, minutes: int) -> datetime:
     total_minutes = dt.hour * 60 + dt.minute
     bucket_offset = ((total_minutes - market_open_minutes) // minutes) * minutes
     bucket_minutes = market_open_minutes + bucket_offset
-    return dt.replace(hour=bucket_minutes // 60, minute=bucket_minutes % 60, second=0, microsecond=0)
+    return dt.replace(
+        hour=bucket_minutes // 60, minute=bucket_minutes % 60, second=0, microsecond=0
+    )
 
 
 def replay_derived_timeframes(store: CandleCsvStore, start_dt: datetime, end_dt: datetime) -> None:

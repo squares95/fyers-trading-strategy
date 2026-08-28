@@ -1,24 +1,25 @@
-import ast
 import json
 import os
 
-file_path = os.path.join(os.path.dirname(__file__), 'UPSTX_Config.properties')
+file_path = os.path.join(os.path.dirname(__file__), "UPSTX_Config.properties")
+
 
 def get_property(key):
-    with open(file_path, 'r') as f:
+    with open(file_path) as f:
         for line in f:
-            if line.strip().startswith('#') or '=' not in line:
+            if line.strip().startswith("#") or "=" not in line:
                 continue
-            k, v = line.strip().split('=', 1)
+            k, v = line.strip().split("=", 1)
             if k.strip() == key:
                 return v.strip()
     return None
+
 
 def upsert_property(key, value):
     lines = []
     key_found = False
 
-    with open(file_path, 'r') as f:
+    with open(file_path) as f:
         for line in f:
             if line.strip().startswith(f"{key}="):
                 lines.append(f"{key}={value}\n")
@@ -29,8 +30,9 @@ def upsert_property(key, value):
     if not key_found:
         lines.append(f"{key}={value}\n")
 
-    with open(file_path, 'w') as f:
+    with open(file_path, "w") as f:
         f.writelines(lines)
+
 
 def lookupKeys(filename, key1_name, key1_value, *key_names):
     """
@@ -44,7 +46,7 @@ def lookupKeys(filename, key1_name, key1_value, *key_names):
     :return: A dictionary with key-value pairs or None if no match is found
     """
     # Read the JSON data from the file
-    with open(filename, 'r') as file:
+    with open(filename) as file:
         data = json.load(file)
 
     # Iterate over each dictionary in the list

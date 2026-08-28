@@ -1,0 +1,79 @@
+[project]
+name = "fyers-trading-strategy"
+version = "0.1.0"
+description = "Fyers intraday trading strategy with paper trading"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [
+    ".venv",
+    "Data/",
+    "_slim",
+    "__pycache__",
+    ".git",
+    "*.bak*",
+    "Research/GroqAnalysis/",
+]
+
+[tool.ruff.lint]
+# Default rules + import sorting
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear (common bugs)
+    "UP",  # pyupgrade (modern Python)
+    "N",   # pep8-naming
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "RUF", # ruff-specific rules
+]
+ignore = [
+    "E501",  # line too long (black handles this)
+    "B008",  # do not perform function calls in argument defaults
+    "B904",  # raise from (too many false positives)
+    "N803",  # argument name should be lowercase (we use df, cfg)
+    "N806",  # variable in function should be lowercase (we use OHLC, VWAP)
+    "RUF012", # mutable class attributes annotated with ClassVar (Fyers)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"Research/exp*.py" = ["E402"]  # late imports OK in scripts
+"__init__.py" = ["F401"]        # unused imports OK
+"**/legacy_*.py" = ["ALL"]      # legacy code, don't touch
+
+[tool.ruff.lint.isort]
+known-first-party = ["Strategies", "Paper", "LiveTick", "Config", "Research"]
+combine-as-imports = true
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    Data
+  | _slim
+  | \.venv
+  | Research/GroqAnalysis
+)/
+'''
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+exclude = [
+    "Data/",
+    "Research/GroqAnalysis/",
+    "**/legacy_*.py",
+]
+
+[[tool.mypy.overrides]]
+module = "Download"
+ignore_missing_imports = true

@@ -17,10 +17,10 @@ Beginner Note:
 import numpy as np
 import pandas as pd
 
-
 # ============================================================================
 # MAIN STATISTICS
 # ============================================================================
+
 
 def summarize_trades(trades: pd.DataFrame) -> dict:
     """
@@ -75,7 +75,7 @@ def summarize_trades(trades: pd.DataFrame) -> dict:
     gross_loss = -returns[returns < 0].sum()
 
     return {
-        "trades": int(len(trades)),
+        "trades": len(trades),
         "net_pct": round(float((equity.iloc[-1] - 1) * 100), 2),
         "avg_bps": round(float(returns.mean() * 10000), 2),
         "win_rate_pct": round(float((returns > 0).mean() * 100), 2),
@@ -87,6 +87,7 @@ def summarize_trades(trades: pd.DataFrame) -> dict:
 # ============================================================================
 # DETAILED ANALYSIS
 # ============================================================================
+
 
 def analyze_by_direction(trades: pd.DataFrame) -> dict:
     """

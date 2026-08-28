@@ -8,11 +8,11 @@ LOGIN_CONFIG_PATH = ROOT / "Config" / "LoginConfig" / "config.properties"
 
 def get_property(key, file_path: str | Path = LOGIN_CONFIG_PATH):
     path = Path(file_path)
-    with path.open('r', encoding='utf-8') as f:
+    with path.open("r", encoding="utf-8") as f:
         for line in f:
-            if line.strip().startswith('#') or '=' not in line:
+            if line.strip().startswith("#") or "=" not in line:
                 continue
-            k, v = line.strip().split('=', 1)
+            k, v = line.strip().split("=", 1)
             if k.strip() == key:
                 return v.strip()
     return None
@@ -32,7 +32,7 @@ def upsert_property(file_path, key, value=None):
     lines = []
     key_found = False
 
-    with path.open('r', encoding='utf-8') as f:
+    with path.open("r", encoding="utf-8") as f:
         for line in f:
             if line.strip().startswith(f"{key}="):
                 lines.append(f"{key}={value}\n")
@@ -43,7 +43,7 @@ def upsert_property(file_path, key, value=None):
     if not key_found:
         lines.append(f"{key}={value}\n")
 
-    with path.open('w', encoding='utf-8') as f:
+    with path.open("w", encoding="utf-8") as f:
         f.writelines(lines)
 
 
@@ -64,7 +64,7 @@ def lookupKeys(filename, key1_name, key1_value, *key_names):
     :return: A dictionary of key-value pairs or None if no match is found
     """
     # Read the JSON data from the file
-    with open(filename, 'r') as file:
+    with open(filename) as file:
         data = json.load(file)
 
     # Iterate over each dictionary in the list
@@ -89,7 +89,7 @@ def lookupKeys(filename, key1_name, key1_value, *key_names):
 
 
 if __name__ == "__main__":
-    print(get_property('appId'))
+    print(get_property("appId"))
 
 
 GetProperty = get_property

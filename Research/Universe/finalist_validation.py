@@ -11,7 +11,6 @@ import pandas as pd
 from Research.CGPOWER import cgpower_session_microstructure as sm
 from Research.Universe.reliability_screen import CommonTradingDates, ResearchBoundaries
 
-
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent / "Finalists"
 SYMBOLS = ("BHARTIARTL", "M&M", "LT", "ICICIBANK", "SBIN")
@@ -249,7 +248,9 @@ def SelectCandidate(
     for _, family in development_grid.groupby("Family", sort=False):
         eligible = family[family["DevelopmentScore"] > -np.inf]
         shortlist_ids.extend(
-            eligible.nlargest(TOP_SPECS_PER_FAMILY, "DevelopmentScore")["SpecId"].astype(int).tolist()
+            eligible.nlargest(TOP_SPECS_PER_FAMILY, "DevelopmentScore")["SpecId"]
+            .astype(int)
+            .tolist()
         )
 
     specs_by_id = {int(spec["SpecId"]): spec for spec in specs}
@@ -282,7 +283,8 @@ def SelectCandidate(
                 "SelectionPass": selection_pass,
                 "SelectionScore": (10.0 if selection_pass else 0.0)
                 + min(floor_pf, 3.0)
-                + min(int(development_metric["Trades"]), int(validation_metric["Trades"]), 30) / 100,
+                + min(int(development_metric["Trades"]), int(validation_metric["Trades"]), 30)
+                / 100,
             }
         )
     validation_table = pd.DataFrame(validation_rows).sort_values(
@@ -315,8 +317,7 @@ def main() -> None:
     boundaries = ResearchBoundaries(common_dates)
     common_set = set(common_dates)
     loaded = {
-        symbol: frame[frame["Date"].isin(common_set)].copy()
-        for symbol, frame in loaded.items()
+        symbol: frame[frame["Date"].isin(common_set)].copy() for symbol, frame in loaded.items()
     }
 
     summaries: list[dict[str, object]] = []

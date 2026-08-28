@@ -10,7 +10,6 @@ import pandas as pd
 
 from Research.CGPOWER.cgpower_session_microstructure import metrics, simulate_trade_detail
 
-
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
 CHARTS = OUT / "session_charts"
@@ -23,9 +22,11 @@ HOLDOUT_START = pd.Timestamp("2025-07-01")
 def load_aligned() -> dict[pd.Timestamp, pd.DataFrame]:
     cols = ["Datetime", "Open", "High", "Low", "Close", "Volume"]
     hdfc = pd.read_csv(HDFC_PATH, usecols=cols, parse_dates=["Datetime"]).rename(
-        columns={column: f"H_{column}" for column in cols if column != "Datetime"})
+        columns={column: f"H_{column}" for column in cols if column != "Datetime"}
+    )
     nifty = pd.read_csv(NIFTY_PATH, usecols=cols, parse_dates=["Datetime"]).rename(
-        columns={column: f"N_{column}" for column in cols if column != "Datetime"})
+        columns={column: f"N_{column}" for column in cols if column != "Datetime"}
+    )
     data = hdfc.merge(nifty, on="Datetime", how="inner").sort_values("Datetime")
     data = data[data["Datetime"].dt.strftime("%H:%M").between("09:15", "15:29")].copy()
     data["Date"] = data["Datetime"].dt.normalize()
@@ -36,7 +37,9 @@ def load_aligned() -> dict[pd.Timestamp, pd.DataFrame]:
             continue
         day = day.reset_index(drop=True).copy()
         h_typical = (day["H_High"] + day["H_Low"] + day["H_Close"]) / 3
-        day["H_VWAP"] = (h_typical * day["H_Volume"]).cumsum() / day["H_Volume"].cumsum().replace(0, np.nan)
+        day["H_VWAP"] = (h_typical * day["H_Volume"]).cumsum() / day["H_Volume"].cumsum().replace(
+            0, np.nan
+        )
         n_typical = (day["N_High"] + day["N_Low"] + day["N_Close"]) / 3
         day["N_TWAP"] = n_typical.expanding().mean()
         day["N_EMA9"] = day["N_Close"].ewm(span=9, adjust=False).mean()
@@ -51,8 +54,14 @@ def load_aligned() -> dict[pd.Timestamp, pd.DataFrame]:
     return sessions
 
 
-def simulate(day: pd.DataFrame, signal_idx: int, direction: int, stop_lookback: int,
-             target_r: float | None, target_vwap: bool = False) -> dict | None:
+def simulate(
+    day: pd.DataFrame,
+    signal_idx: int,
+    direction: int,
+    stop_lookback: int,
+    target_r: float | None,
+    target_vwap: bool = False,
+) -> dict | None:
     if signal_idx + 1 >= len(day):
         return None
     entry_idx = signal_idx + 1
@@ -60,7 +69,7 @@ def simulate(day: pd.DataFrame, signal_idx: int, direction: int, stop_lookback: 
     if entry_time > "14:30":
         return None
     entry = float(day.loc[entry_idx, "H_Open"])
-    history = day.iloc[max(0, signal_idx - stop_lookback + 1):signal_idx + 1]
+    history = day.iloc[max(0, signal_idx - stop_lookback + 1) : signal_idx + 1]
     stop = float(history["H_Low"].min()) if direction > 0 else float(history["H_High"].max())
     risk = direction * (entry - stop)
     if risk <= 0 or risk / entry > 0.008:
@@ -72,21 +81,35 @@ def simulate(day: pd.DataFrame, signal_idx: int, direction: int, stop_lookback: 
             return None
     else:
         target = entry + direction * float(target_r) * risk
-    trade_day = day.rename(columns={
-        "H_Open": "Open", "H_High": "High", "H_Low": "Low", "H_Close": "Close",
-    })
+    trade_day = day.rename(
+        columns={
+            "H_Open": "Open",
+            "H_High": "High",
+            "H_Low": "Low",
+            "H_Close": "Close",
+        }
+    )
     result = simulate_trade_detail(trade_day, direction, entry_time, "15:14", stop, target)
-    return {"SignalTime": str(day.loc[signal_idx, "Time"]), "Direction": direction,
-            "NiftyFromOpen": day.loc[signal_idx, "N_FromOpen"],
-            "HDFCVWAPDistance": day.loc[signal_idx, "H_VWAPDist"], **result}
+    return {
+        "SignalTime": str(day.loc[signal_idx, "Time"]),
+        "Direction": direction,
+        "NiftyFromOpen": day.loc[signal_idx, "N_FromOpen"],
+        "HDFCVWAPDistance": day.loc[signal_idx, "H_VWAPDist"],
+        **result,
+    }
 
 
-def trend_pullback(sessions: dict[pd.Timestamp, pd.DataFrame], variant: str,
-                   stop_lookback: int, target_r: float,
-                   start: pd.Timestamp | None = None, end: pd.Timestamp | None = None) -> pd.DataFrame:
+def trend_pullback(
+    sessions: dict[pd.Timestamp, pd.DataFrame],
+    variant: str,
+    stop_lookback: int,
+    target_r: float,
+    start: pd.Timestamp | None = None,
+    end: pd.Timestamp | None = None,
+) -> pd.DataFrame:
     rows = []
     for date, day in sessions.items():
-        if start is not None and date < start or end is not None and date > end:
+        if (start is not None and date < start) or (end is not None and date > end):
             continue
         previous = day.shift(1)
         long_cross = (previous["H_Close"] <= previous["H_VWAP"]) & (day["H_Close"] > day["H_VWAP"])
@@ -108,66 +131,131 @@ def trend_pullback(sessions: dict[pd.Timestamp, pd.DataFrame], variant: str,
             direction = 1 if long_cross.loc[idx] and n_long.loc[idx] else -1
             result = simulate(day, int(idx), direction, stop_lookback, target_r)
             if result is not None:
-                rows.append({"Date": date, "Family": "trend_pullback", "Variant": variant, **result})
+                rows.append(
+                    {"Date": date, "Family": "trend_pullback", "Variant": variant, **result}
+                )
                 break
     return pd.DataFrame(rows)
 
 
-def vwap_fade(sessions: dict[pd.Timestamp, pd.DataFrame], deviation: float,
-              stop_lookback: int, nifty_tolerance: float,
-              start: pd.Timestamp | None = None, end: pd.Timestamp | None = None) -> pd.DataFrame:
+def vwap_fade(
+    sessions: dict[pd.Timestamp, pd.DataFrame],
+    deviation: float,
+    stop_lookback: int,
+    nifty_tolerance: float,
+    start: pd.Timestamp | None = None,
+    end: pd.Timestamp | None = None,
+) -> pd.DataFrame:
     rows = []
     for date, day in sessions.items():
-        if start is not None and date < start or end is not None and date > end:
+        if (start is not None and date < start) or (end is not None and date > end):
             continue
         previous = day.shift(1)
-        long_reversal = (previous["H_Close"] <= previous["H_EMA9"]) & (day["H_Close"] > day["H_EMA9"]) & (day["H_VWAPDist"] <= -deviation)
-        short_reversal = (previous["H_Close"] >= previous["H_EMA9"]) & (day["H_Close"] < day["H_EMA9"]) & (day["H_VWAPDist"] >= deviation)
+        long_reversal = (
+            (previous["H_Close"] <= previous["H_EMA9"])
+            & (day["H_Close"] > day["H_EMA9"])
+            & (day["H_VWAPDist"] <= -deviation)
+        )
+        short_reversal = (
+            (previous["H_Close"] >= previous["H_EMA9"])
+            & (day["H_Close"] < day["H_EMA9"])
+            & (day["H_VWAPDist"] >= deviation)
+        )
         n_not_bearish = day["N_Close"] / day["N_TWAP"] - 1 >= -nifty_tolerance
         n_not_bullish = day["N_Close"] / day["N_TWAP"] - 1 <= nifty_tolerance
         eligible = day["Time"].between("09:45", "13:30")
-        candidates = day.index[eligible & ((long_reversal & n_not_bearish) | (short_reversal & n_not_bullish))]
+        candidates = day.index[
+            eligible & ((long_reversal & n_not_bearish) | (short_reversal & n_not_bullish))
+        ]
         for idx in candidates:
             direction = 1 if long_reversal.loc[idx] and n_not_bearish.loc[idx] else -1
             result = simulate(day, int(idx), direction, stop_lookback, None, target_vwap=True)
             if result is not None:
-                rows.append({"Date": date, "Family": "vwap_fade",
-                             "Variant": f"dev={deviation:.4f}|tol={nifty_tolerance:.4f}", **result})
+                rows.append(
+                    {
+                        "Date": date,
+                        "Family": "vwap_fade",
+                        "Variant": f"dev={deviation:.4f}|tol={nifty_tolerance:.4f}",
+                        **result,
+                    }
+                )
                 break
     return pd.DataFrame(rows)
 
 
-def evaluate_grid(sessions: dict[pd.Timestamp, pd.DataFrame]) -> tuple[pd.DataFrame, dict, pd.DataFrame, pd.DataFrame]:
+def evaluate_grid(
+    sessions: dict[pd.Timestamp, pd.DataFrame],
+) -> tuple[pd.DataFrame, dict, pd.DataFrame, pd.DataFrame]:
     rows = []
     specs = []
     for variant in ("base", "nifty_10bp", "hdfc_5m", "nifty_10bp_hdfc_5m", "nifty_10bp_hdfc_15m"):
         for stop in (10, 20):
             for target in (1.5, 2.0):
                 trades = trend_pullback(sessions, variant, stop, target, end=DISCOVERY_END)
-                spec = {"Family": "trend_pullback", "Variant": variant, "StopLookback": stop,
-                        "TargetR": target, "Deviation": np.nan, "NiftyTolerance": np.nan}
+                spec = {
+                    "Family": "trend_pullback",
+                    "Variant": variant,
+                    "StopLookback": stop,
+                    "TargetR": target,
+                    "Deviation": np.nan,
+                    "NiftyTolerance": np.nan,
+                }
                 rows.append({**spec, **metrics(trades)})
                 specs.append((spec, trades))
     for deviation in (0.003, 0.005):
         for stop in (10, 20):
             for tolerance in (0.001, 0.002):
                 trades = vwap_fade(sessions, deviation, stop, tolerance, end=DISCOVERY_END)
-                spec = {"Family": "vwap_fade", "Variant": "fade", "StopLookback": stop,
-                        "TargetR": np.nan, "Deviation": deviation, "NiftyTolerance": tolerance}
+                spec = {
+                    "Family": "vwap_fade",
+                    "Variant": "fade",
+                    "StopLookback": stop,
+                    "TargetR": np.nan,
+                    "Deviation": deviation,
+                    "NiftyTolerance": tolerance,
+                }
                 rows.append({**spec, **metrics(trades)})
                 specs.append((spec, trades))
     grid = pd.DataFrame(rows)
     eligible = grid[(grid["Trades"] >= 20) & (grid["Expectancy"] > 0)].copy()
     if eligible.empty:
         eligible = grid[grid["Trades"] >= 10].copy()
-    eligible["Score"] = eligible["ProfitFactor"].clip(upper=3) * np.sqrt(eligible["Trades"]) * (1 + eligible["Expectancy"] * 100)
+    eligible["Score"] = (
+        eligible["ProfitFactor"].clip(upper=3)
+        * np.sqrt(eligible["Trades"])
+        * (1 + eligible["Expectancy"] * 100)
+    )
     best = eligible.sort_values(["Score", "ProfitFactor"], ascending=False).iloc[0].to_dict()
     if best["Family"] == "trend_pullback":
-        discovery = trend_pullback(sessions, str(best["Variant"]), int(best["StopLookback"]), float(best["TargetR"]), end=DISCOVERY_END)
-        holdout = trend_pullback(sessions, str(best["Variant"]), int(best["StopLookback"]), float(best["TargetR"]), start=HOLDOUT_START)
+        discovery = trend_pullback(
+            sessions,
+            str(best["Variant"]),
+            int(best["StopLookback"]),
+            float(best["TargetR"]),
+            end=DISCOVERY_END,
+        )
+        holdout = trend_pullback(
+            sessions,
+            str(best["Variant"]),
+            int(best["StopLookback"]),
+            float(best["TargetR"]),
+            start=HOLDOUT_START,
+        )
     else:
-        discovery = vwap_fade(sessions, float(best["Deviation"]), int(best["StopLookback"]), float(best["NiftyTolerance"]), end=DISCOVERY_END)
-        holdout = vwap_fade(sessions, float(best["Deviation"]), int(best["StopLookback"]), float(best["NiftyTolerance"]), start=HOLDOUT_START)
+        discovery = vwap_fade(
+            sessions,
+            float(best["Deviation"]),
+            int(best["StopLookback"]),
+            float(best["NiftyTolerance"]),
+            end=DISCOVERY_END,
+        )
+        holdout = vwap_fade(
+            sessions,
+            float(best["Deviation"]),
+            int(best["StopLookback"]),
+            float(best["NiftyTolerance"]),
+            start=HOLDOUT_START,
+        )
     return grid, best, discovery, holdout
 
 
@@ -191,8 +279,12 @@ def yearly_metrics(trades: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def chart_results(discovery: pd.DataFrame, holdout: pd.DataFrame, replay: pd.DataFrame,
-                  sessions: dict[pd.Timestamp, pd.DataFrame]) -> None:
+def chart_results(
+    discovery: pd.DataFrame,
+    holdout: pd.DataFrame,
+    replay: pd.DataFrame,
+    sessions: dict[pd.Timestamp, pd.DataFrame],
+) -> None:
     combined = pd.concat([discovery.assign(Sample="Discovery"), holdout.assign(Sample="Holdout")])
     equity = (1 + combined["NetReturn"]).cumprod()
     fig, ax = plt.subplots(figsize=(11, 5))
@@ -214,9 +306,19 @@ def chart_results(discovery: pd.DataFrame, holdout: pd.DataFrame, replay: pd.Dat
         signal_idx = day.index[day["Time"] == trade["SignalTime"]][0]
         ax.axvline(signal_idx, color="#6B7280", linestyle="--")
         ax.axhline(0, color="#6B7280", linewidth=0.7)
-        ax.set_title(f"{trade['Date'].date()} | net {trade['NetReturn']:.2%} | {trade['ExitReason']}", loc="left", weight="bold", fontsize=10)
+        ax.set_title(
+            f"{trade['Date'].date()} | net {trade['NetReturn']:.2%} | {trade['ExitReason']}",
+            loc="left",
+            weight="bold",
+            fontsize=10,
+        )
         ax.grid(alpha=0.15)
-    fig.suptitle("HDFCBANK candidate mental paper trades: best and worst holdout days", x=0.06, ha="left", weight="bold")
+    fig.suptitle(
+        "HDFCBANK candidate mental paper trades: best and worst holdout days",
+        x=0.06,
+        ha="left",
+        weight="bold",
+    )
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(CHARTS / "07_index_aligned_replays.png", dpi=180)
     plt.close(fig)
@@ -226,14 +328,20 @@ def main() -> None:
     CHARTS.mkdir(parents=True, exist_ok=True)
     sessions = load_aligned()
     grid, best, discovery, holdout = evaluate_grid(sessions)
-    summary = pd.DataFrame([
-        {"Sample": "Discovery", **metrics(discovery)},
-        {"Sample": "Holdout", **metrics(holdout)},
-    ])
+    summary = pd.DataFrame(
+        [
+            {"Sample": "Discovery", **metrics(discovery)},
+            {"Sample": "Holdout", **metrics(holdout)},
+        ]
+    )
     qualified = passes_research_gate(summary)
     all_trades = pd.concat([discovery.assign(Sample="Discovery"), holdout.assign(Sample="Holdout")])
     yearly = yearly_metrics(all_trades)
-    replay = pd.concat([holdout.nlargest(3, "NetReturn"), holdout.nsmallest(3, "NetReturn")]).drop_duplicates("Date").sort_values("Date")
+    replay = (
+        pd.concat([holdout.nlargest(3, "NetReturn"), holdout.nsmallest(3, "NetReturn")])
+        .drop_duplicates("Date")
+        .sort_values("Date")
+    )
 
     grid.to_csv(OUT / "index_aligned_grid_discovery.csv", index=False)
     summary.to_csv(OUT / "index_aligned_train_holdout.csv", index=False)

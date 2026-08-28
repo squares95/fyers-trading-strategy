@@ -34,6 +34,7 @@ Used to prevent overfitting.
 # GOLD STRATEGY CONFIGURATION
 # ============================================================================
 
+
 def get_gold_config():
     """
     Get the Gold strategy configuration (from base StrategyConfig).
@@ -53,26 +54,21 @@ def get_gold_config():
     return StrategyConfig(
         # Stricter ADX requirement (26 vs 22)
         adx_min=26.0,
-
         # Higher volume requirement (1.2 vs 1.0)
         volume_ratio_min=1.2,
-
         # Stop and target
         stop_atr_multiple=1.3,
         target_r=2.0,
-
         # RSI ranges (similar to base)
         long_rsi_min=50.0,
         long_rsi_max=75.0,
         short_rsi_min=28.0,
         short_rsi_max=55.0,
-
         # Time windows
         long_first_bar=8,
         long_last_signal_bar_exclusive=60,
         short_first_bar=8,
         short_last_signal_bar_exclusive=45,  # Shorts exit earlier
-
         # Cost
         cost_bps_per_side=5.0,
     )
@@ -97,25 +93,20 @@ def get_super_gold_config():
         # Best from experiments: st=1.3, t=3.9
         stop_atr_multiple=1.3,
         target_r=3.9,  # 1:3 ratio
-
         # High ADX for best PF (1.704)
         adx_min=32.0,
-
         # High volume for best PF (1.834)
         volume_ratio_min=2.0,
-
         # Standard RSI ranges
         long_rsi_min=50.0,
         long_rsi_max=75.0,
         short_rsi_min=28.0,
         short_rsi_max=55.0,
-
         # Time windows
         long_first_bar=8,
         long_last_signal_bar_exclusive=60,
         short_first_bar=8,
         short_last_signal_bar_exclusive=45,
-
         # Cost
         cost_bps_per_side=5.0,
     )
@@ -141,23 +132,19 @@ def get_shorts_only_config():
         # Disables longs by setting RSI range to invalid
         long_rsi_min=100,
         long_rsi_max=0,
-
         # Shorts use normal parameters
         short_rsi_min=28.0,
         short_rsi_max=55.0,
-
         # Standard other parameters
         adx_min=26.0,
         volume_ratio_min=1.2,
         stop_atr_multiple=1.3,
         target_r=2.0,
-
         # Time windows
         long_first_bar=8,
         long_last_signal_bar_exclusive=60,
         short_first_bar=8,
         short_last_signal_bar_exclusive=45,
-
         # Cost
         cost_bps_per_side=5.0,
     )

@@ -15,16 +15,15 @@ Beginner Note:
     Think of it as the "scanner" that finds all potential trades.
 """
 
-import numpy as np
 import pandas as pd
 
 from .config import StrategyConfig
-from .signal_rules import long_entry_condition, short_entry_condition, select_first_signal_per_day
-
+from .signal_rules import long_entry_condition, select_first_signal_per_day, short_entry_condition
 
 # ============================================================================
 # SIGNAL GENERATION
 # ============================================================================
+
 
 def generate_signals(df: pd.DataFrame, config: StrategyConfig = StrategyConfig()) -> pd.DataFrame:
     """
@@ -115,7 +114,9 @@ def generate_signals(df: pd.DataFrame, config: StrategyConfig = StrategyConfig()
     signal_df["stop"] = signal_df["entry"] - signal_df["direction"] * signal_df["stop_distance"]
 
     # Target is always in the profitable direction
-    signal_df["target"] = signal_df["entry"] + signal_df["direction"] * config.target_r * signal_df["stop_distance"]
+    signal_df["target"] = (
+        signal_df["entry"] + signal_df["direction"] * config.target_r * signal_df["stop_distance"]
+    )
 
     return signal_df.reset_index(drop=True)
 
@@ -123,6 +124,7 @@ def generate_signals(df: pd.DataFrame, config: StrategyConfig = StrategyConfig()
 # ============================================================================
 # SIGNAL STATISTICS
 # ============================================================================
+
 
 def get_signal_stats(signals: pd.DataFrame) -> dict:
     """
@@ -144,7 +146,7 @@ def get_signal_stats(signals: pd.DataFrame) -> dict:
         return {"total": 0, "longs": 0, "shorts": 0}
 
     return {
-        "total": int(len(signals)),
+        "total": len(signals),
         "longs": int((signals["direction"] == 1).sum()),
         "shorts": int((signals["direction"] == -1).sum()),
         "avg_entry_price": float(signals["entry"].mean()),

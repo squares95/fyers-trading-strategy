@@ -19,14 +19,14 @@ Beginner Note:
 import numpy as np
 import pandas as pd
 
-from .indicators import ema, rsi, atr, volume_ratio, prev_close
-from .data import load_regular_session
 from .config import DEFAULT_DATA_PATH
-
+from .data import load_regular_session
+from .indicators import atr, ema, prev_close, rsi
 
 # ============================================================================
 # FEATURE CALCULATION
 # ============================================================================
+
 
 def calculate_features(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -69,10 +69,9 @@ def calculate_features(df: pd.DataFrame) -> pd.DataFrame:
     # VWAP = Running sum of (Price × Volume) / Running sum of Volume
     # This gives us the "average price weighted by volume"
     typical = (df["High"] + df["Low"] + df["Close"]) / 3
-    df["vwap"] = (
-        (typical * df["Volume"]).groupby(df["date"]).cumsum() /
-        df["Volume"].groupby(df["date"]).cumsum()
-    )
+    df["vwap"] = (typical * df["Volume"]).groupby(df["date"]).cumsum() / df["Volume"].groupby(
+        df["date"]
+    ).cumsum()
 
     # --- EMAs (Exponential Moving Averages) ---
     # EMA gives more weight to recent prices
@@ -105,6 +104,7 @@ def calculate_features(df: pd.DataFrame) -> pd.DataFrame:
 # ============================================================================
 # DATA PREPARATION PIPELINE
 # ============================================================================
+
 
 def prepare_features(path=DEFAULT_DATA_PATH) -> pd.DataFrame:
     """

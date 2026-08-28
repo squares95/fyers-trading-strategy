@@ -4,9 +4,10 @@ Saves to Data/INDIAVIX/INDIAVIX_1D.csv for use in regime filters.
 
 Run: python Research/fetch_india_vix.py
 """
+
 import sys
-from pathlib import Path
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 
@@ -23,6 +24,7 @@ def fetch_vix_yfinance() -> pd.DataFrame:
     except ImportError:
         print("Installing yfinance...")
         import subprocess
+
         subprocess.check_call([sys.executable, "-m", "pip", "install", "yfinance", "-q"])
         import yfinance as yf
 
@@ -39,8 +41,16 @@ def fetch_vix_yfinance() -> pd.DataFrame:
         return pd.DataFrame()
     df = df.reset_index()
     # Normalize columns to match our format: Datetime, Open, High, Low, Close, Volume
-    df = df.rename(columns={"Date": "Datetime", "Open": "Open", "High": "High",
-                            "Low": "Low", "Close": "Close", "Volume": "Volume"})
+    df = df.rename(
+        columns={
+            "Date": "Datetime",
+            "Open": "Open",
+            "High": "High",
+            "Low": "Low",
+            "Close": "Close",
+            "Volume": "Volume",
+        }
+    )
     df["Datetime"] = pd.to_datetime(df["Datetime"]).dt.tz_localize(None)
     df = df[["Datetime", "Open", "High", "Low", "Close", "Volume"]]
     return df
@@ -59,9 +69,7 @@ def fetch_vix_nse_scrape() -> pd.DataFrame:
 
     # NSE historical data archive (e.g., for VIX, segment=FO, instrument=FUTIDX)
     # This is best-effort. If NSE blocks, fall back to yfinance.
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    }
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
     print("Trying NSE scrape (may be blocked)...")
     try:
         # NSE historical data endpoint
@@ -74,13 +82,17 @@ def fetch_vix_nse_scrape() -> pd.DataFrame:
         r = requests.get(url, params=params, headers=headers, timeout=10)
         if r.status_code == 200:
             data = r.json()
-            if "data" in data and data["data"]:
+            if data.get("data"):
                 df = pd.DataFrame(data["data"])
-                df = df.rename(columns={"EOD_TIMESTAMP": "Datetime",
-                                        "EOD_OPEN_INDEX_VAL": "Open",
-                                        "EOD_HIGH_INDEX_VAL": "High",
-                                        "EOD_LOW_INDEX_VAL": "Low",
-                                        "EOD_CLOSE_INDEX_VAL": "Close"})
+                df = df.rename(
+                    columns={
+                        "EOD_TIMESTAMP": "Datetime",
+                        "EOD_OPEN_INDEX_VAL": "Open",
+                        "EOD_HIGH_INDEX_VAL": "High",
+                        "EOD_LOW_INDEX_VAL": "Low",
+                        "EOD_CLOSE_INDEX_VAL": "Close",
+                    }
+                )
                 df["Datetime"] = pd.to_datetime(df["Datetime"])
                 df["Volume"] = 0  # VIX has no volume
                 return df[["Datetime", "Open", "High", "Low", "Close", "Volume"]]
@@ -96,12 +108,16 @@ def main():
         print("Trying NSE scrape fallback...")
         df = fetch_vix_nse_scrape()
     if df.empty:
-        print("[!] Could not fetch VIX data. Will use synthetic VIX proxy from BANKNIFTY realized vol.")
+        print(
+            "[!] Could not fetch VIX data. Will use synthetic VIX proxy from BANKNIFTY realized vol."
+        )
         return
 
     df = df.sort_values("Datetime").reset_index(drop=True)
     df.to_csv(OUT_PATH, index=False)
-    print(f"[Saved] {OUT_PATH}  ({len(df)} rows, {df['Datetime'].min().date()} to {df['Datetime'].max().date()})")
+    print(
+        f"[Saved] {OUT_PATH}  ({len(df)} rows, {df['Datetime'].min().date()} to {df['Datetime'].max().date()})"
+    )
     print(f"Latest VIX: {df.iloc[-1]['Close']:.2f}")
 
 

@@ -3,6 +3,7 @@ Test LLM access via Groq (free tier, working setup).
 Get API key: https://console.groq.com (free, no credit card)
 Run: python test_deepseek.py
 """
+
 import os
 import sys
 
@@ -46,18 +47,13 @@ def test_llm_access():
     print("-" * 60)
 
     try:
-        client = OpenAI(
-            base_url="https://api.groq.com/openai/v1",
-            api_key=token
-        )
+        client = OpenAI(base_url="https://api.groq.com/openai/v1", api_key=token)
 
         response = client.chat.completions.create(
             model="openai/gpt-oss-120b",
-            messages=[
-                {"role": "user", "content": "Reply with exactly: VWAP PULLBACK WORKS"}
-            ],
+            messages=[{"role": "user", "content": "Reply with exactly: VWAP PULLBACK WORKS"}],
             max_tokens=200,  # Reasoning models need more room
-            temperature=0.1
+            temperature=0.1,
         )
 
         content = response.choices[0].message.content or ""
@@ -104,10 +100,7 @@ def list_available_models():
         ("groq/compound", "Groq Compound (70K context, 30 RPM)"),
     ]
 
-    client = OpenAI(
-        base_url="https://api.groq.com/openai/v1",
-        api_key=token
-    )
+    client = OpenAI(base_url="https://api.groq.com/openai/v1", api_key=token)
 
     for model_id, model_name in models_to_test:
         try:
@@ -147,7 +140,7 @@ def main():
     print("   python test_tatapower.py")
     print()
     print("3. Use LLM to analyze results:")
-    print("   python -c \"from test_deepseek import *\"")
+    print('   python -c "from test_deepseek import *"')
     print()
 
 

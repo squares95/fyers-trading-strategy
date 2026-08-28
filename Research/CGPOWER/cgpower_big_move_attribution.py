@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
 CHARTS = OUT / "charts"
@@ -30,34 +29,118 @@ class Event:
 
 
 EVENTS = [
-    Event("2023-11-22", "2023-11-22", "OSAT application disclosed", "Semiconductor", "Positive",
-          "https://www.businesstoday.in/markets/company-stock/story/cg-power-shares-rise-record-high-outsourced-semiconductor-assembly-and-test-406670-2023-11-22"),
-    Event("2024-02-29", "2024-02-29", "Cabinet approves Rs 7,600cr OSAT unit", "Semiconductor", "Positive",
-          "https://www.cgglobal.com/admin/uploads/Reg_30_Disclosure_Release_PIB.pdf"),
-    Event("2024-03-13", "2024-03-13", "Sanand OSAT foundation ceremony", "Semiconductor", "Positive",
-          "https://www.cgglobal.com/admin/uploads/Press_Release_13032024.pdf"),
-    Event("2024-06-04", "2024-06-04", "Indian election-result risk shock", "Macro", "Negative",
-          "https://www.nseindia.com/market-data/live-equity-market"),
-    Event("2024-07-04", "2024-07-05", "G.G. Tronics acquisition announced", "Railway/KAVACH", "Positive",
-          "https://www.cgglobal.com/admin/uploads/Annual_Report-FY_2024-25.pdf"),
-    Event("2025-01-28", "2025-01-29", "Q3 FY25 results and transformer capex", "Earnings/Capex", "Positive",
-          "https://economictimes.indiatimes.com/markets/stocks/news/cg-power-shares-rally-over-8-as-q3-earnings-beat-estimates-capex-plans-boost-sentiment/articleshow/117673838.cms"),
-    Event("2025-04-07", "2025-04-07", "Global tariff-driven risk-off gap", "Macro", "Negative",
-          "https://www.nseindia.com/market-data/live-equity-market"),
-    Event("2025-05-06", "2025-05-06", "Q4 FY25 industrial-margin disappointment", "Earnings", "Negative",
-          "https://www.business-standard.com/markets/news/cg-power-tanks-8-on-heavy-volumes-post-q4-results-check-details-125050600834_1.html"),
-    Event("2025-08-28", "2025-08-29", "Sanand OSAT facility launch", "Semiconductor", "Positive",
-          "https://nsearchives.nseindia.com/corporate/CGPOWER_28082025173125_Disclosure_Press_Release_28_08_2025.pdf"),
-    Event("2026-01-17", "2026-01-19", "Rs 900cr US data-centre transformer order", "Order win", "Positive",
-          "https://www.cgglobal.com/cg-in-the-news"),
-    Event("2026-01-27", "2026-01-28", "Q3 FY26 results: growth and backlog", "Earnings", "Positive",
-          "https://nsearchives.nseindia.com/corporate/CGPOWER_27012026145448_SEDisclosure_PressRelease.pdf"),
-    Event("2026-05-06", "2026-05-06", "Q4 FY26 results and record backlog", "Earnings", "Mixed",
-          "https://nsearchives.nseindia.com/corporate/CGPOWER_06052026144003_SEDisclosure_PressRelease.pdf"),
-    Event("2026-05-27", "2026-05-27", "Broad power-equipment sector rally", "Sector", "Positive",
-          "https://www.angelone.in/news/stocks/power-stocks-rally-as-bse-power-index-hits-record-high-bhel-cg-power-and-siemens-energy-surge"),
-    Event("2026-07-03", "2026-07-03", "Power-equipment procurement policy shock", "Sector policy", "Negative",
-          "https://www.livemint.com/market/stock-market-news/why-did-cg-power-hitachi-energy-apar-industries-and-other-capital-goods-stocks-crash-up-to-10-today-explained-11783070141221.html"),
+    Event(
+        "2023-11-22",
+        "2023-11-22",
+        "OSAT application disclosed",
+        "Semiconductor",
+        "Positive",
+        "https://www.businesstoday.in/markets/company-stock/story/cg-power-shares-rise-record-high-outsourced-semiconductor-assembly-and-test-406670-2023-11-22",
+    ),
+    Event(
+        "2024-02-29",
+        "2024-02-29",
+        "Cabinet approves Rs 7,600cr OSAT unit",
+        "Semiconductor",
+        "Positive",
+        "https://www.cgglobal.com/admin/uploads/Reg_30_Disclosure_Release_PIB.pdf",
+    ),
+    Event(
+        "2024-03-13",
+        "2024-03-13",
+        "Sanand OSAT foundation ceremony",
+        "Semiconductor",
+        "Positive",
+        "https://www.cgglobal.com/admin/uploads/Press_Release_13032024.pdf",
+    ),
+    Event(
+        "2024-06-04",
+        "2024-06-04",
+        "Indian election-result risk shock",
+        "Macro",
+        "Negative",
+        "https://www.nseindia.com/market-data/live-equity-market",
+    ),
+    Event(
+        "2024-07-04",
+        "2024-07-05",
+        "G.G. Tronics acquisition announced",
+        "Railway/KAVACH",
+        "Positive",
+        "https://www.cgglobal.com/admin/uploads/Annual_Report-FY_2024-25.pdf",
+    ),
+    Event(
+        "2025-01-28",
+        "2025-01-29",
+        "Q3 FY25 results and transformer capex",
+        "Earnings/Capex",
+        "Positive",
+        "https://economictimes.indiatimes.com/markets/stocks/news/cg-power-shares-rally-over-8-as-q3-earnings-beat-estimates-capex-plans-boost-sentiment/articleshow/117673838.cms",
+    ),
+    Event(
+        "2025-04-07",
+        "2025-04-07",
+        "Global tariff-driven risk-off gap",
+        "Macro",
+        "Negative",
+        "https://www.nseindia.com/market-data/live-equity-market",
+    ),
+    Event(
+        "2025-05-06",
+        "2025-05-06",
+        "Q4 FY25 industrial-margin disappointment",
+        "Earnings",
+        "Negative",
+        "https://www.business-standard.com/markets/news/cg-power-tanks-8-on-heavy-volumes-post-q4-results-check-details-125050600834_1.html",
+    ),
+    Event(
+        "2025-08-28",
+        "2025-08-29",
+        "Sanand OSAT facility launch",
+        "Semiconductor",
+        "Positive",
+        "https://nsearchives.nseindia.com/corporate/CGPOWER_28082025173125_Disclosure_Press_Release_28_08_2025.pdf",
+    ),
+    Event(
+        "2026-01-17",
+        "2026-01-19",
+        "Rs 900cr US data-centre transformer order",
+        "Order win",
+        "Positive",
+        "https://www.cgglobal.com/cg-in-the-news",
+    ),
+    Event(
+        "2026-01-27",
+        "2026-01-28",
+        "Q3 FY26 results: growth and backlog",
+        "Earnings",
+        "Positive",
+        "https://nsearchives.nseindia.com/corporate/CGPOWER_27012026145448_SEDisclosure_PressRelease.pdf",
+    ),
+    Event(
+        "2026-05-06",
+        "2026-05-06",
+        "Q4 FY26 results and record backlog",
+        "Earnings",
+        "Mixed",
+        "https://nsearchives.nseindia.com/corporate/CGPOWER_06052026144003_SEDisclosure_PressRelease.pdf",
+    ),
+    Event(
+        "2026-05-27",
+        "2026-05-27",
+        "Broad power-equipment sector rally",
+        "Sector",
+        "Positive",
+        "https://www.angelone.in/news/stocks/power-stocks-rally-as-bse-power-index-hits-record-high-bhel-cg-power-and-siemens-energy-surge",
+    ),
+    Event(
+        "2026-07-03",
+        "2026-07-03",
+        "Power-equipment procurement policy shock",
+        "Sector policy",
+        "Negative",
+        "https://www.livemint.com/market/stock-market-news/why-did-cg-power-hitachi-energy-apar-industries-and-other-capital-goods-stocks-crash-up-to-10-today-explained-11783070141221.html",
+    ),
 ]
 
 
@@ -78,8 +161,12 @@ def load_candles(path: Path) -> pd.DataFrame:
 def aggregate_daily(minutes: pd.DataFrame) -> pd.DataFrame:
     grouped = minutes.groupby("Date", sort=True)
     daily = grouped.agg(
-        Open=("Open", "first"), High=("High", "max"), Low=("Low", "min"),
-        Close=("Close", "last"), Volume=("Volume", "sum"), Bars=("Close", "size"),
+        Open=("Open", "first"),
+        High=("High", "max"),
+        Low=("Low", "min"),
+        Close=("Close", "last"),
+        Volume=("Volume", "sum"),
+        Bars=("Close", "size"),
     )
     daily["PrevClose"] = daily["Close"].shift()
     daily["return_pct"] = (daily["Close"] / daily["PrevClose"] - 1) * 100
@@ -107,24 +194,39 @@ def intraday_profiles(minutes: pd.DataFrame, daily: pd.DataFrame) -> pd.DataFram
         first60 = day.iloc[min(59, len(day) - 1)]
         rolling15 = day["Close"].pct_change(15) * 100
         first30_volume_share = day.iloc[:30]["Volume"].sum() / max(day["Volume"].sum(), 1)
-        rows.append({
-            "Date": date,
-            "first15_pct": (first15["Close"] / start["Open"] - 1) * 100,
-            "first60_pct": (first60["Close"] / start["Open"] - 1) * 100,
-            "first30_volume_share": first30_volume_share,
-            "high_time": day.loc[day["High"].idxmax(), "Datetime"].strftime("%H:%M"),
-            "low_time": day.loc[day["Low"].idxmin(), "Datetime"].strftime("%H:%M"),
-            "max_15m_up_pct": rolling15.max(),
-            "max_15m_up_time": day.loc[rolling15.idxmax(), "Datetime"].strftime("%H:%M") if rolling15.notna().any() else None,
-            "max_15m_down_pct": rolling15.min(),
-            "max_15m_down_time": day.loc[rolling15.idxmin(), "Datetime"].strftime("%H:%M") if rolling15.notna().any() else None,
-        })
+        rows.append(
+            {
+                "Date": date,
+                "first15_pct": (first15["Close"] / start["Open"] - 1) * 100,
+                "first60_pct": (first60["Close"] / start["Open"] - 1) * 100,
+                "first30_volume_share": first30_volume_share,
+                "high_time": day.loc[day["High"].idxmax(), "Datetime"].strftime("%H:%M"),
+                "low_time": day.loc[day["Low"].idxmin(), "Datetime"].strftime("%H:%M"),
+                "max_15m_up_pct": rolling15.max(),
+                "max_15m_up_time": (
+                    day.loc[rolling15.idxmax(), "Datetime"].strftime("%H:%M")
+                    if rolling15.notna().any()
+                    else None
+                ),
+                "max_15m_down_pct": rolling15.min(),
+                "max_15m_down_time": (
+                    day.loc[rolling15.idxmin(), "Datetime"].strftime("%H:%M")
+                    if rolling15.notna().any()
+                    else None
+                ),
+            }
+        )
     profile = pd.DataFrame(rows).set_index("Date")
     return daily.join(profile, how="left")
 
 
 def classify_path(row: pd.Series) -> str:
-    gap, intra, close_pos, rvol = row["gap_pct"], row["intraday_pct"], row["close_position"], row["volume_ratio20"]
+    gap, intra, close_pos, rvol = (
+        row["gap_pct"],
+        row["intraday_pct"],
+        row["close_position"],
+        row["volume_ratio20"],
+    )
     if pd.isna(gap):
         return "insufficient_history"
     if gap >= 3 and intra <= -1:
@@ -147,7 +249,9 @@ def classify_path(row: pd.Series) -> str:
 
 
 def add_benchmark(cg: pd.DataFrame, nifty: pd.DataFrame) -> pd.DataFrame:
-    result = cg.join(nifty[["return_pct"]].rename(columns={"return_pct": "nifty_return_pct"}), how="left")
+    result = cg.join(
+        nifty[["return_pct"]].rename(columns={"return_pct": "nifty_return_pct"}), how="left"
+    )
     result["abnormal_vs_nifty_pct"] = result["return_pct"] - result["nifty_return_pct"]
     return result
 
@@ -160,9 +264,13 @@ def top_moves(daily: pd.DataFrame, count: int = 20) -> pd.DataFrame:
 
 
 def weekly_moves(daily: pd.DataFrame) -> pd.DataFrame:
-    weekly = daily.resample("W-FRI").agg(Open=("Open", "first"), High=("High", "max"),
-                                          Low=("Low", "min"), Close=("Close", "last"),
-                                          Volume=("Volume", "sum"))
+    weekly = daily.resample("W-FRI").agg(
+        Open=("Open", "first"),
+        High=("High", "max"),
+        Low=("Low", "min"),
+        Close=("Close", "last"),
+        Volume=("Volume", "sum"),
+    )
     weekly["return_pct"] = weekly["Close"].pct_change() * 100
     weekly["range_pct"] = (weekly["High"] / weekly["Low"] - 1) * 100
     selected = pd.concat([weekly.nlargest(15, "return_pct"), weekly.nsmallest(15, "return_pct")])
@@ -180,18 +288,27 @@ def event_windows(events: list[Event], daily: pd.DataFrame) -> pd.DataFrame:
             continue
         trade_date = trading_days[pos]
         row = daily.loc[trade_date]
-        records.append({
-            **event.__dict__, "trading_date": trade_date,
-            "days_to_market": int((trade_date - announced).days),
-            "pre5_pct": row["pre5_pct"], "pre20_pct": row["pre20_pct"],
-            "event_return_pct": row["return_pct"], "gap_pct": row["gap_pct"],
-            "intraday_pct": row["intraday_pct"], "range_pct": row["range_pct"],
-            "volume_ratio20": row["volume_ratio20"], "close_position": row["close_position"],
-            "nifty_return_pct": row.get("nifty_return_pct", np.nan),
-            "abnormal_vs_nifty_pct": row.get("abnormal_vs_nifty_pct", np.nan),
-            "post1_pct": row["post1_pct"], "post5_pct": row["post5_pct"],
-            "post20_pct": row["post20_pct"], "path_type": row["path_type"],
-        })
+        records.append(
+            {
+                **event.__dict__,
+                "trading_date": trade_date,
+                "days_to_market": int((trade_date - announced).days),
+                "pre5_pct": row["pre5_pct"],
+                "pre20_pct": row["pre20_pct"],
+                "event_return_pct": row["return_pct"],
+                "gap_pct": row["gap_pct"],
+                "intraday_pct": row["intraday_pct"],
+                "range_pct": row["range_pct"],
+                "volume_ratio20": row["volume_ratio20"],
+                "close_position": row["close_position"],
+                "nifty_return_pct": row.get("nifty_return_pct", np.nan),
+                "abnormal_vs_nifty_pct": row.get("abnormal_vs_nifty_pct", np.nan),
+                "post1_pct": row["post1_pct"],
+                "post5_pct": row["post5_pct"],
+                "post20_pct": row["post20_pct"],
+                "path_type": row["path_type"],
+            }
+        )
     return pd.DataFrame(records)
 
 
@@ -200,20 +317,35 @@ def chart_price_events(daily: pd.DataFrame, events: pd.DataFrame) -> None:
     fig, ax = plt.subplots(figsize=(14, 6.5))
     ax.plot(view.index, view["Close"], color="#195B8A", linewidth=1.6)
     selected_labels = {
-        "OSAT application disclosed", "Cabinet approves Rs 7,600cr OSAT unit",
-        "Indian election-result risk shock", "G.G. Tronics acquisition announced",
+        "OSAT application disclosed",
+        "Cabinet approves Rs 7,600cr OSAT unit",
+        "Indian election-result risk shock",
+        "G.G. Tronics acquisition announced",
         "Q4 FY25 industrial-margin disappointment",
-        "Q3 FY26 results: growth and backlog", "Power-equipment procurement policy shock",
+        "Q3 FY26 results: growth and backlog",
+        "Power-equipment procurement policy shock",
     }
-    annotate = events[events["label"].isin(selected_labels)].sort_values("trading_date").reset_index(drop=True)
+    annotate = (
+        events[events["label"].isin(selected_labels)]
+        .sort_values("trading_date")
+        .reset_index(drop=True)
+    )
     offsets = [(8, 35), (8, -55), (8, -55), (8, 35), (8, -55), (8, 35), (8, 35), (8, -55)]
     for (_, row), offset in zip(annotate.iterrows(), offsets):
         date = row["trading_date"]
         y = daily.loc[date, "Close"]
-        ax.annotate(row["label"], xy=(date, y), xytext=offset, textcoords="offset points",
-                    fontsize=7.5, arrowprops={"arrowstyle": "-", "color": "#6B7280", "lw": 0.7},
-                    bbox={"boxstyle": "round,pad=0.2", "fc": "white", "ec": "#D1D5DB", "alpha": 0.9})
-    ax.set_title("CGPOWER: material events on the price chart", loc="left", fontsize=15, weight="bold")
+        ax.annotate(
+            row["label"],
+            xy=(date, y),
+            xytext=offset,
+            textcoords="offset points",
+            fontsize=7.5,
+            arrowprops={"arrowstyle": "-", "color": "#6B7280", "lw": 0.7},
+            bbox={"boxstyle": "round,pad=0.2", "fc": "white", "ec": "#D1D5DB", "alpha": 0.9},
+        )
+    ax.set_title(
+        "CGPOWER: material events on the price chart", loc="left", fontsize=15, weight="bold"
+    )
     ax.set_ylabel("Close price (Rs)")
     ax.grid(axis="y", alpha=0.2)
     fig.tight_layout()
@@ -222,13 +354,23 @@ def chart_price_events(daily: pd.DataFrame, events: pd.DataFrame) -> None:
 
 
 def chart_move_decomposition(moves: pd.DataFrame) -> None:
-    display = pd.concat([moves.nlargest(10, "return_pct"), moves.nsmallest(10, "return_pct")]).sort_values("return_pct")
+    display = pd.concat(
+        [moves.nlargest(10, "return_pct"), moves.nsmallest(10, "return_pct")]
+    ).sort_values("return_pct")
     labels = display.index.strftime("%Y-%m-%d")
     fig, ax = plt.subplots(figsize=(11, 8))
     ax.barh(labels, display["gap_pct"], color="#4C78A8", label="Overnight gap")
-    ax.barh(labels, display["intraday_pct"], left=display["gap_pct"], color="#F28E2B", label="09:15 to close")
+    ax.barh(
+        labels,
+        display["intraday_pct"],
+        left=display["gap_pct"],
+        color="#F28E2B",
+        label="09:15 to close",
+    )
     ax.axvline(0, color="#374151", linewidth=0.8)
-    ax.set_title("Largest CGPOWER sessions: gap versus intraday move", loc="left", fontsize=14, weight="bold")
+    ax.set_title(
+        "Largest CGPOWER sessions: gap versus intraday move", loc="left", fontsize=14, weight="bold"
+    )
     ax.set_xlabel("Return contribution (%)")
     ax.legend(frameon=False, ncol=2, loc="lower right")
     ax.grid(axis="x", alpha=0.18)
@@ -241,11 +383,18 @@ def chart_event_windows(events: pd.DataFrame) -> None:
     display = events.sort_values("event_return_pct").copy()
     y = np.arange(len(display))
     fig, ax = plt.subplots(figsize=(12, 8))
-    ax.barh(y - 0.22, display["event_return_pct"], height=0.42, color="#4C78A8", label="Event session")
+    ax.barh(
+        y - 0.22, display["event_return_pct"], height=0.42, color="#4C78A8", label="Event session"
+    )
     ax.barh(y + 0.22, display["post5_pct"], height=0.42, color="#F28E2B", label="Next 5 sessions")
     ax.set_yticks(y, display["label"])
     ax.axvline(0, color="#374151", linewidth=0.8)
-    ax.set_title("Announcement reaction and five-session follow-through", loc="left", fontsize=14, weight="bold")
+    ax.set_title(
+        "Announcement reaction and five-session follow-through",
+        loc="left",
+        fontsize=14,
+        weight="bold",
+    )
     ax.set_xlabel("Return (%)")
     ax.legend(frameon=False)
     ax.grid(axis="x", alpha=0.18)
@@ -255,8 +404,16 @@ def chart_event_windows(events: pd.DataFrame) -> None:
 
 
 def chart_intraday_paths(minutes: pd.DataFrame) -> None:
-    dates = ["2023-11-22", "2023-11-24", "2024-06-04", "2025-04-07",
-             "2025-05-06", "2026-01-28", "2026-07-03", "2026-08-04"]
+    dates = [
+        "2023-11-22",
+        "2023-11-24",
+        "2024-06-04",
+        "2025-04-07",
+        "2025-05-06",
+        "2026-01-28",
+        "2026-07-03",
+        "2026-08-04",
+    ]
     fig, axes = plt.subplots(4, 2, figsize=(13, 13), sharex=True)
     for ax, date_text in zip(axes.flat, dates):
         date = pd.Timestamp(date_text)
@@ -275,19 +432,34 @@ def chart_intraday_paths(minutes: pd.DataFrame) -> None:
         ax.grid(alpha=0.15)
     for ax in axes[-1]:
         ax.set_xlabel("Minutes after 09:15")
-    fig.suptitle("Intraday anatomy of representative CGPOWER shock sessions", x=0.06, ha="left", fontsize=15, weight="bold")
+    fig.suptitle(
+        "Intraday anatomy of representative CGPOWER shock sessions",
+        x=0.06,
+        ha="left",
+        fontsize=15,
+        weight="bold",
+    )
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(CHARTS / "04_intraday_shock_paths.png", dpi=180)
     plt.close(fig)
 
 
 def write_findings(daily: pd.DataFrame, events: pd.DataFrame) -> None:
-    event_follow = events.groupby("path_type").agg(
-        Events=("label", "size"), MedianEventReturn=("event_return_pct", "median"),
-        MedianPost5=("post5_pct", "median"), MedianPost20=("post20_pct", "median"),
-    ).round(2)
+    event_follow = (
+        events.groupby("path_type")
+        .agg(
+            Events=("label", "size"),
+            MedianEventReturn=("event_return_pct", "median"),
+            MedianPost5=("post5_pct", "median"),
+            MedianPost20=("post20_pct", "median"),
+        )
+        .round(2)
+    )
     headers = ["Path type", *event_follow.columns]
-    table_rows = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
+    table_rows = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join(["---"] * len(headers)) + " |",
+    ]
     for index, row in event_follow.iterrows():
         values = [str(index), *[str(value) for value in row.tolist()]]
         table_rows.append("| " + " | ".join(values) + " |")
@@ -361,7 +533,9 @@ def main() -> None:
     write_findings(cg_daily, events)
 
     coverage = f"{cg_daily.index.min().date()}..{cg_daily.index.max().date()}"
-    print(f"CGPOWER attribution complete: {len(cg_daily)} sessions ({coverage}), {len(events)} events, {len(moves)} big-move days.")
+    print(
+        f"CGPOWER attribution complete: {len(cg_daily)} sessions ({coverage}), {len(events)} events, {len(moves)} big-move days."
+    )
 
 
 if __name__ == "__main__":

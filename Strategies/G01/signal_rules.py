@@ -17,13 +17,13 @@ Beginner Note:
 
 import pandas as pd
 
-from .indicators import prev_close
 from .config import StrategyConfig
-
+from .indicators import prev_close
 
 # ============================================================================
 # LONG ENTRY CONDITIONS
 # ============================================================================
+
 
 def long_entry_condition(
     df: pd.DataFrame,
@@ -81,34 +81,35 @@ def long_entry_condition(
     """
     return (
         # Time window - only enter during main trading hours
-        (df[bar_column] >= config.long_first_bar) &
-        (df[bar_column] < config.long_last_signal_bar_exclusive) &
-
+        (df[bar_column] >= config.long_first_bar)
+        & (df[bar_column] < config.long_last_signal_bar_exclusive)
+        &
         # Trend direction
-        (df["Close"] > df["vwap"]) &         # Price above average
-        (df["ema21"] > df["ema55"]) &        # Short EMA > Long EMA
-
+        (df["Close"] > df["vwap"])  # Price above average
+        & (df["ema21"] > df["ema55"])  # Short EMA > Long EMA
+        &
         # Trend strength
-        (df["adx_for_signal"] >= config.adx_min) &
-
+        (df["adx_for_signal"] >= config.adx_min)
+        &
         # Volume confirmation
-        (df["vol_ratio20"] >= config.volume_ratio_min) &
-
+        (df["vol_ratio20"] >= config.volume_ratio_min)
+        &
         # RSI range (not overbought, not oversold)
-        (df["rsi14"].between(config.long_rsi_min, config.long_rsi_max)) &
-
+        (df["rsi14"].between(config.long_rsi_min, config.long_rsi_max))
+        &
         # Pullback happened
-        ((df["Low"] <= df["ema21"]) | (df["Low"] <= df["vwap"])) &
-
+        ((df["Low"] <= df["ema21"]) | (df["Low"] <= df["vwap"]))
+        &
         # Recovery
-        (df["Close"] > df["ema21"]) &
-        (df["Close"] > prev_close(df["Close"]))
+        (df["Close"] > df["ema21"])
+        & (df["Close"] > prev_close(df["Close"]))
     )
 
 
 # ============================================================================
 # SHORT ENTRY CONDITIONS
 # ============================================================================
+
 
 def short_entry_condition(
     df: pd.DataFrame,
@@ -173,34 +174,35 @@ def short_entry_condition(
     """
     return (
         # Time window
-        (df[bar_column] >= config.short_first_bar) &
-        (df[bar_column] < config.short_last_signal_bar_exclusive) &
-
+        (df[bar_column] >= config.short_first_bar)
+        & (df[bar_column] < config.short_last_signal_bar_exclusive)
+        &
         # Trend direction
-        (df["Close"] < df["vwap"]) &
-        (df["ema13"] < df["ema34"]) &
-
+        (df["Close"] < df["vwap"])
+        & (df["ema13"] < df["ema34"])
+        &
         # Trend strength
-        (df["adx_for_signal"] >= config.adx_min) &
-
+        (df["adx_for_signal"] >= config.adx_min)
+        &
         # Volume confirmation
-        (df["vol_ratio20"] >= config.volume_ratio_min) &
-
+        (df["vol_ratio20"] >= config.volume_ratio_min)
+        &
         # RSI range
-        (df["rsi14"].between(config.short_rsi_min, config.short_rsi_max)) &
-
+        (df["rsi14"].between(config.short_rsi_min, config.short_rsi_max))
+        &
         # Bounce happened
-        ((df["High"] >= df["ema13"]) | (df["High"] >= df["vwap"])) &
-
+        ((df["High"] >= df["ema13"]) | (df["High"] >= df["vwap"]))
+        &
         # Decline
-        (df["Close"] < df["ema13"]) &
-        (df["Close"] < prev_close(df["Close"]))
+        (df["Close"] < df["ema13"])
+        & (df["Close"] < prev_close(df["Close"]))
     )
 
 
 # ============================================================================
 # SIGNAL SELECTION (One per day)
 # ============================================================================
+
 
 def select_first_signal_per_day(
     df: pd.DataFrame,
@@ -235,7 +237,7 @@ def select_first_signal_per_day(
     # Combine long and short signals
     signal_rows = pd.concat(
         [
-            df.loc[long_mask, ["Datetime", "date", "bar_no"]].assign(direction=1),   # 1 = long
+            df.loc[long_mask, ["Datetime", "date", "bar_no"]].assign(direction=1),  # 1 = long
             df.loc[short_mask, ["Datetime", "date", "bar_no"]].assign(direction=-1),  # -1 = short
         ],
         axis=0,
@@ -244,7 +246,7 @@ def select_first_signal_per_day(
     # Sort by date, then time (earliest first), then direction (longs before shorts)
     signal_rows = signal_rows.sort_values(
         ["date", "Datetime", "direction"],
-        ascending=[True, True, False]  # direction=False means -1 comes before 1
+        ascending=[True, True, False],  # direction=False means -1 comes before 1
     )
 
     # Keep only the first signal per day

@@ -22,7 +22,6 @@ import pandas as pd
 
 from .config import StrategyConfig
 
-
 # ============================================================================
 # SCORING CONFIGURATION
 # ============================================================================
@@ -64,6 +63,7 @@ STRENGTH_LABELS = ["<40", "40-50", "50-60", "60-70", "70-80", "80+"]
 # HELPER FUNCTIONS
 # ============================================================================
 
+
 def clip01(values):
     """
     Clip values to range [0, 1].
@@ -82,6 +82,7 @@ def clip01(values):
 # ============================================================================
 # MAIN SCORING FUNCTION
 # ============================================================================
+
 
 def signal_strength_table(
     df: pd.DataFrame,
@@ -192,10 +193,14 @@ def signal_strength_table(
     # Deeper pullback = better quality (more obvious support/resistance)
     trigger_long = (
         rows["Close"].astype(float).to_numpy()
-        - np.maximum(rows["ema21"].astype(float).to_numpy(), rows["prev_close"].astype(float).to_numpy())
+        - np.maximum(
+            rows["ema21"].astype(float).to_numpy(), rows["prev_close"].astype(float).to_numpy()
+        )
     ) / atr_values
     trigger_short = (
-        np.minimum(rows["ema13"].astype(float).to_numpy(), rows["prev_close"].astype(float).to_numpy())
+        np.minimum(
+            rows["ema13"].astype(float).to_numpy(), rows["prev_close"].astype(float).to_numpy()
+        )
         - rows["Close"].astype(float).to_numpy()
     ) / atr_values
     trigger_component = clip01(
@@ -238,6 +243,7 @@ def signal_strength_table(
 # FILTERING FUNCTIONS
 # ============================================================================
 
+
 def filter_by_strength(
     signals: pd.DataFrame,
     min_strength: float = MIN_SIGNAL_STRENGTH,
@@ -262,8 +268,8 @@ def filter_by_strength(
         return signals
 
     return signals[
-        (signals["signal_strength"] >= min_strength) &
-        (signals["strength_trigger_component"] >= min_trigger)
+        (signals["signal_strength"] >= min_strength)
+        & (signals["strength_trigger_component"] >= min_trigger)
     ].copy()
 
 

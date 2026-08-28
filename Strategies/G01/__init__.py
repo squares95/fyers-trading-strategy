@@ -15,4 +15,4 @@ def PaperTrade(*args, **kwargs):
     return G01Strategy().PaperTrade(*args, **kwargs)
 
 
-__all__ = ["G01Strategy", "Scan", "Backtest", "PaperTrade"]
+__all__ = ["Backtest", "G01Strategy", "PaperTrade", "Scan"]

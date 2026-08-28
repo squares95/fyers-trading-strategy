@@ -1,26 +1,19 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-import sys
 
 import numpy as np
 import pandas as pd
 from scipy.optimize import brentq
 
-
 ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-PPFCF_PATH = (
-    ROOT
-    / "Data"
-    / "MutualFunds"
-    / "PPFCF_DIRECT_GROWTH"
-    / "PPFCF_DIRECT_GROWTH_1D.csv"
-)
+PPFCF_PATH = ROOT / "Data" / "MutualFunds" / "PPFCF_DIRECT_GROWTH" / "PPFCF_DIRECT_GROWTH_1D.csv"
 OUTPUT_FOLDER = Path(__file__).resolve().parent
 ETF_URLS = {
     "HDFCSML250": "https://www.equitypandit.com/historical-data/HDFCSML250",
@@ -69,7 +62,9 @@ def ParseEtfHistory(html: str, symbol: str) -> pd.DataFrame:
         frame.columns = frame.columns.get_level_values(-1)
     required = {"Date", "Price", "Open", "High", "Low", "Volume"}
     if not required.issubset(frame.columns):
-        raise ValueError(f"Historical table for {symbol} is missing columns: {required - set(frame.columns)}")
+        raise ValueError(
+            f"Historical table for {symbol} is missing columns: {required - set(frame.columns)}"
+        )
 
     frame = frame.rename(columns={"Price": "Close"})
     frame["Date"] = pd.to_datetime(frame["Date"], format="%d %b %Y", errors="coerce")
@@ -118,10 +113,7 @@ def BuildMonths(valuation_date: pd.Timestamp, count: int = MONTHS) -> pd.PeriodI
 
 def FindExecutionRow(frame: pd.DataFrame, month: pd.Period, sip_day: int) -> pd.Series:
     due_date = pd.Timestamp(month.year, month.month, min(sip_day, month.days_in_month))
-    eligible = frame[
-        (frame["Date"].dt.to_period("M") == month)
-        & (frame["Date"] >= due_date)
-    ]
+    eligible = frame[(frame["Date"].dt.to_period("M") == month) & (frame["Date"] >= due_date)]
     if eligible.empty:
         raise ValueError(f"No price available on or after {due_date.date()} within {month}")
     return eligible.iloc[0]
@@ -133,8 +125,7 @@ def CalculateXirr(cashflows: list[tuple[pd.Timestamp, float]]) -> float:
 
     def Xnpv(rate: float) -> float:
         return sum(
-            value / ((1 + rate) ** ((date - base_date).days / 365.0))
-            for date, value in ordered
+            value / ((1 + rate) ** ((date - base_date).days / 365.0)) for date, value in ordered
         )
 
     try:
@@ -242,12 +233,8 @@ def RunForSipDay(
     valuation_date: pd.Timestamp = VALUATION_DATE,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     simulation = {"sip_day": sip_day, "months": months, "valuation_date": valuation_date}
-    ppfcf_8000 = SimulateSip(
-        "PPFCF", inputs["PPFCF"], 8000, whole_units=False, **simulation
-    )
-    ppfcf_7800 = SimulateSip(
-        "PPFCF", inputs["PPFCF"], 7800, whole_units=False, **simulation
-    )
+    ppfcf_8000 = SimulateSip("PPFCF", inputs["PPFCF"], 8000, whole_units=False, **simulation)
+    ppfcf_7800 = SimulateSip("PPFCF", inputs["PPFCF"], 7800, whole_units=False, **simulation)
     diversified_2600 = [
         SimulateSip("PPFCF", inputs["PPFCF"], 2600, whole_units=False, **simulation),
         SimulateSip("HDFCSML250", inputs["HDFCSML250"], 2600, whole_units=True, **simulation),

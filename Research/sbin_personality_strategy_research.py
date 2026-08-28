@@ -3,14 +3,13 @@ from __future__ import annotations
 import json
 import math
 import textwrap
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from datetime import date, time
 from pathlib import Path
-from typing import Iterable
 
 import numpy as np
 import pandas as pd
-
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = ROOT / "Data"
@@ -121,9 +120,15 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out["VWAP"] = pv.groupby(out["Date"]).cumsum() / out["Volume"].groupby(out["Date"]).cumsum()
     for span in (9, 20, 21, 50):
         out[f"EMA{span}"] = out["Close"].ewm(span=span, adjust=False, min_periods=span).mean()
-    out["VolMA20"] = out.groupby("Date")["Volume"].transform(lambda s: s.rolling(20, min_periods=5).mean())
-    out["RollingHigh12"] = out.groupby("Date")["High"].transform(lambda s: s.rolling(12, min_periods=6).max().shift(1))
-    out["RollingLow12"] = out.groupby("Date")["Low"].transform(lambda s: s.rolling(12, min_periods=6).min().shift(1))
+    out["VolMA20"] = out.groupby("Date")["Volume"].transform(
+        lambda s: s.rolling(20, min_periods=5).mean()
+    )
+    out["RollingHigh12"] = out.groupby("Date")["High"].transform(
+        lambda s: s.rolling(12, min_periods=6).max().shift(1)
+    )
+    out["RollingLow12"] = out.groupby("Date")["Low"].transform(
+        lambda s: s.rolling(12, min_periods=6).min().shift(1)
+    )
     return out
 
 
@@ -179,20 +184,30 @@ def macro_trends(df1d: pd.DataFrame, df1w: pd.DataFrame) -> tuple[pd.DataFrame, 
     for frame in (daily, weekly):
         frame["EMA20"] = frame["Close"].ewm(span=20, adjust=False, min_periods=10).mean()
         frame["EMA50"] = frame["Close"].ewm(span=50, adjust=False, min_periods=15).mean()
-        frame["Trend"] = np.where(frame["EMA20"] > frame["EMA50"], 1, np.where(frame["EMA20"] < frame["EMA50"], -1, 0))
+        frame["Trend"] = np.where(
+            frame["EMA20"] > frame["EMA50"], 1, np.where(frame["EMA20"] < frame["EMA50"], -1, 0)
+        )
         frame["AvailableAt"] = frame["Datetime"] + pd.Timedelta(days=1)
     return (
-        daily[["AvailableAt", "Trend"]].rename(columns={"Trend": "DailyTrend"}).sort_values("AvailableAt"),
-        weekly[["AvailableAt", "Trend"]].rename(columns={"Trend": "WeeklyTrend"}).sort_values("AvailableAt"),
+        daily[["AvailableAt", "Trend"]]
+        .rename(columns={"Trend": "DailyTrend"})
+        .sort_values("AvailableAt"),
+        weekly[["AvailableAt", "Trend"]]
+        .rename(columns={"Trend": "WeeklyTrend"})
+        .sort_values("AvailableAt"),
     )
 
 
 def attach_macro(df5: pd.DataFrame, df1d: pd.DataFrame, df1w: pd.DataFrame) -> pd.DataFrame:
     daily_trend, weekly_trend = macro_trends(df1d, df1w)
     out = df5.sort_values("Datetime").copy()
-    out = pd.merge_asof(out, daily_trend, left_on="Datetime", right_on="AvailableAt", direction="backward")
+    out = pd.merge_asof(
+        out, daily_trend, left_on="Datetime", right_on="AvailableAt", direction="backward"
+    )
     out = out.drop(columns=["AvailableAt"])
-    out = pd.merge_asof(out, weekly_trend, left_on="Datetime", right_on="AvailableAt", direction="backward")
+    out = pd.merge_asof(
+        out, weekly_trend, left_on="Datetime", right_on="AvailableAt", direction="backward"
+    )
     out = out.drop(columns=["AvailableAt"])
     out["DailyTrend"] = out["DailyTrend"].fillna(0).astype(int)
     out["WeeklyTrend"] = out["WeeklyTrend"].fillna(0).astype(int)
@@ -260,9 +275,19 @@ def time_of_day_profile(df1: pd.DataFrame, df5: pd.DataFrame) -> pd.DataFrame:
     out["personality"] = np.where(
         out["velocity_score"] >= out["velocity_score"].quantile(0.7),
         "high-velocity",
-        np.where(out["velocity_score"] <= out["velocity_score"].quantile(0.3), "dead/noisy", "normal"),
+        np.where(
+            out["velocity_score"] <= out["velocity_score"].quantile(0.3), "dead/noisy", "normal"
+        ),
     )
-    order = ["09:15-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00", "13:00-14:00", "14:00-15:00", "15:00-15:30"]
+    order = [
+        "09:15-10:00",
+        "10:00-11:00",
+        "11:00-12:00",
+        "12:00-13:00",
+        "13:00-14:00",
+        "14:00-15:00",
+        "15:00-15:30",
+    ]
     out["Bucket"] = pd.Categorical(out["Bucket"], categories=order, ordered=True)
     return out.sort_values("Bucket").reset_index(drop=True)
 
@@ -281,7 +306,11 @@ def noise_signal_profile(df1: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]
     df["Bucket"] = df["Time"].map(session_bucket)
     total = len(df)
     overall = (
-        df["MoveClass"].value_counts(normalize=True).mul(100).rename_axis("class").reset_index(name="percent")
+        df["MoveClass"]
+        .value_counts(normalize=True)
+        .mul(100)
+        .rename_axis("class")
+        .reset_index(name="percent")
     )
     overall["bars"] = df["MoveClass"].value_counts().reindex(overall["class"]).to_numpy()
     counts = df.groupby(["Bucket", "MoveClass"]).size().reset_index(name="bars")
@@ -311,8 +340,12 @@ def opening_range_stats(df1: pd.DataFrame) -> pd.DataFrame:
         true_breakout = False
         fake_breakout = False
         if high_broken or low_broken:
-            high_time = pd.Timestamp(high_breaks.iloc[0]["Datetime"]) if high_broken else pd.Timestamp.max
-            low_time = pd.Timestamp(low_breaks.iloc[0]["Datetime"]) if low_broken else pd.Timestamp.max
+            high_time = (
+                pd.Timestamp(high_breaks.iloc[0]["Datetime"]) if high_broken else pd.Timestamp.max
+            )
+            low_time = (
+                pd.Timestamp(low_breaks.iloc[0]["Datetime"]) if low_broken else pd.Timestamp.max
+            )
             if high_time < low_time:
                 first_side = "up"
                 first_time = str(high_time)
@@ -348,22 +381,29 @@ def opening_range_stats(df1: pd.DataFrame) -> pd.DataFrame:
             {"metric": "days", "value": len(daily)},
             {"metric": "or_high_broken_pct", "value": daily["high_broken"].mean() * 100},
             {"metric": "or_low_broken_pct", "value": daily["low_broken"].mean() * 100},
-            {"metric": "either_side_broken_pct", "value": (daily["high_broken"] | daily["low_broken"]).mean() * 100},
+            {
+                "metric": "either_side_broken_pct",
+                "value": (daily["high_broken"] | daily["low_broken"]).mean() * 100,
+            },
             {"metric": "both_sides_broken_pct", "value": daily["both_sides_broken"].mean() * 100},
             {
                 "metric": "true_breakout_after_first_break_pct",
-                "value": daily.loc[daily["first_break_side"] != "none", "true_breakout"].mean() * 100,
+                "value": daily.loc[daily["first_break_side"] != "none", "true_breakout"].mean()
+                * 100,
             },
             {
                 "metric": "fake_breakout_after_first_break_pct",
-                "value": daily.loc[daily["first_break_side"] != "none", "fake_breakout"].mean() * 100,
+                "value": daily.loc[daily["first_break_side"] != "none", "fake_breakout"].mean()
+                * 100,
             },
         ]
     )
     return daily, summary
 
 
-def gap_resolution_stats(df1: pd.DataFrame, levels: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def gap_resolution_stats(
+    df1: pd.DataFrame, levels: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     rows = []
     first_rows = df1.groupby("Date").first().reset_index()[["Date", "Datetime", "Open"]]
     merged = first_rows.merge(levels[["Date", "PrevClose"]], on="Date", how="left")
@@ -377,7 +417,11 @@ def gap_resolution_stats(df1: pd.DataFrame, levels: pd.DataFrame) -> tuple[pd.Da
         if abs(gap_pct) < GAP_THRESHOLD:
             continue
         direction = "gap_up" if gap_pct > 0 else "gap_down"
-        filled = bool(first_60["Low"].le(row["PrevClose"]).any()) if gap_pct > 0 else bool(first_60["High"].ge(row["PrevClose"]).any())
+        filled = (
+            bool(first_60["Low"].le(row["PrevClose"]).any())
+            if gap_pct > 0
+            else bool(first_60["High"].ge(row["PrevClose"]).any())
+        )
         rows.append(
             {
                 "date": str(current_date),
@@ -394,7 +438,11 @@ def gap_resolution_stats(df1: pd.DataFrame, levels: pd.DataFrame) -> tuple[pd.Da
     else:
         summary = (
             detail.groupby("direction")
-            .agg(gaps=("date", "size"), fill_rate_pct=("filled_first_60m", lambda s: s.mean() * 100), avg_gap_pct=("gap_pct", "mean"))
+            .agg(
+                gaps=("date", "size"),
+                fill_rate_pct=("filled_first_60m", lambda s: s.mean() * 100),
+                avg_gap_pct=("gap_pct", "mean"),
+            )
             .reset_index()
         )
     return detail, summary
@@ -445,7 +493,9 @@ def simulate_trade(
     }
 
 
-def next_5m_entry(day5: pd.DataFrame, signal_time: pd.Timestamp) -> tuple[pd.Timestamp, float] | None:
+def next_5m_entry(
+    day5: pd.DataFrame, signal_time: pd.Timestamp
+) -> tuple[pd.Timestamp, float] | None:
     future = day5[day5["Datetime"] > signal_time]
     if future.empty:
         return None
@@ -511,7 +561,9 @@ def boundary_values(row: pd.Series, boundary: str) -> tuple[float, float, float]
     return float(high), float(low), max(float(rng), 0.01)
 
 
-def signal_direction(row: pd.Series, previous_row: pd.Series | None, variant: StrategyVariant) -> int | None:
+def signal_direction(
+    row: pd.Series, previous_row: pd.Series | None, variant: StrategyVariant
+) -> int | None:
     bounds = boundary_values(row, variant.boundary)
     if bounds is None:
         return None
@@ -546,18 +598,31 @@ def signal_direction(row: pd.Series, previous_row: pd.Series | None, variant: St
         if row["Low"] < lower and row["Close"] > lower:
             return 1
     elif variant.setup == "ema_structure_break":
-        if pd.notna(row["RollingHigh12"]) and row["Close"] > row["RollingHigh12"] and row["EMA20"] > row["EMA50"]:
+        if (
+            pd.notna(row["RollingHigh12"])
+            and row["Close"] > row["RollingHigh12"]
+            and row["EMA20"] > row["EMA50"]
+        ):
             return 1
-        if pd.notna(row["RollingLow12"]) and row["Close"] < row["RollingLow12"] and row["EMA20"] < row["EMA50"]:
+        if (
+            pd.notna(row["RollingLow12"])
+            and row["Close"] < row["RollingLow12"]
+            and row["EMA20"] < row["EMA50"]
+        ):
             return -1
     else:
         raise ValueError(f"Unknown setup: {variant.setup}")
     return None
 
 
-def build_stop_target(row: pd.Series, direction: int, entry_price: float, variant: StrategyVariant) -> tuple[float, float, float] | None:
+def build_stop_target(
+    row: pd.Series, direction: int, entry_price: float, variant: StrategyVariant
+) -> tuple[float, float, float] | None:
     atr_risk = max(float(row["ATR"]) * variant.stop_atr, 0.20)
-    recent_risk = abs(entry_price - (float(row["Low"]) if direction == 1 else float(row["High"]))) + TICK_BUFFER
+    recent_risk = (
+        abs(entry_price - (float(row["Low"]) if direction == 1 else float(row["High"])))
+        + TICK_BUFFER
+    )
     risk = max(atr_risk, recent_risk)
     if risk <= 0:
         return None
@@ -653,7 +718,17 @@ def candidate_variants() -> list[StrategyVariant]:
                         for vol_mult in (0.8, 1.2):
                             for vwap_filter, ema_filter, macro_filter in trend_filters:
                                 variants.append(
-                                    StrategyVariant(setup, boundary, entry_end, rr, stop_atr, vol_mult, vwap_filter, ema_filter, macro_filter)
+                                    StrategyVariant(
+                                        setup,
+                                        boundary,
+                                        entry_end,
+                                        rr,
+                                        stop_atr,
+                                        vol_mult,
+                                        vwap_filter,
+                                        ema_filter,
+                                        macro_filter,
+                                    )
                                 )
 
     for boundary in ("or15", "or30"):
@@ -663,7 +738,17 @@ def candidate_variants() -> list[StrategyVariant]:
                     for vol_mult in (0.8,):
                         for macro_filter in ("none", "not_both_against"):
                             variants.append(
-                                StrategyVariant("fakeout_reversion", boundary, entry_end, rr, stop_atr, vol_mult, False, False, macro_filter)
+                                StrategyVariant(
+                                    "fakeout_reversion",
+                                    boundary,
+                                    entry_end,
+                                    rr,
+                                    stop_atr,
+                                    vol_mult,
+                                    False,
+                                    False,
+                                    macro_filter,
+                                )
                             )
 
     for setup in ("vwap_pullback", "ema_structure_break"):
@@ -674,12 +759,32 @@ def candidate_variants() -> list[StrategyVariant]:
                         for macro_filter in ("none", "not_both_against"):
                             if setup == "vwap_pullback":
                                 variants.append(
-                                    StrategyVariant(setup, "or15", entry_end, rr, stop_atr, vol_mult, False, False, macro_filter)
+                                    StrategyVariant(
+                                        setup,
+                                        "or15",
+                                        entry_end,
+                                        rr,
+                                        stop_atr,
+                                        vol_mult,
+                                        False,
+                                        False,
+                                        macro_filter,
+                                    )
                                 )
                             else:
                                 for vwap_filter in (False, True):
                                     variants.append(
-                                        StrategyVariant(setup, "or15", entry_end, rr, stop_atr, vol_mult, vwap_filter, False, macro_filter)
+                                        StrategyVariant(
+                                            setup,
+                                            "or15",
+                                            entry_end,
+                                            rr,
+                                            stop_atr,
+                                            vol_mult,
+                                            vwap_filter,
+                                            False,
+                                            macro_filter,
+                                        )
                                     )
 
     for entry_end in ("10:30", "11:30"):
@@ -689,7 +794,18 @@ def candidate_variants() -> list[StrategyVariant]:
                     for macro_filter in ("none",):
                         for atr_band in (1.0, 1.4):
                             variants.append(
-                                StrategyVariant("vwap_atr_reversion", "or15", entry_end, rr, stop_atr, vol_mult, False, False, macro_filter, atr_band)
+                                StrategyVariant(
+                                    "vwap_atr_reversion",
+                                    "or15",
+                                    entry_end,
+                                    rr,
+                                    stop_atr,
+                                    vol_mult,
+                                    False,
+                                    False,
+                                    macro_filter,
+                                    atr_band,
+                                )
                             )
     return variants
 
@@ -716,9 +832,13 @@ def metrics(trades: Iterable[Trade]) -> dict:
     gross_loss = -r[losses].sum()
     equity = r.cumsum()
     drawdown = equity - equity.cummax()
-    pf = math.inf if gross_loss == 0 and gross_profit > 0 else (gross_profit / gross_loss if gross_loss else 0.0)
+    pf = (
+        math.inf
+        if gross_loss == 0 and gross_profit > 0
+        else (gross_profit / gross_loss if gross_loss else 0.0)
+    )
     return {
-        "trades": int(len(df)),
+        "trades": len(df),
         "win_rate": float(wins.mean() * 100),
         "profit_factor": float(pf) if math.isfinite(pf) else "inf",
         "expectancy_r": float(r.mean()),
@@ -743,13 +863,21 @@ def summarize_variants(all_trades: list[Trade]) -> pd.DataFrame:
                 row.update({"setup": first.setup, "boundary": first.boundary, "rr": first.rr})
             else:
                 parts = dict(part.split("=", 1) for part in variant.split("|") if "=" in part)
-                row.update({"setup": variant.split("|")[0], "boundary": variant.split("|")[1], "rr": float(parts.get("rr", MIN_RR))})
+                row.update(
+                    {
+                        "setup": variant.split("|")[0],
+                        "boundary": variant.split("|")[1],
+                        "rr": float(parts.get("rr", MIN_RR)),
+                    }
+                )
             rows.append(row)
     return pd.DataFrame(rows)
 
 
 def select_best(summary: pd.DataFrame) -> str | None:
-    train = summary[(summary["set_name"] == "train") & (summary["trades"] >= MIN_TRAIN_TRADES)].copy()
+    train = summary[
+        (summary["set_name"] == "train") & (summary["trades"] >= MIN_TRAIN_TRADES)
+    ].copy()
     if train.empty:
         train = summary[(summary["set_name"] == "train") & (summary["trades"] > 0)].copy()
     if train.empty:
@@ -759,7 +887,9 @@ def select_best(summary: pd.DataFrame) -> str | None:
         & (pd.to_numeric(train["profit_factor"].replace("inf", 999), errors="coerce") >= 1.5)
         & (train["expectancy_r"] > 0)
     )
-    train["pf_rank"] = pd.to_numeric(train["profit_factor"].replace("inf", 999), errors="coerce").fillna(0)
+    train["pf_rank"] = pd.to_numeric(
+        train["profit_factor"].replace("inf", 999), errors="coerce"
+    ).fillna(0)
     train = train.sort_values(
         ["passes_targets", "pf_rank", "expectancy_r", "win_rate", "trades", "max_drawdown_r"],
         ascending=[False, False, False, False, False, False],
@@ -790,7 +920,9 @@ def strategy_validation_status(train: dict, test: dict) -> dict:
         message = "Promotable research candidate: both discovery and out-of-sample windows passed the target thresholds."
     elif not train_pass:
         status = "rejected_train_failed"
-        message = "Rejected: the best discovery candidate did not meet the minimum training thresholds."
+        message = (
+            "Rejected: the best discovery candidate did not meet the minimum training thresholds."
+        )
     else:
         status = "rejected_oos_failed"
         message = "Rejected: the discovery candidate failed the untouched out-of-sample validation window."
@@ -802,7 +934,9 @@ def strategy_validation_status(train: dict, test: dict) -> dict:
     }
 
 
-def htf_dominance(df1: pd.DataFrame, df5: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+def htf_dominance(
+    df1: pd.DataFrame, df5: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp
+) -> pd.DataFrame:
     variant = StrategyVariant(
         setup="ema_structure_break",
         boundary="or15",
@@ -817,14 +951,20 @@ def htf_dominance(df1: pd.DataFrame, df5: pd.DataFrame, start: pd.Timestamp, end
     df1_by_day = {d: part.reset_index(drop=True) for d, part in df1.groupby("Date")}
     trades = generate_trades(df1, df5, variant, start, end + pd.Timedelta(days=1), end, df1_by_day)
     rows = []
-    for alignment, subset in pd.DataFrame([asdict(t) for t in trades]).groupby("macro_alignment") if trades else []:
+    for alignment, subset in (
+        pd.DataFrame([asdict(t) for t in trades]).groupby("macro_alignment") if trades else []
+    ):
         r = subset["r_multiple"].astype(float)
         rows.append(
             {
                 "macro_alignment": alignment,
                 "trend_setup_trades": len(subset),
                 "win_rate_pct": (r > 0).mean() * 100,
-                "profit_factor": (r[r > 0].sum() / -r[r < 0].sum()) if (r < 0).any() else ("inf" if (r > 0).any() else 0),
+                "profit_factor": (
+                    (r[r > 0].sum() / -r[r < 0].sum())
+                    if (r < 0).any()
+                    else ("inf" if (r > 0).any() else 0)
+                ),
                 "expectancy_r": r.mean(),
             }
         )
@@ -839,13 +979,28 @@ def save_chart_time_of_day(profile: pd.DataFrame) -> Path:
     use_chart_theme(sns, plt)
     fig, ax1 = plt.subplots(figsize=(10, 5.2))
     plot = profile.copy()
-    sns.barplot(data=plot, x="Bucket", y="avg_1m_volume", ax=ax1, color="#A3BEFA", edgecolor="#2E4780", linewidth=1.0)
+    sns.barplot(
+        data=plot,
+        x="Bucket",
+        y="avg_1m_volume",
+        ax=ax1,
+        color="#A3BEFA",
+        edgecolor="#2E4780",
+        linewidth=1.0,
+    )
     ax1.set_ylabel("Avg 1m volume")
     ax1.set_xlabel("")
     ax1.tick_params(axis="x", labelrotation=35)
     ax2 = ax1.twinx()
     ax2.grid(False)
-    ax2.plot(plot["Bucket"].astype(str), plot["avg_1m_tr_bps"], color="#CC6F47", marker="o", linewidth=1.0, label="Avg 1m TR bps")
+    ax2.plot(
+        plot["Bucket"].astype(str),
+        plot["avg_1m_tr_bps"],
+        color="#CC6F47",
+        marker="o",
+        linewidth=1.0,
+        label="Avg 1m TR bps",
+    )
     ax2.set_ylabel("Avg 1m true range, bps")
     add_chart_header(
         fig,
@@ -868,9 +1023,25 @@ def save_chart_strategy(summary: pd.DataFrame, selected: str) -> Path:
     selected_summary = summary[summary["variant"] == selected].copy()
     fig, ax = plt.subplots(figsize=(8.5, 4.8))
     plot = selected_summary[["set_name", "win_rate", "profit_factor", "expectancy_r"]].copy()
-    plot["profit_factor"] = pd.to_numeric(plot["profit_factor"].replace("inf", 999), errors="coerce")
-    long = plot.melt(id_vars="set_name", value_vars=["win_rate", "profit_factor", "expectancy_r"], var_name="metric", value_name="value")
-    sns.barplot(data=long, x="metric", y="value", hue="set_name", ax=ax, palette={"train": "#A3BEFA", "test": "#F0986E"}, edgecolor="#1F2430", linewidth=1.0)
+    plot["profit_factor"] = pd.to_numeric(
+        plot["profit_factor"].replace("inf", 999), errors="coerce"
+    )
+    long = plot.melt(
+        id_vars="set_name",
+        value_vars=["win_rate", "profit_factor", "expectancy_r"],
+        var_name="metric",
+        value_name="value",
+    )
+    sns.barplot(
+        data=long,
+        x="metric",
+        y="value",
+        hue="set_name",
+        ax=ax,
+        palette={"train": "#A3BEFA", "test": "#F0986E"},
+        edgecolor="#1F2430",
+        linewidth=1.0,
+    )
     ax.set_xlabel("")
     ax.set_ylabel("Value")
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.02), frameon=False, ncol=2, borderaxespad=0)
@@ -906,8 +1077,19 @@ def add_chart_header(fig, ax, title: str, subtitle: str) -> None:
     ax.set_title("")
     fig.subplots_adjust(top=0.78)
     left = ax.get_position().x0
-    fig.text(left, 0.985, textwrap.fill(title, 78), ha="left", va="top", fontsize=13, fontweight="semibold", color="#1F2430")
-    fig.text(left, 0.925, textwrap.fill(subtitle, 112), ha="left", va="top", fontsize=9, color="#6F768A")
+    fig.text(
+        left,
+        0.985,
+        textwrap.fill(title, 78),
+        ha="left",
+        va="top",
+        fontsize=13,
+        fontweight="semibold",
+        color="#1F2430",
+    )
+    fig.text(
+        left, 0.925, textwrap.fill(subtitle, 112), ha="left", va="top", fontsize=9, color="#6F768A"
+    )
     try:
         import seaborn as sns
 
@@ -944,7 +1126,10 @@ def df_to_html_table(df: pd.DataFrame, max_rows: int = 20) -> str:
     headers = "".join(f"<th>{html_escape(col)}</th>" for col in view.columns)
     body = []
     for _, row in view.iterrows():
-        cells = "".join(f"<td>{html_escape(round(val, 4) if isinstance(val, float) else val)}</td>" for val in row)
+        cells = "".join(
+            f"<td>{html_escape(round(val, 4) if isinstance(val, float) else val)}</td>"
+            for val in row
+        )
         body.append(f"<tr>{cells}</tr>")
     return f"<table><thead><tr>{headers}</tr></thead><tbody>{''.join(body)}</tbody></table>"
 
@@ -967,8 +1152,16 @@ def build_report(
 
     high_velocity = ", ".join(tod.loc[tod["personality"] == "high-velocity", "Bucket"].astype(str))
     dead = ", ".join(tod.loc[tod["personality"] == "dead/noisy", "Bucket"].astype(str))
-    continuation = float(noise_overall.loc[noise_overall["class"] == "continuation", "percent"].iloc[0]) if "continuation" in set(noise_overall["class"]) else 0
-    mean_rev = float(noise_overall.loc[noise_overall["class"] == "mean_reversion", "percent"].iloc[0]) if "mean_reversion" in set(noise_overall["class"]) else 0
+    continuation = (
+        float(noise_overall.loc[noise_overall["class"] == "continuation", "percent"].iloc[0])
+        if "continuation" in set(noise_overall["class"])
+        else 0
+    )
+    mean_rev = (
+        float(noise_overall.loc[noise_overall["class"] == "mean_reversion", "percent"].iloc[0])
+        if "mean_reversion" in set(noise_overall["class"])
+        else 0
+    )
     personality = "trend-following" if continuation > mean_rev else "mean-reverting"
     if charts.get("time_of_day") and charts.get("strategy"):
         visual_evidence_html = f"""
@@ -1186,8 +1379,12 @@ def run_research() -> dict:
         "research_end": str(end.date()),
         "selected_variant": selected,
         "strategy_validation": strategy_validation_status(
-            summary[(summary["variant"] == selected) & (summary["set_name"] == "train")].iloc[0].to_dict(),
-            summary[(summary["variant"] == selected) & (summary["set_name"] == "test")].iloc[0].to_dict(),
+            summary[(summary["variant"] == selected) & (summary["set_name"] == "train")]
+            .iloc[0]
+            .to_dict(),
+            summary[(summary["variant"] == selected) & (summary["set_name"] == "test")]
+            .iloc[0]
+            .to_dict(),
         ),
         "target_thresholds": {
             "min_train_trades": MIN_TRAIN_TRADES,
@@ -1200,7 +1397,9 @@ def run_research() -> dict:
         "candidate_variants_tested": len(candidate_variants()),
         "output_dir": str(OUTPUT_DIR),
     }
-    md, html = build_report(metadata, tod, noise_overall, or_summary, gap_summary, htf, summary, selected, charts)
+    md, html = build_report(
+        metadata, tod, noise_overall, or_summary, gap_summary, htf, summary, selected, charts
+    )
 
     outputs = {
         "metadata": OUTPUT_DIR / "metadata.json",
@@ -1251,4 +1450,16 @@ if __name__ == "__main__":
     selected_summary = result["summary"][result["summary"]["variant"] == selected]
     print(f"SBIN personality research complete: {metadata['output_dir']}")
     print(f"Selected variant: {selected}")
-    print(selected_summary[["set_name", "trades", "win_rate", "profit_factor", "expectancy_r", "max_drawdown_r", "avg_trade_duration_min"]].to_string(index=False))
+    print(
+        selected_summary[
+            [
+                "set_name",
+                "trades",
+                "win_rate",
+                "profit_factor",
+                "expectancy_r",
+                "max_drawdown_r",
+                "avg_trade_duration_min",
+            ]
+        ].to_string(index=False)
+    )
