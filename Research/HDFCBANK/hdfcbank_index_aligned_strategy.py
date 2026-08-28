@@ -299,7 +299,7 @@ def chart_results(
     plt.close(fig)
 
     fig, axes = plt.subplots(3, 2, figsize=(13, 11), sharex=True)
-    for ax, (_, trade) in zip(axes.flat, replay.iterrows()):
+    for ax, (_, trade) in zip(axes.flat, replay.iterrows(), strict=False):
         day = sessions[trade["Date"]]
         path = (day["H_Close"] / day.iloc[0]["H_Open"] - 1) * 100
         ax.plot(np.arange(len(day)), path, color="#195B8A" if trade["Direction"] > 0 else "#F28E2B")

@@ -31,7 +31,7 @@ class LongTermFundAnalysisTests(unittest.TestCase):
 
         self.assertEqual(chunks[0][0], pd.Timestamp("2020-01-01"))
         self.assertEqual(chunks[-1][1], pd.Timestamp("2022-01-15"))
-        for prior, current in zip(chunks, chunks[1:]):
+        for prior, current in zip(chunks, chunks[1:], strict=False):
             self.assertEqual(current[0], prior[1] + pd.Timedelta(days=1))
             self.assertLessEqual((prior[1] - prior[0]).days, 364)
 

@@ -201,14 +201,16 @@ def main():
     net_norm = normalize(all_nets, higher_better=True)
     pf_norm = normalize(all_pfs, higher_better=True)
     dd_norm = normalize(all_dds, higher_better=True)  # -5 > -10 so higher is better
-    composite = [0.5 * n + 0.3 * p + 0.2 * d for n, p, d in zip(net_norm, pf_norm, dd_norm)]
+    composite = [
+        0.5 * n + 0.3 * p + 0.2 * d for n, p, d in zip(net_norm, pf_norm, dd_norm, strict=False)
+    ]
 
     print()
     print("=" * 70)
     print("COMPOSITE SCORE (50% net + 30% PF + 20% DD)")
     print("=" * 70)
     scenarios = ["BASELINE"] + [f"{r['threshold']:.1%}" for r in sweep_results]
-    for s, c in zip(scenarios, composite):
+    for s, c in zip(scenarios, composite, strict=False):
         marker = "  <-- BEST COMPOSITE" if c == max(composite) else ""
         print(f"  {s:<12} {c:.3f}{marker}")
 
@@ -231,7 +233,7 @@ def main():
                 "best_pf": best_pf,
                 "best_dd": best_dd,
                 "best_composite": best_composite,
-                "composite_scores": dict(zip(scenarios, composite)),
+                "composite_scores": dict(zip(scenarios, composite, strict=False)),
             },
             indent=2,
         ),

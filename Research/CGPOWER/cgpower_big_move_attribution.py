@@ -331,7 +331,7 @@ def chart_price_events(daily: pd.DataFrame, events: pd.DataFrame) -> None:
         .reset_index(drop=True)
     )
     offsets = [(8, 35), (8, -55), (8, -55), (8, 35), (8, -55), (8, 35), (8, 35), (8, -55)]
-    for (_, row), offset in zip(annotate.iterrows(), offsets):
+    for (_, row), offset in zip(annotate.iterrows(), offsets, strict=False):
         date = row["trading_date"]
         y = daily.loc[date, "Close"]
         ax.annotate(
@@ -415,7 +415,7 @@ def chart_intraday_paths(minutes: pd.DataFrame) -> None:
         "2026-08-04",
     ]
     fig, axes = plt.subplots(4, 2, figsize=(13, 13), sharex=True)
-    for ax, date_text in zip(axes.flat, dates):
+    for ax, date_text in zip(axes.flat, dates, strict=False):
         date = pd.Timestamp(date_text)
         day = minutes[minutes["Date"] == date].copy()
         if day.empty:

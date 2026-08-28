@@ -141,7 +141,7 @@ def chart_replays(replay: pd.DataFrame) -> None:
     wanted = set(replay["Date"].dt.normalize())
     minutes = minutes[minutes["Date"].isin(wanted)].copy()
     fig, axes = plt.subplots(3, 2, figsize=(13, 11), sharex=True)
-    for ax, (_, row) in zip(axes.flat, replay.iterrows()):
+    for ax, (_, row) in zip(axes.flat, replay.iterrows(), strict=False):
         day = minutes[minutes["Date"] == row["Date"]].sort_values("Datetime")
         path = (day["Close"] / day.iloc[0]["Open"] - 1) * 100
         x = np.arange(len(day))
