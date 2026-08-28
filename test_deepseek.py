@@ -37,26 +37,26 @@ def test_deepseek_access():
         os.system("pip install openai")
         from openai import OpenAI
 
-    token = os.environ.get("DEEPSEEK_API_KEY", "")
+    token = os.environ.get("OPENROUTER_API_KEY", "")
     if not token:
-        print("\n⚠️  Cannot test DeepSeek without DEEPSEEK_API_KEY")
-        print("  Get a free API key at: https://platform.deepseek.com")
-        print("  Then set: set DEEPSEEK_API_KEY=your_key_here (Windows)")
-        print("  Or: export DEEPSEEK_API_KEY=your_key_here (Linux/Mac)")
+        print("\n⚠️  Cannot test DeepSeek without OPENROUTER_API_KEY")
+        print("  Get a free API key at: https://openrouter.ai (no credit card needed)")
+        print("  Then set: set OPENROUTER_API_KEY=your_key_here (Windows)")
+        print("  Or: export OPENROUTER_API_KEY=your_key_here (Linux/Mac)")
         return False
 
-    print("\nTesting DeepSeek via Direct API...")
+    print("\nTesting DeepSeek via OpenRouter (free tier)...")
     print("-" * 60)
 
     try:
         client = OpenAI(
-            base_url="https://api.deepseek.com",
+            base_url="https://openrouter.ai/api/v1",
             api_key=token
         )
 
-        # Test with DeepSeek V4 Pro
+        # Test with DeepSeek V3 via OpenRouter (free)
         response = client.chat.completions.create(
-            model="deepseek-v4-pro",
+            model="deepseek/deepseek-chat-v3-0324:free",
             messages=[
                 {"role": "user", "content": "What is a VWAP pullback strategy in 2 sentences?"}
             ],
@@ -87,21 +87,22 @@ def list_available_models():
         os.system("pip install openai")
         from openai import OpenAI
 
-    token = os.environ.get("DEEPSEEK_API_KEY", "")
+    token = os.environ.get("OPENROUTER_API_KEY", "")
     if not token:
-        print("Cannot list models without DEEPSEEK_API_KEY")
+        print("Cannot list models without OPENROUTER_API_KEY")
         return
 
     print("Testing different models...")
     print("-" * 60)
 
     models_to_test = [
-        ("deepseek-v4-pro", "DeepSeek V4 Pro"),
-        ("deepseek-v4-flash", "DeepSeek V4 Flash"),
+        ("deepseek/deepseek-chat-v3-0324:free", "DeepSeek V3 (free)"),
+        ("deepseek/deepseek-r1:free", "DeepSeek R1 (reasoning, free)"),
+        ("meta-llama/llama-3-3-70b-instruct:free", "Llama 3.3 70B (free)"),
     ]
 
     client = OpenAI(
-        base_url="https://api.deepseek.com",
+        base_url="https://openrouter.ai/api/v1",
         api_key=token
     )
 
