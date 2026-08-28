@@ -48,6 +48,14 @@ from .regime_filter import (
     REGIME_RANGE_MIN,
 )
 
+# News/sentiment filter (Exp 6 — validated 2.5% gap filter)
+from .news_filter import (
+    compute_gap_filter_dates,
+    compute_portfolio_gap_dates,
+    compute_news_filter_dates,
+    filter_signals_by_news,
+)
+
 # Re-export from strength_scorer
 from .strength_scorer import (
     signal_strength_table,
@@ -358,7 +366,7 @@ def strength_threshold_stats(trades: pd.DataFrame) -> pd.DataFrame:
 # COMPLETE GOLD PIPELINE
 # ============================================================================
 
-def run() -> dict:
+def run(portfolio: list[str] | None = None, gap_threshold: float | None = None) -> dict:
     """
     Run the complete Gold strategy pipeline and generate all reports.
 
@@ -366,23 +374,33 @@ def run() -> dict:
     1. Loads and prepares data
     2. Generates signals with Gold config
     3. Applies regime filter
-    4. Scores signal strength
-    5. Filters by strength
-    6. Runs backtest
-    7. Calculates all statistics
-    8. Saves all results to CSV/JSON files
+    4. Applies news/sentiment gap filter (if portfolio provided)
+    5. Scores signal strength
+    6. Filters by strength
+    7. Runs backtest
+    8. Calculates all statistics
+    9. Saves all results to CSV/JSON files
+
+    Args:
+        portfolio: Optional list of stock symbols. If provided, applies the
+            validated 2.5% gap filter (skip days where any portfolio stock
+            gapped > gap_threshold from prev close). If None, no news filter.
+        gap_threshold: Gap % threshold (default: GOLD_CONFIG.gap_threshold = 0.025).
+            Set higher (e.g. 0.05) to filter only extreme gaps.
 
     Returns:
         Dictionary with comprehensive results and statistics
 
     Example:
         >>> from Gold import run
-        >>> results = run()
-        >>> print(results['gold_strategy'])
-        {'trades': 113, 'net_pct': 34.6, 'win_rate_pct': 58.41, ...}
+        >>> results = run()  # Single stock, no news filter
+        >>> results = run(portfolio=['CGPOWER', 'DRREDDY', 'INDUSINDBK'])  # Portfolio with filter
     """
     from .features import prepare_features
     from .signals import generate_signals
+
+    if gap_threshold is None:
+        gap_threshold = GOLD_CONFIG.gap_threshold
 
     # Step 1: Prepare data with features
     df = prepare_features(DATA_PATH)
@@ -391,12 +409,33 @@ def run() -> dict:
     regime = daily_regime_table(df)
     tradeable_dates = set(regime.loc[regime["regime_tradeable"], "date"])
 
+    # Step 2b: News/sentiment filter — skip chaos days (Exp 6)
+    news_blocked_dates = set()
+    if portfolio is not None and gap_threshold > 0:
+        # Build portfolio daily data for gap detection
+        portfolio_daily = {}
+        for sym in portfolio:
+            try:
+                sym_path = DATA_PATH.parent.parent / sym / f"{sym}_5MIN.csv"
+                if sym_path.exists():
+                    sym_df = prepare_features(sym_path)
+                    sym_daily = daily_regime_table(sym_df)
+                    portfolio_daily[sym] = sym_daily
+            except Exception:
+                pass
+        if portfolio_daily:
+            news_blocked_dates = compute_portfolio_gap_dates(
+                portfolio_daily, threshold=gap_threshold
+            )
+
     # Step 3: Generate signals with Gold config
     old_signals = generate_signals(df)  # Base config (for comparison)
     old_trades = add_period_columns(backtest(df, old_signals))
 
     gold_signals = generate_signals(df, GOLD_CONFIG)
     gold_signals = gold_signals[gold_signals["date"].isin(tradeable_dates)].copy()
+    if news_blocked_dates:
+        gold_signals = gold_signals[~gold_signals["date"].isin(news_blocked_dates)].copy()
 
     # Step 4: Score strength
     gold_strength_signals = signal_strength_table(df, gold_signals, GOLD_CONFIG)
@@ -427,6 +466,12 @@ def run() -> dict:
             "range_med60_prev_gt": REGIME_RANGE_MIN,
             "tradeable_days": int(len(tradeable_dates)),
         },
+        "news_filter": {
+            "enabled": bool(news_blocked_dates),
+            "portfolio": portfolio or [],
+            "gap_threshold": gap_threshold,
+            "blocked_days": int(len(news_blocked_dates)),
+        },
         "old_strategy_unfiltered": equity_stats(old_trades),
         "old_strategy_off_regime": equity_stats(off_regime_trades),
         "gold_setup_before_strength_filter": equity_stats(gold_setup_trades),
@@ -450,16 +495,17 @@ def run() -> dict:
 
     # Step 8: Save outputs
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    gold_setup_trades.to_csv(OUTPUT_DIR / "cgpower_gold_strategy_all_setup_trades.csv", index=False)
-    gold_trades.to_csv(OUTPUT_DIR / "cgpower_gold_strategy_trades.csv", index=False)
-    gold_strength_signals.to_csv(OUTPUT_DIR / "cgpower_gold_strategy_signals_with_strength.csv", index=False)
-    regime.to_csv(OUTPUT_DIR / "cgpower_gold_strategy_daily_regime.csv", index=False)
-    grouped_stats(gold_trades, "year").to_csv(OUTPUT_DIR / "cgpower_gold_strategy_by_year.csv", index=False)
-    grouped_stats(gold_trades, "month").to_csv(OUTPUT_DIR / "cgpower_gold_strategy_by_month.csv", index=False)
-    grouped_stats(gold_trades, "quarter").to_csv(OUTPUT_DIR / "cgpower_gold_strategy_by_quarter.csv", index=False)
-    strength_band_stats(gold_setup_trades).to_csv(OUTPUT_DIR / "cgpower_gold_strategy_strength_by_band.csv", index=False)
-    strength_threshold_stats(gold_setup_trades).to_csv(OUTPUT_DIR / "cgpower_gold_strategy_strength_thresholds.csv", index=False)
-    (OUTPUT_DIR / "cgpower_gold_strategy_summary.json").write_text(
+    suffix = "_newsfiltered" if news_blocked_dates else ""
+    gold_setup_trades.to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_all_setup_trades{suffix}.csv", index=False)
+    gold_trades.to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_trades{suffix}.csv", index=False)
+    gold_strength_signals.to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_signals_with_strength{suffix}.csv", index=False)
+    regime.to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_daily_regime{suffix}.csv", index=False)
+    grouped_stats(gold_trades, "year").to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_by_year{suffix}.csv", index=False)
+    grouped_stats(gold_trades, "month").to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_by_month{suffix}.csv", index=False)
+    grouped_stats(gold_trades, "quarter").to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_by_quarter{suffix}.csv", index=False)
+    strength_band_stats(gold_setup_trades).to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_strength_by_band{suffix}.csv", index=False)
+    strength_threshold_stats(gold_setup_trades).to_csv(OUTPUT_DIR / f"cgpower_gold_strategy_strength_thresholds{suffix}.csv", index=False)
+    (OUTPUT_DIR / f"cgpower_gold_strategy_summary{suffix}.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
     )
 

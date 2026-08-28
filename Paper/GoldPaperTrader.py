@@ -356,7 +356,12 @@ def generate_live_signals(df: pd.DataFrame, config: base.StrategyConfig = gold.G
     return first.reset_index(drop=True)
 
 
-def candidate_signal_for_today(df_5m: pd.DataFrame, current: datetime) -> pd.Series | None:
+def candidate_signal_for_today(
+    df_5m: pd.DataFrame,
+    current: datetime,
+    portfolio_daily: dict | None = None,
+    gap_threshold: float = 0.025,
+) -> pd.Series | None:
     live = prepare_live_features(df_5m)
     if live.empty or live["date"].nunique() < 25:
         return None
@@ -366,6 +371,13 @@ def candidate_signal_for_today(df_5m: pd.DataFrame, current: datetime) -> pd.Ser
     today = current.date().isoformat()
     if today not in tradeable_dates:
         return None
+
+    # News/sentiment gap filter (Exp 6) — skip if any portfolio stock gapped >threshold
+    if portfolio_daily and gap_threshold > 0:
+        from Strategies.G01.news_filter import compute_portfolio_gap_dates
+        chaos_dates = compute_portfolio_gap_dates(portfolio_daily, threshold=gap_threshold)
+        if today in chaos_dates:
+            return None
 
     signals = generate_live_signals(live, gold.GOLD_CONFIG)
     signals = signals[signals["date"].isin(tradeable_dates)].copy()
@@ -597,6 +609,18 @@ def run_once(
     state = load_state(cleaned_symbols, config, report_folder, reset=reset)
     messages: list[str] = []
 
+    # Build portfolio daily data for news/sentiment gap filter (Exp 6)
+    portfolio_daily = {}
+    gap_threshold = getattr(gold.GOLD_CONFIG, "gap_threshold", 0.025)
+    for sym in cleaned_symbols:
+        sym_5m = load_candles(sym, Main.TIMEFRAME_5MIN, data_folder)
+        if not sym_5m.empty:
+            try:
+                live = prepare_live_features(sym_5m)
+                portfolio_daily[sym] = gold.daily_regime_table(live)
+            except Exception:
+                pass
+
     for symbol in cleaned_symbols:
         df_1m = load_candles(symbol, Main.TIMEFRAME_1MIN, data_folder)
         df_5m = load_candles(symbol, Main.TIMEFRAME_5MIN, data_folder)
@@ -631,7 +655,9 @@ def run_once(
             messages.append(f"{symbol}: {msg}")
             continue
 
-        signal = candidate_signal_for_today(df_5m, current)
+        signal = candidate_signal_for_today(
+            df_5m, current, portfolio_daily=portfolio_daily, gap_threshold=gap_threshold
+        )
         if signal is None:
             msg = "No gold strategy signal yet."
             append_event("NO_SIGNAL", symbol, msg, report_folder)
