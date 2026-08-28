@@ -1,7 +1,7 @@
 """
-Test LLM access via Groq API (free tier).
+Test LLM access via Groq (free tier, working setup).
 Get API key: https://console.groq.com (free, no credit card)
-Run: python test_deepseek.py (NOT py)
+Run: python test_deepseek.py
 """
 import os
 import sys
@@ -23,13 +23,13 @@ def test_api_key():
     else:
         print("✗ GROQ_API_KEY is NOT set")
         print("  Get a free API key at: https://console.groq.com")
-        print("  Then set: export GROQ_API_KEY=your_key (Linux/Mac)")
-        print("           setx GROQ_API_KEY your_key (Windows)")
+        print("  Then set: export GROQ_API_KEY=your_key (Git Bash)")
+        print("           setx GROQ_API_KEY your_key (PowerShell)")
         return False
 
 
 def test_llm_access():
-    """Test Llama via Groq."""
+    """Test Groq with reasoning model."""
     try:
         from openai import OpenAI
     except ImportError:
@@ -42,7 +42,7 @@ def test_llm_access():
         print("\n⚠️  Cannot test LLM without GROQ_API_KEY")
         return False
 
-    print("\nTesting Llama via Groq (free tier)...")
+    print("\nTesting Groq openai/gpt-oss-120b (free tier)...")
     print("-" * 60)
 
     try:
@@ -51,18 +51,23 @@ def test_llm_access():
             api_key=token
         )
 
-        # Test with Llama 3.3 70B via Groq (free)
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=[
-                {"role": "user", "content": "What is a VWAP pullback strategy in 2 sentences?"}
+                {"role": "user", "content": "Reply with exactly: VWAP PULLBACK WORKS"}
             ],
-            max_tokens=100
+            max_tokens=200,  # Reasoning models need more room
+            temperature=0.1
         )
 
-        print("✓ Llama response received!")
+        content = response.choices[0].message.content or ""
+        reasoning = response.choices[0].message.reasoning or ""
+
+        print("✓ LLM response received!")
         print(f"Model: {response.model}")
-        print(f"Response: {response.choices[0].message.content}")
+        print(f"Response: {content}")
+        if reasoning:
+            print(f"Reasoning: {reasoning[:200]}")
         print()
         return True
 
@@ -71,13 +76,13 @@ def test_llm_access():
         print()
         print("Possible issues:")
         print("  1. GROQ_API_KEY not set or invalid")
-        print("  2. Rate limit hit (Groq free tier has limits)")
+        print("  2. Rate limit hit (free tier)")
         print("  3. Network connectivity issue")
         return False
 
 
 def list_available_models():
-    """List available models on Groq."""
+    """List available models on Groq (free tier focus)."""
     try:
         from openai import OpenAI
     except ImportError:
@@ -89,14 +94,14 @@ def list_available_models():
         print("Cannot list models without GROQ_API_KEY")
         return
 
-    print("Testing different models...")
+    print("Testing free tier models...")
     print("-" * 60)
 
+    # Free tier verified models (Aug 2026)
     models_to_test = [
-        ("llama-3.3-70b-versatile", "Llama 3.3 70B (fast, versatile)"),
-        ("llama-3.1-8b-instant", "Llama 3.1 8B (fastest)"),
-        ("mixtral-8x7b-32768", "Mixtral 8x7B"),
-        ("gemma2-9b-it", "Gemma 2 9B"),
+        ("openai/gpt-oss-120b", "GPT OSS 120B (reasoning, 30 RPM)"),
+        ("openai/gpt-oss-20b", "GPT OSS 20B (faster reasoning)"),
+        ("groq/compound", "Groq Compound (70K context, 30 RPM)"),
     ]
 
     client = OpenAI(
@@ -108,17 +113,18 @@ def list_available_models():
         try:
             response = client.chat.completions.create(
                 model=model_id,
-                messages=[{"role": "user", "content": "Say 'OK'"}],
-                max_tokens=10
+                messages=[{"role": "user", "content": "Say OK"}],
+                max_tokens=200,
             )
-            print(f"✓ {model_name} ({model_id}): {response.choices[0].message.content}")
+            content = response.choices[0].message.content or ""
+            print(f"✓ {model_name}: '{content[:40]}'")
         except Exception as e:
-            print(f"✗ {model_name} ({model_id}): {str(e)[:80]}")
+            print(f"✗ {model_name}: {str(e)[:80]}")
 
 
 def main():
     print("=" * 60)
-    print("GROQ LLM TEST SCRIPT")
+    print("GROQ LLM TEST SCRIPT (Free Tier)")
     print("=" * 60)
     print()
 
