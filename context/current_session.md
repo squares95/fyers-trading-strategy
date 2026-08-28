@@ -66,6 +66,12 @@ Using **public data we already have** + free sources:
 ### Files Created
 - `Research/exp06_news_filter.py` — backtest with 6 scenarios
 - `Research/fetch_india_vix.py` — fetches India VIX via yfinance → Data/INDIAVIX/
+- `Research/debug_exp06.py` — diagnostic (helped identify missing data issue)
+
+### Data Bundle (NEW)
+- `Data/_slim/` — 1D+5MIN+1W for CGPOWER/HDFCBANK/SUZLON/NIFTY/BANKNIFTY (23.6 MB)
+- Scripts auto-prefer slim bundle, fall back to full Data/
+- Committed in `e15136e`
 
 ### Scenarios to Test
 1. Baseline (no filter)
@@ -89,6 +95,12 @@ python Research/fetch_india_vix.py     # one-time
 python Research/exp06_news_filter.py   # run experiment
 cat Research/GroqAnalysis/exp06_*.json  # share latest JSON
 ```
+
+### Latest Issue (2026-08-28)
+- Data was missing in codespace (Data/*.csv gitignored)
+- Created slim bundle: 23.6 MB, includes 1D+5MIN+1W for 5 stocks
+- Updated all research scripts to find slim bundle first
+- Pushed in `7123c2f` — `git pull` in codespace should now work
 
 ---
 
