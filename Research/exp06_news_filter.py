@@ -26,6 +26,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # regardless of CWD (e.g., when run as `python Research/exp06_news_filter.py`)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "Data"
+SLIM_DIR = PROJECT_ROOT / "Data" / "_slim"
+
+
+def resolve_data_path(symbol: str, timeframe: str) -> Path:
+    """Find data file. Prefer slim bundle (codespace), fall back to full Data/."""
+    slim = SLIM_DIR / f"{symbol}_{timeframe}.csv"
+    if slim.exists():
+        return slim
+    return DATA_DIR / symbol / f"{symbol}_{timeframe}.csv"
 
 
 # Portfolio from Exp 4/5 (locked)
@@ -39,8 +48,8 @@ INDEX_SYMBOL = "BANKNIFTY"
 
 
 def load_daily_ohlc(symbol: str) -> pd.DataFrame:
-    """Load daily OHLC from 1D CSV. Uses absolute path."""
-    path = DATA_DIR / symbol / f"{symbol}_1D.csv"
+    """Load daily OHLC from 1D CSV. Uses absolute path with slim-bundle fallback."""
+    path = resolve_data_path(symbol, "1D")
     if not path.exists():
         return pd.DataFrame()
     df = pd.read_csv(path, parse_dates=["Datetime"])
@@ -106,7 +115,7 @@ def run_gold_with_filter(symbol: str, blocked_dates: set) -> pd.DataFrame:
         from Strategies.G01.strength_scorer import signal_strength_table
         from Strategies.G01.Gold import get_super_gold_config
 
-        data_path = DATA_DIR / symbol / f"{symbol}_5MIN.csv"
+        data_path = resolve_data_path(symbol, "5MIN")
         if not data_path.exists():
             return pd.DataFrame()
 

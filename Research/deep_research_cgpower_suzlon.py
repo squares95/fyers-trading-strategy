@@ -15,8 +15,17 @@ from Strategies.G01 import Gold as gold
 
 
 DATA_DIR = ROOT / "Data"
+SLIM_DIR = ROOT / "Data" / "_slim"
 OUTPUT_DIR = ROOT / "Research"
 SYMBOLS = ["CGPOWER", "SUZLON"]
+
+
+def _resolve_data_path(symbol: str, timeframe: str) -> Path:
+    """Prefer slim bundle, fall back to full Data/."""
+    slim = SLIM_DIR / f"{symbol}_{timeframe}.csv"
+    if slim.exists():
+        return slim
+    return DATA_DIR / symbol / f"{symbol}_{timeframe}.csv"
 
 
 EVENTS = {
@@ -42,7 +51,7 @@ EVENTS = {
 
 
 def load_timeframe(symbol: str, timeframe: str) -> pd.DataFrame:
-    path = DATA_DIR / symbol / f"{symbol}_{timeframe}.csv"
+    path = _resolve_data_path(symbol, timeframe)
     df = pd.read_csv(path, parse_dates=["Datetime"])
     df = df.sort_values("Datetime").reset_index(drop=True)
     df["date"] = df["Datetime"].dt.date.astype(str)
@@ -277,7 +286,7 @@ def event_window_table(symbol: str, daily: pd.DataFrame) -> pd.DataFrame:
 
 
 def strategy_summary(symbol: str) -> dict[str, object]:
-    path = DATA_DIR / symbol / f"{symbol}_5MIN.csv"
+    path = _resolve_data_path(symbol, "5MIN")
     df = base.prepare_features(path)
     regime = gold.daily_regime_table(df)
     tradeable_dates = set(regime.loc[regime["regime_tradeable"], "date"])
