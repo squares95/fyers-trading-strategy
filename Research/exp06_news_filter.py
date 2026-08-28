@@ -37,11 +37,15 @@ def resolve_data_path(symbol: str, timeframe: str) -> Path:
     return DATA_DIR / symbol / f"{symbol}_{timeframe}.csv"
 
 
-# Portfolio from Exp 4/5 (locked)
-PORTFOLIO_STOCKS = [
-    "CGPOWER", "DRREDDY", "INDUSINDBK", "BHEL",
-    "HCLTECH", "TITAN", "M&M",
+# Portfolio from Exp 4/5 (locked) — full list
+# Note: codespace slim bundle only has CGPOWER/HDFCBANK/SUZLON/NIFTY/BANKNIFTY
+# So we use a slim-bundle subset to test the FILTER MECHANISM first.
+# The filter is market-level (gap/crash/range), not per-stock,
+# so a subset is enough to validate it works.
+SLIM_AVAILABLE_STOCKS = [
+    "CGPOWER", "HDFCBANK", "SUZLON",  # stocks present in slim bundle
 ]
+PORTFOLIO_STOCKS = SLIM_AVAILABLE_STOCKS  # use slim subset for filter testing
 
 # Index for market-level crash filter
 INDEX_SYMBOL = "BANKNIFTY"
@@ -206,12 +210,16 @@ def main():
 
     # 0. Verify data presence
     print("Checking data files...")
+    print(f"  Slim bundle: {SLIM_DIR} ({'present' if SLIM_DIR.exists() else 'NOT FOUND'})")
     missing = []
     for sym in PORTFOLIO_STOCKS + [INDEX_SYMBOL]:
-        daily = DATA_DIR / sym / f"{sym}_1D.csv"
-        minute = DATA_DIR / sym / f"{sym}_5MIN.csv"
+        daily = resolve_data_path(sym, "1D")
+        minute = resolve_data_path(sym, "5MIN")
         if not daily.exists() and not minute.exists():
             missing.append(sym)
+        else:
+            source = "slim" if str(SLIM_DIR) in str(daily) else "full"
+            print(f"  [OK] {sym}: {daily.name} ({source})")
     if missing:
         print(f"\n[!] MISSING DATA for: {missing}")
         print(f"    Data dir: {DATA_DIR}")
