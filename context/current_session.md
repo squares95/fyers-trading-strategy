@@ -188,3 +188,51 @@ News/sentiment filter using ONLY public data (no paid news API):
 - `Research/exp06d_full_portfolio_oos.py` — 6D (full 7-stock, 2.5%)
 - `Research/exp06e_threshold_sweep_full.py` — 6E (full sweep + composite)
 - `Research/GroqAnalysis/exp06*.json` — all saved results
+
+---
+
+## 🛠️ DEV SETUP (Aug 28, late session)
+
+### Tools installed
+- **ruff** (linter, replaces flake8/isort/pyupgrade) — auto-fixes 60% of issues
+- **black** (formatter) — consistent style
+- **mypy** (type checker) — optional, run occasionally
+- **pre-commit** (auto-fix on every commit)
+
+### Files added
+- `pyproject.toml` — ruff + black + mypy config
+- `requirements-dev.txt` — dev dependencies
+- `.pre-commit-config.yaml` — pre-commit hooks
+- `DEVELOPMENT.md` — usage guide
+- `.vscode/settings.json` — format-on-save with black
+
+### Impact
+- **357 ruff issues auto-fixed** (modernized Python 2→3 syntax, sorted imports, removed unused code)
+- **91 files reformatted** by black (line length, spacing)
+- **Strategy validation: PASSED** — same +48.0% / PF 2.872 / DD -4.44% / 105 trades after auto-fixes
+- **290 issues remain** — non-auto-fixable (mostly NSE symbol naming like `NIFTY`, intentional class names)
+
+### Usage
+```bash
+# One-time (in project dir)
+py -m pip install -r requirements-dev.txt
+pre-commit install
+
+# Manual checks
+py -m ruff check .
+py -m black .
+py -m mypy Strategies/ Paper/
+```
+
+### Auto-approval
+- `.claude/settings.local.json` — auto-approves common commands (git, py, pip, ruff, black, etc.)
+- This file is gitignored (local to your machine only)
+- Blocks dangerous ops (rm -rf /, format, sudo)
+
+### Crypto question (Aug 28)
+User asked about parallel crypto setup. **Recommended: NO, not now.**
+- Crypto is NOT "less manipulated" — it's MORE manipulated (no SEBI, no circuit breakers)
+- 24/7 markets kill our edge (no clean session open)
+- India tax is 30% flat + 1% TDS — wipes out the edge
+- No validated edge = guaranteed losses
+- Right move: finish NSE paper trading first (2-4 weeks), then revisit
