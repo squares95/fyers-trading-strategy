@@ -5,6 +5,9 @@ Data/**/202*.pdf
 Data/**/202*.pdf
 !Data/**/*.csv.example
 
+# Exception: slim data bundle for codespace
+!Data/_slim/**/*.csv
+
 # Logs
 *.log
 Logs/
