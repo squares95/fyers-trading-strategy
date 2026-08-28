@@ -54,9 +54,9 @@ def test_deepseek_access():
             api_key=token
         )
 
-        # Test with DeepSeek V3 via OpenRouter (free)
+        # Test with DeepSeek R1 via OpenRouter (reasoning model, free)
         response = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
+            model="deepseek/deepseek-r1:free",
             messages=[
                 {"role": "user", "content": "What is a VWAP pullback strategy in 2 sentences?"}
             ],
@@ -70,12 +70,12 @@ def test_deepseek_access():
         return True
 
     except Exception as e:
-        print(f"✗ Error accessing DeepSeek: {e}")
+        print(f"✗ Error accessing DeepSeek via OpenRouter: {e}")
         print()
         print("Possible issues:")
-        print("  1. DEEPSEEK_API_KEY not set or invalid")
-        print("  2. Network connectivity issue")
-        print("  3. DeepSeek API temporarily unavailable")
+        print("  1. OPENROUTER_API_KEY not set or invalid")
+        print("  2. Model not available (try another free model)")
+        print("  3. OpenRouter free tier exhausted")
         return False
 
 
@@ -96,9 +96,9 @@ def list_available_models():
     print("-" * 60)
 
     models_to_test = [
-        ("deepseek/deepseek-chat-v3-0324:free", "DeepSeek V3 (free)"),
         ("deepseek/deepseek-r1:free", "DeepSeek R1 (reasoning, free)"),
-        ("meta-llama/llama-3-3-70b-instruct:free", "Llama 3.3 70B (free)"),
+        ("meta-llama/llama-3.3-70b-instruct:free", "Llama 3.3 70B (free)"),
+        ("qwen/qwen-2.5-72b-instruct:free", "Qwen 2.5 72B (free)"),
     ]
 
     client = OpenAI(
