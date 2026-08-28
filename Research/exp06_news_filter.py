@@ -22,6 +22,11 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+# Use absolute paths based on this file's location so the script works
+# regardless of CWD (e.g., when run as `python Research/exp06_news_filter.py`)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "Data"
+
 
 # Portfolio from Exp 4/5 (locked)
 PORTFOLIO_STOCKS = [
@@ -34,8 +39,8 @@ INDEX_SYMBOL = "BANKNIFTY"
 
 
 def load_daily_ohlc(symbol: str) -> pd.DataFrame:
-    """Load daily OHLC from 1D CSV."""
-    path = Path(f"Data/{symbol}/{symbol}_1D.csv")
+    """Load daily OHLC from 1D CSV. Uses absolute path."""
+    path = DATA_DIR / symbol / f"{symbol}_1D.csv"
     if not path.exists():
         return pd.DataFrame()
     df = pd.read_csv(path, parse_dates=["Datetime"])
@@ -101,7 +106,7 @@ def run_gold_with_filter(symbol: str, blocked_dates: set) -> pd.DataFrame:
         from Strategies.G01.strength_scorer import signal_strength_table
         from Strategies.G01.Gold import get_super_gold_config
 
-        data_path = Path(f"Data/{symbol}/{symbol}_5MIN.csv")
+        data_path = DATA_DIR / symbol / f"{symbol}_5MIN.csv"
         if not data_path.exists():
             return pd.DataFrame()
 
@@ -189,6 +194,25 @@ def main():
     print(f"Time: {datetime.now():%Y-%m-%d %H:%M:%S}")
     print(f"Portfolio: {PORTFOLIO_STOCKS}")
     print(f"Index for crash filter: {INDEX_SYMBOL}\n")
+
+    # 0. Verify data presence
+    print("Checking data files...")
+    missing = []
+    for sym in PORTFOLIO_STOCKS + [INDEX_SYMBOL]:
+        daily = DATA_DIR / sym / f"{sym}_1D.csv"
+        minute = DATA_DIR / sym / f"{sym}_5MIN.csv"
+        if not daily.exists() and not minute.exists():
+            missing.append(sym)
+    if missing:
+        print(f"\n[!] MISSING DATA for: {missing}")
+        print(f"    Data dir: {DATA_DIR}")
+        print("    Data files are gitignored. Upload them OR run Fyers download:")
+        print()
+        for sym in missing:
+            print(f"    python Main.py   # with SYMBOLS=['{sym}'] ACTION='download'")
+        print()
+        return
+    print("  All data files present\n")
 
     # 1. Build filter sets
     print("Building filter sets from daily candles...")
