@@ -23,10 +23,7 @@ from exp06_news_filter import (
     PORTFOLIO_STOCKS,
     INDEX_SYMBOL,
     compute_gap_filter,
-    compute_crash_filter,
-    compute_range_filter,
-    run_gold_with_filter,
-    compute_portfolio_metrics,
+    run_scenario,
     resolve_data_path,
     SLIM_DIR,
     DATA_DIR,
@@ -69,51 +66,32 @@ def main() -> None:
     print("=" * 70)
     print("BASELINE (no filter)")
     print("=" * 70)
-    all_trades = []
-    for sym in PORTFOLIO_STOCKS:
-        trades = run_gold_with_filter(sym, set())
-        if len(trades) > 0:
-            trades = trades.copy()
-            trades["symbol"] = sym
-            all_trades.append(trades)
-    baseline_metrics = compute_portfolio_metrics(all_trades)
+    baseline = run_scenario("BASELINE", set())
     print(
-        f"  NET: {baseline_metrics['total_net_pct']:+.2f}%  |  "
-        f"PF: {baseline_metrics['profit_factor']:.3f}  |  "
-        f"DD: {baseline_metrics['max_drawdown_pct']:.2f}%  |  "
-        f"Trades: {baseline_metrics['total_trades']}"
+        f"  NET: {baseline['net_return_pct']:+.2f}%  |  "
+        f"PF: {baseline['profit_factor']:.3f}  |  "
+        f"DD: {baseline['max_drawdown_pct']:.2f}%  |  "
+        f"Trades: {baseline['total_trades']}"
     )
 
     # 2. Threshold sweep
     print()
     sweep_results = []
     for thresh in GAP_THRESHOLDS:
-        print(f"--- Threshold: Gap > {thresh:.1%} ---")
         gap_dates = compute_gap_filter(PORTFOLIO_STOCKS, gap_threshold=thresh)
-        print(f"  Blocked: {len(gap_dates)} dates")
-        all_trades = []
-        for sym in PORTFOLIO_STOCKS:
-            trades = run_gold_with_filter(sym, gap_dates)
-            if len(trades) > 0:
-                trades = trades.copy()
-                trades["symbol"] = sym
-                all_trades.append(trades)
-        m = compute_portfolio_metrics(all_trades)
+        scenario_name = f"Gap > {thresh:.1%}"
+        result = run_scenario(scenario_name, gap_dates)
         sweep_results.append(
             {
                 "threshold": thresh,
                 "blocked_dates": len(gap_dates),
-                "net_pct": m["total_net_pct"],
-                "profit_factor": m["profit_factor"],
-                "max_drawdown_pct": m["max_drawdown_pct"],
-                "trades": m["total_trades"],
+                "net_pct": result["net_return_pct"],
+                "profit_factor": result["profit_factor"],
+                "max_drawdown_pct": result["max_drawdown_pct"],
+                "win_rate_pct": result.get("win_rate_pct", 0),
+                "trades": result["total_trades"],
+                "avg_trade_pct": result.get("avg_trade_pct", 0),
             }
-        )
-        print(
-            f"  NET: {m['total_net_pct']:+.2f}%  |  "
-            f"PF: {m['profit_factor']:.3f}  |  "
-            f"DD: {m['max_drawdown_pct']:.2f}%  |  "
-            f"Trades: {m['total_trades']}"
         )
 
     # 3. Summary
@@ -125,10 +103,10 @@ def main() -> None:
     print("-" * 70)
     print(
         f"{'BASELINE':<12} {0:<8} "
-        f"{baseline_metrics['total_net_pct']:>+9.2f} "
-        f"{baseline_metrics['profit_factor']:<8.3f} "
-        f"{baseline_metrics['max_drawdown_pct']:<8.2f} "
-        f"{baseline_metrics['total_trades']:<8}"
+        f"{baseline['net_return_pct']:>+9.2f} "
+        f"{baseline['profit_factor']:<8.3f} "
+        f"{baseline['max_drawdown_pct']:<8.2f} "
+        f"{baseline['total_trades']:<8}"
     )
     for r in sweep_results:
         marker = "  <-- BEST NET" if r["net_pct"] == max(s["net_pct"] for s in sweep_results) else ""
@@ -170,7 +148,7 @@ def main() -> None:
                 "timestamp": datetime.now().isoformat(timespec="seconds"),
                 "portfolio": PORTFOLIO_STOCKS,
                 "thresholds_tested": GAP_THRESHOLDS,
-                "baseline": baseline_metrics,
+                "baseline": baseline,
                 "sweep": sweep_results,
                 "best_net": best_net,
                 "best_pf": best_pf,
