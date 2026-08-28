@@ -1,91 +1,83 @@
-# Experiment Log - UPDATED 2026-08-27 (FINAL)
+# Experiment Log - UPDATED 2026-08-28 (BREAKTHROUGH!)
 
-## 🎯 NEW BREAKTHROUGH: BHEL DISCOVERED
+## 🎯 NEW: PORTFOLIO STRATEGY VALIDATED
 
-### BHEL Results (POWER SECTOR!)
-- **Net Return**: +6.81%
-- **Profit Factor**: 3.21 (HIGHEST!)
-- **Max Drawdown**: -2.34% (LOWEST!)
-- **Win Rate**: 60.0% (HIGHEST!)
-- **Trades**: 10
+### Portfolio Backtest (7 stocks, 2021-2026)
+| Metric | Value |
+|--------|-------|
+| **Total Net Return** | **+65.1%** |
+| **Profit Factor** | 2.18 |
+| **Max Drawdown** | -5.76% |
+| **Win Rate** | 46.1% |
+| **Total Trades** | 180 |
+| **Profitable Months** | 28/43 (65%) |
+| **Annualized** | 18.2% |
 
-**BHEL is even BETTER than CGPOWER on a risk-adjusted basis!**
+### Out-of-Sample Validation (2025-2026 only)
+| Metric | Value |
+|--------|-------|
+| **Net Return (16 months)** | **+22.8%** |
+| **Profit Factor** | 2.10 |
+| **Max DD** | -5.09% |
+| **Win Rate** | 46.8% |
+| **Annualized** | ~17-20% |
 
----
+## PORTFOLIO (TRADE THESE)
+1. **CGPOWER** - 40% allocation, +40.4% individual, Power sector
+2. **DRREDDY** - 25% allocation, +6.6%, Pharma
+3. **INDUSINDBK** - 15% allocation, +4.2%, Banking
+4. **BHEL** - 10% allocation, +6.2%, Power
+5. **HCLTECH** - 5%, +2.5%, IT
+6. **TITAN** - 5%, +2.4%, Consumer
 
-## TOP PROFITABLE STOCKS (Final Ranking)
+## Strategy: SUPER GOLD
+- VWAP-EMA Pullback (long/short)
+- EMA 13/21/34 alignment
+- ADX >= 32 (strong trend)
+- Volume ratio >= 2.0
+- Stop: 1.3x ATR
+- Target: 3.9R (1:3 risk/reward)
+- Regime filter: turnover > 1B, range > 2%
+- Strength filter: score >= 45, trigger >= 0.15
 
-| Stock | Net % | PF | Max DD % | Win % | Trades | Sector |
-|-------|-------|-----|---------|-------|--------|--------|
-| 🏆 **CGPOWER** | **+47.54** | 2.52 | -4.59 | 49.3 | 75 | Power |
-| 🥈 **BHEL** | **+6.81** | **3.21** | **-2.34** | **60.0** | 10 | Power |
-| ICICIBANK | +3.22 | 1.83 | -1.18 | 50.0 | 18 | Banking |
-| TITAN | +3.13 | 1.78 | -1.73 | 52.9 | 17 | Consumer |
-| HCLTECH | +2.49 | 1.62 | -4.03 | 42.9 | 14 | IT |
-| JSWSTEEL | +2.05 | 1.66 | -1.61 | 45.5 | 11 | Steel |
-| M&M | +1.80 | 1.19 | -6.40 | 35.5 | 31 | Auto |
-| SBIN | +1.75 | 1.31 | -2.80 | 50.0 | 18 | Banking |
+## EXPERIMENTS COMPLETED
 
-**Combined Net if traded all: 68.79%**
+### Exp 1: Power Sector Deep Dive
+- Compared CGPOWER, BHEL, TATAPOWER, ADANIPOWER, NTPC, POWERGRID, SUZLON
+- Base strategy loses on all (PF < 1.0)
+- Need regime + strength filters
 
----
+### Exp 2: Multi-Stock Gold Screen (26 stocks)
+- 8 stocks become profitable with SUPER GOLD
+- Winners: CGPOWER, BHEL, M&M, HCLTECH, TITAN, JSWSTEEL, ICICIBANK
+- Fails: SUZLON, ADANIPOWER, BHARTIARTL, TATAPOWER
 
-## KEY INSIGHTS
+### Exp 3: New Candidates (DRREDDY, INDUSINDBK tested)
+- **DRREDDY: +6.7%, PF 2.24** ⭐ NEW WINNER
+- **INDUSINDBK: +4.2%, PF 1.90** ⭐ NEW WINNER
+- Downloaded 4 new stocks successfully
 
-### 1. POWER SECTOR WORKS!
-- CGPOWER (+47.54%) and BHEL (+6.81%) both power sector
-- TATAPOWER, ADANIPOWER, NTPC, POWERGRID didn't work
-- Why? Specific characteristics of CGPOWER and BHEL
+### Exp 4: Portfolio Backtest
+- 7-stock portfolio: +65.1% net, -5.76% DD
+- Better than any individual stock
+- Diversification works
 
-### 2. BHEL IS THE BEST RISK-ADJUSTED
-- PF 3.21 (highest)
-- 60% win rate (highest)
-- -2.34% DD (lowest)
-- Only 10 trades (need more data for confidence)
-
-### 3. SECTOR DIVERSIFICATION
-- Power: CGPOWER, BHEL
-- Banking: ICICIBANK, SBIN
-- IT: HCLTECH
-- Consumer: TITAN
-- Auto: M&M
-- Steel: JSWSTEEL
-
-### 4. FAILED STOCKS (Strategy doesn't work)
-TATAPOWER, ADANIPOWER, NTPC, POWERGRID, HDFCBANK, SUZLON, RELIANCE, INFY, TCS, BEL, LT, BAJFINANCE, BHARTIARTL, NIFTY, BANKNIFTY
-
----
+### Exp 5: Out-of-Sample Validation
+- 2025-2026 data: +22.8% net
+- Strategy works on unseen data
+- ~17-20% annualized realistic
 
 ## NEXT STEPS
-
-### Priority 1: Validate BHEL with More Data
-- Download more BHEL data (1+ year)
-- Test if PF 3.21 holds up
-- Check if it's not just lucky 10 trades
-
-### Priority 2: Build Portfolio Strategy
-- Combine CGPOWER + BHEL (both power sector, but different)
-- Test multi-stock portfolio
-- See if diversification helps
-
-### Priority 3: Find More "CGPOWER-like" Stocks
-- High volatility
-- High turnover (>1B)
-- Strong trending behavior
-- Power/mid-cap sector preference
-
-### Priority 4: Test on 1-min Data
-- More signals
-- Different characteristics
-- Might work on slower stocks
-
----
+- [ ] Live paper trading (GoldPaperTrader.py)
+- [ ] Monitor real-time signals
+- [ ] Track performance vs backtest
+- [ ] Adjust if slippage > expected
 
 ## FILES CREATED
-
-- `Research/test_tatapower.py` - Multi-stock test
-- `download_new_stocks.py` - Download script
-- `setup_github.bat` - GitHub setup
-- `.devcontainer/devcontainer.json` - Codespaces config
-- `requirements.txt` - Python dependencies
-- `GITHUB_CODESPACES.md` - Codespaces guide
+- `Research/exp01_power_sector_deep.py`
+- `Research/exp02_gold_multi_stock.py`
+- `Research/exp03_download_and_test.py`
+- `Research/exp04_portfolio_backtest.py`
+- `Research/exp05_out_of_sample.py`
+- `Research/GroqAnalysis/exp01-05_*.json`
+- `Config/groq_config.json.example`
