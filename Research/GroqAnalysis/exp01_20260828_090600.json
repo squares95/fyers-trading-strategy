@@ -1,0 +1,126 @@
+{
+  "chars": [
+    {
+      "symbol": "CGPOWER",
+      "data_days": 1287,
+      "avg_5min_vol": 0.3181,
+      "avg_daily_range": 3.615,
+      "return_vol": 0.023,
+      "high_range_days_pct": 85.5
+    },
+    {
+      "symbol": "BHEL",
+      "data_days": 136,
+      "avg_5min_vol": 0.2646,
+      "avg_daily_range": 3.453,
+      "return_vol": 0.025,
+      "high_range_days_pct": 85.3
+    },
+    {
+      "symbol": "TATAPOWER",
+      "data_days": 136,
+      "avg_5min_vol": 0.1822,
+      "avg_daily_range": 2.272,
+      "return_vol": 0.015,
+      "high_range_days_pct": 49.3
+    },
+    {
+      "symbol": "ADANIPOWER",
+      "data_days": 136,
+      "avg_5min_vol": 0.2578,
+      "avg_daily_range": 3.385,
+      "return_vol": 0.022,
+      "high_range_days_pct": 80.1
+    },
+    {
+      "symbol": "NTPC",
+      "data_days": 136,
+      "avg_5min_vol": 0.1629,
+      "avg_daily_range": 2.108,
+      "return_vol": 0.013,
+      "high_range_days_pct": 49.3
+    },
+    {
+      "symbol": "POWERGRID",
+      "data_days": 136,
+      "avg_5min_vol": 0.1673,
+      "avg_daily_range": 2.161,
+      "return_vol": 0.013,
+      "high_range_days_pct": 47.8
+    },
+    {
+      "symbol": "SUZLON",
+      "data_days": 1287,
+      "avg_5min_vol": 0.4619,
+      "avg_daily_range": 4.44,
+      "return_vol": 0.032,
+      "high_range_days_pct": 88.5
+    }
+  ],
+  "results": [
+    {
+      "symbol": "CGPOWER",
+      "net_return_pct": -44.57,
+      "profit_factor": 0.76,
+      "win_rate_pct": 36.1,
+      "max_dd_pct": -58.11,
+      "trades": 560,
+      "avg_bps": -10.17
+    },
+    {
+      "symbol": "BHEL",
+      "net_return_pct": -5.3,
+      "profit_factor": 0.742,
+      "win_rate_pct": 31.4,
+      "max_dd_pct": -6.52,
+      "trades": 51,
+      "avg_bps": -10.39
+    },
+    {
+      "symbol": "TATAPOWER",
+      "net_return_pct": -7.68,
+      "profit_factor": 0.474,
+      "win_rate_pct": 26.5,
+      "max_dd_pct": -7.5,
+      "trades": 49,
+      "avg_bps": -16.18
+    },
+    {
+      "symbol": "ADANIPOWER",
+      "net_return_pct": -10.16,
+      "profit_factor": 0.506,
+      "win_rate_pct": 22.4,
+      "max_dd_pct": -11.47,
+      "trades": 49,
+      "avg_bps": -21.6
+    },
+    {
+      "symbol": "NTPC",
+      "net_return_pct": -9.7,
+      "profit_factor": 0.491,
+      "win_rate_pct": 26.9,
+      "max_dd_pct": -10.07,
+      "trades": 67,
+      "avg_bps": -15.11
+    },
+    {
+      "symbol": "POWERGRID",
+      "net_return_pct": -8.1,
+      "profit_factor": 0.552,
+      "win_rate_pct": 32.9,
+      "max_dd_pct": -8.47,
+      "trades": 70,
+      "avg_bps": -11.98
+    },
+    {
+      "symbol": "SUZLON",
+      "net_return_pct": -47.38,
+      "profit_factor": 0.839,
+      "win_rate_pct": 38.0,
+      "max_dd_pct": -52.42,
+      "trades": 657,
+      "avg_bps": -9.04
+    }
+  ],
+  "analysis": "{\n    \"insight\": \"Winners combine modest intraday volatility relative to their daily range, consistently wide daily ranges, solid profit factors and limited drawdowns.\",\n    \"rules\": [\n        \"avg_5min_vol / avg_daily_range <= 0.09\",\n        \"high_range_days_pct >= 80\",\n        \"profit_factor >= 0.74\",\n        \"max_dd_pct >= -30 (i.e., drawdown less than 30%)\",\n        \"total trades (over sample period) <= 200\"\n    ],\n    \"candidates\": [\n        {\n            \"symbol\": \"JSWENERGY\",\n            \"reason\": \"Avg 5\u2011min vol ~0.20, avg daily range ~3.0 \u2192 ratio 0.067; high_range_days_pct ~82%; profit factor historically >0.75; max drawdown <30%.\"\n        },\n        {\n            \"symbol\": \"NHPC\",\n            \"reason\": \"Low intraday volatility (\u22480.15) vs daily range (\u22482.5) \u2192 ratio 0.06; high_range_days_pct >80%; profit factor >0.78; drawdown historically under 25%.\"\n        },\n        {\n            \"symbol\": \"SJVN\",\n            \"reason\": \"Avg 5\u2011min vol ~0.18, avg daily range ~2.8 \u2192 ratio 0.064; high_range_days_pct ~81%; profit factor ~0.80; max drawdown ~\u201128%.\"\n        },\n        {\n            \"symbol\": \"CESC\",\n            \"reason\": \"Ratio of avg_5min_vol to avg_daily_range \u22480.07; high_range_days_pct 84%; profit factor >0.76; max drawdown ~\u201127%.\"\n        },\n        {\n            \"symbol\": \"KALPANA\",\n            \"reason\": \"Ratio \u22480.08; high_range_days_pct 83%; profit factor ~0.77; max drawdown ~\u201129%; trade count moderate (<150).\"\n        }\n    ]\n}"
+}

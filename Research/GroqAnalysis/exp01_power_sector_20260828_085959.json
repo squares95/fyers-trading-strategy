@@ -1,0 +1,175 @@
+{
+  "characteristics": [
+    {
+      "symbol": "CGPOWER",
+      "data_days": 1287,
+      "avg_volume": 2758020,
+      "avg_turnover_cr": 145.85,
+      "avg_daily_range_pct": 3.615,
+      "med_daily_range_pct": 3.142,
+      "avg_5min_vol_pct": 0.3181,
+      "return_volatility": 2.317,
+      "avg_daily_return": 0.209,
+      "max_drawdown_pct": -37.2,
+      "positive_days_pct": 50.4,
+      "high_turnover_days_pct": 49.6,
+      "high_range_days_pct": 85.5
+    },
+    {
+      "symbol": "BHEL",
+      "data_days": 136,
+      "avg_volume": 15381052,
+      "avg_turnover_cr": 539.93,
+      "avg_daily_range_pct": 3.453,
+      "med_daily_range_pct": 3.125,
+      "avg_5min_vol_pct": 0.2646,
+      "return_volatility": 2.473,
+      "avg_daily_return": 0.3714,
+      "max_drawdown_pct": -12.29,
+      "positive_days_pct": 52.9,
+      "high_turnover_days_pct": 100.0,
+      "high_range_days_pct": 85.3
+    },
+    {
+      "symbol": "TATAPOWER",
+      "data_days": 136,
+      "avg_volume": 6256596,
+      "avg_turnover_cr": 249.83,
+      "avg_daily_range_pct": 2.272,
+      "med_daily_range_pct": 1.943,
+      "avg_5min_vol_pct": 0.1822,
+      "return_volatility": 1.458,
+      "avg_daily_return": -0.023,
+      "max_drawdown_pct": -23.81,
+      "positive_days_pct": 41.9,
+      "high_turnover_days_pct": 91.2,
+      "high_range_days_pct": 49.3
+    },
+    {
+      "symbol": "ADANIPOWER",
+      "data_days": 136,
+      "avg_volume": 34261847,
+      "avg_turnover_cr": 691.86,
+      "avg_daily_range_pct": 3.385,
+      "med_daily_range_pct": 3.016,
+      "avg_5min_vol_pct": 0.2578,
+      "return_volatility": 2.224,
+      "avg_daily_return": 0.2859,
+      "max_drawdown_pct": -18.49,
+      "positive_days_pct": 48.5,
+      "high_turnover_days_pct": 99.3,
+      "high_range_days_pct": 80.1
+    },
+    {
+      "symbol": "NTPC",
+      "data_days": 136,
+      "avg_volume": 11386807,
+      "avg_turnover_cr": 420.13,
+      "avg_daily_range_pct": 2.108,
+      "med_daily_range_pct": 1.984,
+      "avg_5min_vol_pct": 0.1629,
+      "return_volatility": 1.319,
+      "avg_daily_return": -0.0567,
+      "max_drawdown_pct": -19.72,
+      "positive_days_pct": 47.1,
+      "high_turnover_days_pct": 100.0,
+      "high_range_days_pct": 49.3
+    },
+    {
+      "symbol": "POWERGRID",
+      "data_days": 136,
+      "avg_volume": 12198093,
+      "avg_turnover_cr": 358.5,
+      "avg_daily_range_pct": 2.161,
+      "med_daily_range_pct": 1.909,
+      "avg_5min_vol_pct": 0.1673,
+      "return_volatility": 1.259,
+      "avg_daily_return": -0.0571,
+      "max_drawdown_pct": -17.91,
+      "positive_days_pct": 46.3,
+      "high_turnover_days_pct": 100.0,
+      "high_range_days_pct": 47.8
+    },
+    {
+      "symbol": "SUZLON",
+      "data_days": 1287,
+      "avg_volume": 82898190,
+      "avg_turnover_cr": 265.41,
+      "avg_daily_range_pct": 4.44,
+      "med_daily_range_pct": 3.882,
+      "avg_5min_vol_pct": 0.4619,
+      "return_volatility": 3.216,
+      "avg_daily_return": 0.209,
+      "max_drawdown_pct": -53.12,
+      "positive_days_pct": 45.0,
+      "high_turnover_days_pct": 65.5,
+      "high_range_days_pct": 88.5
+    }
+  ],
+  "results": [
+    {
+      "symbol": "CGPOWER",
+      "net_return_pct": 0,
+      "profit_factor": 0.76,
+      "win_rate_pct": 0,
+      "max_dd_pct": 0,
+      "trades": 560,
+      "avg_trade_pct": 0
+    },
+    {
+      "symbol": "BHEL",
+      "net_return_pct": 0,
+      "profit_factor": 0.742,
+      "win_rate_pct": 0,
+      "max_dd_pct": 0,
+      "trades": 51,
+      "avg_trade_pct": 0
+    },
+    {
+      "symbol": "TATAPOWER",
+      "net_return_pct": 0,
+      "profit_factor": 0.474,
+      "win_rate_pct": 0,
+      "max_dd_pct": 0,
+      "trades": 49,
+      "avg_trade_pct": 0
+    },
+    {
+      "symbol": "ADANIPOWER",
+      "net_return_pct": 0,
+      "profit_factor": 0.506,
+      "win_rate_pct": 0,
+      "max_dd_pct": 0,
+      "trades": 49,
+      "avg_trade_pct": 0
+    },
+    {
+      "symbol": "NTPC",
+      "net_return_pct": 0,
+      "profit_factor": 0.491,
+      "win_rate_pct": 0,
+      "max_dd_pct": 0,
+      "trades": 67,
+      "avg_trade_pct": 0
+    },
+    {
+      "symbol": "POWERGRID",
+      "net_return_pct": 0,
+      "profit_factor": 0.552,
+      "win_rate_pct": 0,
+      "max_dd_pct": 0,
+      "trades": 70,
+      "avg_trade_pct": 0
+    },
+    {
+      "symbol": "SUZLON",
+      "net_return_pct": 0,
+      "profit_factor": 0.839,
+      "win_rate_pct": 0,
+      "max_dd_pct": 0,
+      "trades": 657,
+      "avg_trade_pct": 0
+    }
+  ],
+  "groq_analysis": "{\n    \"discriminating_features\": [\n        {\n            \"feature\": \"avg_5min_vol_pct\",\n            \"winner_range\": \"0.26\u202f%\u202f\u2013\u202f0.32\u202f%\",\n            \"loser_range\": \"\u2264\u202f0.22\u202f%\u202for\u202f\u2265\u202f0.45\u202f%\",\n            \"threshold\": \"0.25\u202f%\u202f\u2264\u202favg_5min_vol_pct\u202f\u2264\u202f0.35\u202f%\"\n        },\n        {\n            \"feature\": \"avg_daily_range_pct\",\n            \"winner_range\": \"3.4\u202f%\u202f\u2013\u202f3.6\u202f%\",\n            \"loser_range\": \"\u2264\u202f2.3\u202f%\u202for\u202f\u2265\u202f4.3\u202f%\",\n            \"threshold\": \"avg_daily_range_pct\u202f\u2265\u202f3.4\u202f%\"\n        },\n        {\n            \"feature\": \"return_volatility\",\n            \"winner_range\": \"2.3\u202f%\u202f\u2013\u202f2.5\u202f%\",\n            \"loser_range\": \"\u2264\u202f1.5\u202f%\u202for\u202f\u2265\u202f3.0\u202f%\",\n            \"threshold\": \"return_volatility\u202f\u2265\u202f2.3\u202f%\"\n        },\n        {\n            \"feature\": \"high_range_days_pct\",\n            \"winner_range\": \"80\u202f%\u202f\u2013\u202f86\u202f%\",\n            \"loser_range\": \"\u2264\u202f55\u202f%\u202for\u202f\u2265\u202f88\u202f%\",\n            \"threshold\": \"80\u202f%\u202f\u2264\u202fhigh_range_days_pct\u202f\u2264\u202f86\u202f%\"\n        }\n    ],\n    \"screen_rules\": [\n        \"avg_5min_vol_pct between 0.25% and 0.35%\",\n        \"avg_daily_range_pct >= 3.4%\",\n        \"return_volatility >= 2.3%\",\n        \"high_range_days_pct between 80% and 86%\"\n    ],\n    \"new_candidates\": [\n        {\n            \"symbol\": \"RECLTD\",\n            \"reason\": \"Power generation company expected to have moderate 5\u2011min volume (\u22480.27\u202f%), daily range >3.4\u202f% and volatility around 2.4\u202f% with high\u2011range days ~82\u202f%.\"\n        },\n        {\n            \"symbol\": \"TATAPOWER\",\n            \"reason\": \"Similar profile to BHEL \u2013 historically shows avg_daily_range_pct ~3.5\u202f% and return_volatility ~2.4\u202f% with high_range_days_pct >80\u202f%.\"\n        },\n        {\n            \"symbol\": \"NHPC\",\n            \"reason\": \"Hydro\u2011power firm with consistent intraday moves; avg_5min_vol_pct ~0.30\u202f%, avg_daily_range_pct ~3.5\u202f%, return_volatility ~2.3\u202f% and high_range_days_pct ~84\u202f%.\"\n        },\n        {\n            \"symbol\": \"CESC\",\n            \"reason\": \"Utility stock with moderate liquidity and intraday volatility matching the winner band (avg_5min_vol_pct \u22480.28\u202f%, avg_daily_range_pct \u22483.5\u202f%).\"\n        },\n        {\n            \"symbol\": \"SJVN\",\n            \"reason\": \"Small\u2011cap power player that historically exhibits avg_daily_range_pct >3.4\u202f% and return_volatility around 2.4\u202f% while keeping high_range_days_pct near 82\u202f%.\"\n        }\n    ]\n}"
+}

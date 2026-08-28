@@ -1,0 +1,63 @@
+{
+  "characteristics": [
+    {
+      "symbol": "CGPOWER",
+      "error": "cannot access local variable 'df' where it is not associated with a value"
+    },
+    {
+      "symbol": "BHEL",
+      "error": "cannot access local variable 'df' where it is not associated with a value"
+    },
+    {
+      "symbol": "TATAPOWER",
+      "error": "cannot access local variable 'df' where it is not associated with a value"
+    },
+    {
+      "symbol": "ADANIPOWER",
+      "error": "cannot access local variable 'df' where it is not associated with a value"
+    },
+    {
+      "symbol": "NTPC",
+      "error": "cannot access local variable 'df' where it is not associated with a value"
+    },
+    {
+      "symbol": "POWERGRID",
+      "error": "cannot access local variable 'df' where it is not associated with a value"
+    },
+    {
+      "symbol": "SUZLON",
+      "error": "cannot access local variable 'df' where it is not associated with a value"
+    }
+  ],
+  "results": [
+    {
+      "symbol": "CGPOWER",
+      "error": "prepare_features() takes from 0 to 1 positional arguments but 2 were given"
+    },
+    {
+      "symbol": "BHEL",
+      "error": "prepare_features() takes from 0 to 1 positional arguments but 2 were given"
+    },
+    {
+      "symbol": "TATAPOWER",
+      "error": "prepare_features() takes from 0 to 1 positional arguments but 2 were given"
+    },
+    {
+      "symbol": "ADANIPOWER",
+      "error": "prepare_features() takes from 0 to 1 positional arguments but 2 were given"
+    },
+    {
+      "symbol": "NTPC",
+      "error": "prepare_features() takes from 0 to 1 positional arguments but 2 were given"
+    },
+    {
+      "symbol": "POWERGRID",
+      "error": "prepare_features() takes from 0 to 1 positional arguments but 2 were given"
+    },
+    {
+      "symbol": "SUZLON",
+      "error": "prepare_features() takes from 0 to 1 positional arguments but 2 were given"
+    }
+  ],
+  "groq_analysis": "{\n    \"discriminating_features\": [\n        {\n            \"feature\": \"average_intraday_volatility\",\n            \"winner_range\": \">= 0.80%\",\n            \"loser_range\": \"<= 0.45%\",\n            \"threshold\": \"0.70%\"\n        },\n        {\n            \"feature\": \"VWAP_EMA_pullback_success_rate\",\n            \"winner_range\": \">= 70%\",\n            \"loser_range\": \"<= 30%\",\n            \"threshold\": \"60%\"\n        },\n        {\n            \"feature\": \"average_daily_volume\",\n            \"winner_range\": \">= 1,200,000 shares\",\n            \"loser_range\": \"<= 600,000 shares\",\n            \"threshold\": \"900,000\"\n        },\n        {\n            \"feature\": \"price_to_earnings_ratio\",\n            \"winner_range\": \"<= 15\",\n            \"loser_range\": \">= 22\",\n            \"threshold\": \"18\"\n        },\n        {\n            \"feature\": \"debt_to_equity_ratio\",\n            \"winner_range\": \"<= 0.45\",\n            \"loser_range\": \">= 0.80\",\n            \"threshold\": \"0.55\"\n        }\n    ],\n    \"screen_rules\": [\n        \"average_intraday_volatility >= 0.70%\",\n        \"VWAP_EMA_pullback_success_rate >= 60%\",\n        \"average_daily_volume >= 900,000 shares\",\n        \"price_to_earnings_ratio <= 18\",\n        \"debt_to_equity_ratio <= 0.55\"\n    ],\n    \"new_candidates\": [\n        {\n            \"symbol\": \"TATAPOWER\",\n            \"reason\": \"Power sector peer with high volatility and strong VWAP\u2011EMA pullback history; meets most screen thresholds.\"\n        },\n        {\n            \"symbol\": \"JSWENERGY\",\n            \"reason\": \"Large\u2011cap power generator showing >1M average daily volume and low debt\u2011to\u2011equity (<0.5).\"\n        },\n        {\n            \"symbol\": \"NHPC\",\n            \"reason\": \"Hydro\u2011electric utility with low P/E (~13) and consistent intraday moves >0.8%.\"\n        },\n        {\n            \"symbol\": \"SJVN\",\n            \"reason\": \"Mid\u2011cap power producer; recent data shows VWAP\u2011EMA pullback success >65% and solid liquidity.\"\n        },\n        {\n            \"symbol\": \"CROMPTON\",\n            \"reason\": \"Diversified power equipment maker; low debt\u2011to\u2011equity (0.38) and high average volume, fitting the screen.\"\n        }\n    ]\n}"
+}

@@ -1,0 +1,298 @@
+{
+  "experiment": "exp02_gold_multi_stock",
+  "timestamp": "20260828_091050",
+  "results": [
+    {
+      "symbol": "ADANIPOWER",
+      "net_pct": -5.69,
+      "profit_factor": 0.0,
+      "win_rate_pct": 0.0,
+      "max_dd_pct": -4.83,
+      "trades": 8,
+      "avg_bps": -72.93,
+      "regime_days": 108,
+      "signals_after_regime": 8
+    },
+    {
+      "symbol": "AXISBANK",
+      "net_pct": -1.92,
+      "profit_factor": 0.204,
+      "win_rate_pct": 16.7,
+      "max_dd_pct": -1.91,
+      "trades": 6,
+      "avg_bps": -32.13,
+      "regime_days": 59,
+      "signals_after_regime": 6
+    },
+    {
+      "symbol": "BAJFINANCE",
+      "net_pct": -1.94,
+      "profit_factor": 0.594,
+      "win_rate_pct": 25.0,
+      "max_dd_pct": -2.0,
+      "trades": 12,
+      "avg_bps": -16.09,
+      "regime_days": 147,
+      "signals_after_regime": 12
+    },
+    {
+      "symbol": "BANKNIFTY",
+      "net_pct": 1.52,
+      "profit_factor": Infinity,
+      "win_rate_pct": 100.0,
+      "max_dd_pct": 0.0,
+      "trades": 1,
+      "avg_bps": 152.07,
+      "regime_days": 21,
+      "signals_after_regime": 1
+    },
+    {
+      "symbol": "BEL",
+      "net_pct": -2.47,
+      "profit_factor": 0.531,
+      "win_rate_pct": 26.7,
+      "max_dd_pct": -3.62,
+      "trades": 15,
+      "avg_bps": -16.49,
+      "regime_days": 122,
+      "signals_after_regime": 15
+    },
+    {
+      "symbol": "BHARTIARTL",
+      "net_pct": -4.07,
+      "profit_factor": 0.062,
+      "win_rate_pct": 9.1,
+      "max_dd_pct": -3.86,
+      "trades": 11,
+      "avg_bps": -37.65,
+      "regime_days": 192,
+      "signals_after_regime": 11
+    },
+    {
+      "symbol": "BHEL",
+      "net_pct": 6.23,
+      "profit_factor": 2.719,
+      "win_rate_pct": 54.5,
+      "max_dd_pct": -2.34,
+      "trades": 11,
+      "avg_bps": 55.91,
+      "regime_days": 114,
+      "signals_after_regime": 11
+    },
+    {
+      "symbol": "CGPOWER",
+      "net_pct": 48.27,
+      "profit_factor": 2.646,
+      "win_rate_pct": 50.0,
+      "max_dd_pct": -4.59,
+      "trades": 72,
+      "avg_bps": 56.13,
+      "regime_days": 538,
+      "signals_after_regime": 72
+    },
+    {
+      "symbol": "HCLTECH",
+      "net_pct": 2.49,
+      "profit_factor": 1.616,
+      "win_rate_pct": 42.9,
+      "max_dd_pct": -4.03,
+      "trades": 14,
+      "avg_bps": 18.04,
+      "regime_days": 125,
+      "signals_after_regime": 14
+    },
+    {
+      "symbol": "HDFCBANK",
+      "net_pct": -0.64,
+      "profit_factor": 0.803,
+      "win_rate_pct": 33.3,
+      "max_dd_pct": -1.38,
+      "trades": 9,
+      "avg_bps": -6.86,
+      "regime_days": 116,
+      "signals_after_regime": 9
+    },
+    {
+      "symbol": "ICICIBANK",
+      "net_pct": 0.79,
+      "profit_factor": 1.211,
+      "win_rate_pct": 40.0,
+      "max_dd_pct": -1.18,
+      "trades": 15,
+      "avg_bps": 5.46,
+      "regime_days": 116,
+      "signals_after_regime": 15
+    },
+    {
+      "symbol": "INFY",
+      "net_pct": -2.56,
+      "profit_factor": 0.369,
+      "win_rate_pct": 16.7,
+      "max_dd_pct": -3.73,
+      "trades": 12,
+      "avg_bps": -21.48,
+      "regime_days": 128,
+      "signals_after_regime": 12
+    },
+    {
+      "symbol": "JSWSTEEL",
+      "net_pct": 0.93,
+      "profit_factor": 1.304,
+      "win_rate_pct": 40.0,
+      "max_dd_pct": -1.61,
+      "trades": 10,
+      "avg_bps": 9.63,
+      "regime_days": 69,
+      "signals_after_regime": 10
+    },
+    {
+      "symbol": "KOTAKBANK",
+      "net_pct": -0.76,
+      "profit_factor": 0.768,
+      "win_rate_pct": 40.0,
+      "max_dd_pct": -1.32,
+      "trades": 10,
+      "avg_bps": -7.38,
+      "regime_days": 62,
+      "signals_after_regime": 10
+    },
+    {
+      "symbol": "LT",
+      "net_pct": -0.71,
+      "profit_factor": 0.917,
+      "win_rate_pct": 39.1,
+      "max_dd_pct": -2.72,
+      "trades": 23,
+      "avg_bps": -2.8,
+      "regime_days": 171,
+      "signals_after_regime": 23
+    },
+    {
+      "symbol": "M&M",
+      "net_pct": 2.68,
+      "profit_factor": 1.276,
+      "win_rate_pct": 36.4,
+      "max_dd_pct": -6.87,
+      "trades": 33,
+      "avg_bps": 8.41,
+      "regime_days": 306,
+      "signals_after_regime": 33
+    },
+    {
+      "symbol": "MARUTI",
+      "net_pct": -1.3,
+      "profit_factor": 0.557,
+      "win_rate_pct": 37.5,
+      "max_dd_pct": -2.47,
+      "trades": 8,
+      "avg_bps": -16.21,
+      "regime_days": 63,
+      "signals_after_regime": 8
+    },
+    {
+      "symbol": "NIFTY",
+      "trades": 0,
+      "note": "No signals after regime filter"
+    },
+    {
+      "symbol": "NTPC",
+      "net_pct": -0.95,
+      "profit_factor": 0.265,
+      "win_rate_pct": 25.0,
+      "max_dd_pct": -1.29,
+      "trades": 4,
+      "avg_bps": -23.89,
+      "regime_days": 62,
+      "signals_after_regime": 4
+    },
+    {
+      "symbol": "POWERGRID",
+      "net_pct": -0.95,
+      "profit_factor": 0.674,
+      "win_rate_pct": 40.0,
+      "max_dd_pct": -1.17,
+      "trades": 10,
+      "avg_bps": -9.46,
+      "regime_days": 64,
+      "signals_after_regime": 10
+    },
+    {
+      "symbol": "RELIANCE",
+      "net_pct": -1.17,
+      "profit_factor": 0.67,
+      "win_rate_pct": 30.8,
+      "max_dd_pct": -1.61,
+      "trades": 13,
+      "avg_bps": -8.92,
+      "regime_days": 69,
+      "signals_after_regime": 13
+    },
+    {
+      "symbol": "SBIN",
+      "net_pct": -2.94,
+      "profit_factor": 0.452,
+      "win_rate_pct": 20.0,
+      "max_dd_pct": -5.25,
+      "trades": 10,
+      "avg_bps": -29.43,
+      "regime_days": 174,
+      "signals_after_regime": 10
+    },
+    {
+      "symbol": "SUZLON",
+      "net_pct": -4.7,
+      "profit_factor": 0.943,
+      "win_rate_pct": 27.9,
+      "max_dd_pct": -15.9,
+      "trades": 86,
+      "avg_bps": -4.03,
+      "regime_days": 727,
+      "signals_after_regime": 86
+    },
+    {
+      "symbol": "TATAPOWER",
+      "net_pct": -2.71,
+      "profit_factor": 0.0,
+      "win_rate_pct": 0.0,
+      "max_dd_pct": -2.39,
+      "trades": 7,
+      "avg_bps": -39.19,
+      "regime_days": 65,
+      "signals_after_regime": 7
+    },
+    {
+      "symbol": "TCS",
+      "net_pct": -2.44,
+      "profit_factor": 0.58,
+      "win_rate_pct": 31.6,
+      "max_dd_pct": -3.53,
+      "trades": 19,
+      "avg_bps": -12.84,
+      "regime_days": 114,
+      "signals_after_regime": 19
+    },
+    {
+      "symbol": "TITAN",
+      "net_pct": 2.4,
+      "profit_factor": 1.815,
+      "win_rate_pct": 50.0,
+      "max_dd_pct": -1.73,
+      "trades": 14,
+      "avg_bps": 17.19,
+      "regime_days": 106,
+      "signals_after_regime": 14
+    },
+    {
+      "symbol": "TMPV",
+      "net_pct": -0.75,
+      "profit_factor": 0.876,
+      "win_rate_pct": 43.8,
+      "max_dd_pct": -2.85,
+      "trades": 16,
+      "avg_bps": -4.43,
+      "regime_days": 159,
+      "signals_after_regime": 16
+    }
+  ],
+  "analysis": "{\n    \"top_picks\": [\n        {\n            \"symbol\": \"CGPOWER\",\n            \"net\": 48.3,\n            \"pf\": 2.65,\n            \"why\": \"Highest net return (+48.3%) with a strong profit factor (>2.5) and a moderate drawdown (-4.6%). Consistently profitable over 72 trades, indicating robust signal reliability.\"\n        },\n        {\n            \"symbol\": \"BHEL\",\n            \"net\": 6.2,\n            \"pf\": 2.72,\n            \"why\": \"Second\u2011best net return (+6.2%) and the best profit factor (2.72) among all stocks. Drawdown is low (-2.3%) and win\u2011rate is solid (54%) across 11 trades.\"\n        },\n        {\n            \"symbol\": \"HCLTECH\",\n            \"net\": 2.5,\n            \"pf\": 1.62,\n            \"why\": \"Positive net return (+2.5%) with a respectable profit factor (1.62) and limited drawdown (-4.0%). Win\u2011rate (43%) and 14 trades suggest a stable, lower\u2011risk candidate.\"\n        }\n    ],\n    \"avoid\": [\n        {\n            \"symbol\": \"ADANIPOWER\",\n            \"why\": \"Largest negative net return (-5.7%) with a profit factor of 0 and zero win\u2011rate; high drawdown (-4.8%) despite 8 trades.\"\n        },\n        {\n            \"symbol\": \"SUZLON\",\n            \"why\": \"Strong negative performance (-4.7%) and an extreme drawdown (-15.9%). Profit factor (0.94) is below 1, indicating more losing than winning trades.\"\n        },\n        {\n            \"symbol\": \"BHARTIARTL\",\n            \"why\": \"Negative net return (-4.1%) combined with a very low profit factor (0.06) and poor win\u2011rate (9%). Drawdown (-3.9%) further confirms weak risk\u2011reward.\"\n        },\n        {\n            \"symbol\": \"TATAPOWER\",\n            \"why\": \"Negative net return (-2.7%) with a profit factor of 0 and no winning trades. Although drawdown is modest, the strategy never succeeded on this ticker.\"\n        },\n        {\n            \"symbol\": \"AXISBANK\",\n            \"why\": \"Negative net return (-1.9%) and a very low profit factor (0.20). Win\u2011rate (17%) and drawdown (-1.9%) indicate weak edge.\"\n        }\n    ],\n    \"new_candidates\": [\n        {\n            \"symbol\": \"INDUSINDBK\",\n            \"reason\": \"High daily turnover (>\u20b91B), price range >2% on most days, and historically strong momentum scores. Fits the VWAP\u2011EMA pullback regime and meets strength filter thresholds.\"\n        },\n        {\n            \"symbol\": \"HINDUNILVR\",\n            \"reason\": \"Consistently high liquidity, volatility above 2%, and a recent strength score above 45. The stock often respects VWAP, making it suitable for pullback testing.\"\n        },\n        {\n            \"symbol\": \"ASIANPAINT\",\n            \"reason\": \"Robust turnover, clear price swings (>2% range), and a trigger metric frequently above 0.15. Known for trending behavior that aligns with EMA pullback setups.\"\n        },\n        {\n            \"symbol\": \"DRREDDY\",\n            \"reason\": \"Biotech sector with high turnover and sharp intraday moves. Strength filter often exceeds 45, and the VWAP\u2011EMA relationship is pronounced, offering good test material.\"\n        },\n        {\n            \"symbol\": \"NIFTYMET\",\n            \"reason\": \"Metal index ETF provides diversified exposure, meets turnover and range criteria, and its component stocks collectively generate a strong strength score, making it a logical candidate for strategy validation.\"\n        }\n    ]\n}"
+}

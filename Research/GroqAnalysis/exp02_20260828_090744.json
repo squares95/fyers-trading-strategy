@@ -1,0 +1,145 @@
+{
+  "experiment": "exp02_gold_multi_stock",
+  "timestamp": "20260828_090744",
+  "symbols_tested": [
+    "ADANIPOWER",
+    "AXISBANK",
+    "BAJFINANCE",
+    "BANKNIFTY",
+    "BEL",
+    "BHARTIARTL",
+    "BHEL",
+    "CGPOWER",
+    "HCLTECH",
+    "HDFCBANK",
+    "ICICIBANK",
+    "INFY",
+    "JSWSTEEL",
+    "KOTAKBANK",
+    "LT",
+    "M&M",
+    "MARUTI",
+    "NIFTY",
+    "NTPC",
+    "POWERGRID",
+    "RELIANCE",
+    "SBIN",
+    "SUZLON",
+    "TATAPOWER",
+    "TCS",
+    "TITAN",
+    "TMPV"
+  ],
+  "results": [
+    {
+      "symbol": "ADANIPOWER",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "AXISBANK",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "BAJFINANCE",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "BANKNIFTY",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "BEL",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "BHARTIARTL",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "BHEL",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "CGPOWER",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "HCLTECH",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "HDFCBANK",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "ICICIBANK",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "INFY",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "JSWSTEEL",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "KOTAKBANK",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "LT",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "M&M",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "MARUTI",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "NIFTY",
+      "trades": 0,
+      "note": "No signals after regime filter"
+    },
+    {
+      "symbol": "NTPC",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "POWERGRID",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "RELIANCE",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "SBIN",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "SUZLON",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "TATAPOWER",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "TCS",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "TITAN",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "TMPV",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    }
+  ],
+  "analysis": "{\n    \"top_picks\": [\n        {\n            \"symbol\": \"N/A\",\n            \"why\": \"Insufficient data to evaluate profitability criteria.\"\n        }\n    ],\n    \"avoid\": [\n        {\n            \"symbol\": \"N/A\",\n            \"why\": \"Insufficient data to assess risk and performance.\"\n        }\n    ],\n    \"new_to_test\": [\n        {\n            \"symbol\": \"N/A\",\n            \"reason\": \"Cannot suggest new stocks without existing pattern data.\"\n        }\n    ]\n}"
+}

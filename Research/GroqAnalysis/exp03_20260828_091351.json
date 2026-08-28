@@ -1,0 +1,89 @@
+{
+  "experiment": "exp03_new_candidates",
+  "timestamp": "20260828_091351",
+  "downloaded": [
+    "INDUSINDBK",
+    "HINDUNILVR",
+    "ASIANPAINT",
+    "DRREDDY",
+    "HDFCBANK",
+    "RELIANCE",
+    "SBIN",
+    "ICICIBANK"
+  ],
+  "results": [
+    {
+      "symbol": "INDUSINDBK",
+      "net_pct": 4.2,
+      "profit_factor": 1.901,
+      "win_rate_pct": 43.8,
+      "max_dd_pct": -1.93,
+      "trades": 16,
+      "avg_bps": 26.22
+    },
+    {
+      "symbol": "HINDUNILVR",
+      "net_pct": -0.94,
+      "profit_factor": 0.828,
+      "win_rate_pct": 9.1,
+      "max_dd_pct": -4.22,
+      "trades": 11,
+      "avg_bps": -7.7
+    },
+    {
+      "symbol": "ASIANPAINT",
+      "net_pct": -1.08,
+      "profit_factor": 0.796,
+      "win_rate_pct": 26.7,
+      "max_dd_pct": -2.52,
+      "trades": 15,
+      "avg_bps": -6.97
+    },
+    {
+      "symbol": "DRREDDY",
+      "net_pct": 6.66,
+      "profit_factor": 2.238,
+      "win_rate_pct": 45.0,
+      "max_dd_pct": -1.55,
+      "trades": 20,
+      "avg_bps": 33.11
+    },
+    {
+      "symbol": "HDFCBANK",
+      "net_pct": -0.64,
+      "profit_factor": 0.803,
+      "win_rate_pct": 33.3,
+      "max_dd_pct": -1.38,
+      "trades": 9,
+      "avg_bps": -6.86
+    },
+    {
+      "symbol": "RELIANCE",
+      "net_pct": -1.17,
+      "profit_factor": 0.67,
+      "win_rate_pct": 30.8,
+      "max_dd_pct": -1.61,
+      "trades": 13,
+      "avg_bps": -8.92
+    },
+    {
+      "symbol": "SBIN",
+      "net_pct": -2.94,
+      "profit_factor": 0.452,
+      "win_rate_pct": 20.0,
+      "max_dd_pct": -5.25,
+      "trades": 10,
+      "avg_bps": -29.43
+    },
+    {
+      "symbol": "ICICIBANK",
+      "net_pct": 0.79,
+      "profit_factor": 1.211,
+      "win_rate_pct": 40.0,
+      "max_dd_pct": -1.18,
+      "trades": 15,
+      "avg_bps": 5.46
+    }
+  ],
+  "analysis": "{\n    \"portfolio\": [\n        {\n            \"symbol\": \"DRREDDY\",\n            \"allocation\": \"30%\",\n            \"reason\": \"Highest profit factor (2.24) and strong win rate (45%); pharma sector adds low correlation to banks and power.\"\n        },\n        {\n            \"symbol\": \"INDUSINDBK\",\n            \"allocation\": \"25%\",\n            \"reason\": \"Strong net return (+4.2%) with solid profit factor (1.90); large\u2011cap bank provides liquidity and fits turnover filter.\"\n        },\n        {\n            \"symbol\": \"CGPOWER\",\n            \"allocation\": \"20%\",\n            \"reason\": \"Exceptional historical performance (+48.3% net, PF 2.65); power sector diversification from banking and pharma.\"\n        },\n        {\n            \"symbol\": \"HCLTECH\",\n            \"allocation\": \"15%\",\n            \"reason\": \"Consistent positive edge (+2.5% net, PF 1.62) and low correlation with banking/power; adds technology exposure.\"\n        },\n        {\n            \"symbol\": \"TITAN\",\n            \"allocation\": \"10%\",\n            \"reason\": \"Steady returns (+2.4% net, PF 1.81) from consumer durable space, further reducing overall portfolio correlation.\"\n        }\n    ],\n    \"estimated_return\": \"13.3%\",\n    \"more_to_test\": [\n        {\n            \"symbol\": \"ADANIPORTS\",\n            \"reason\": \"High turnover (>1B) and wide intraday range; logistics sector not represented yet, strength score historically \u226545.\"\n        },\n        {\n            \"symbol\": \"INFY\",\n            \"reason\": \"Large\u2011cap IT stock with strong VWAP\u2011EMA pullback behavior; meets turnover and range filters and adds tech diversification.\"\n        },\n        {\n            \"symbol\": \"SUNPHARMA\",\n            \"reason\": \"Pharma peer to DRREDDY with good volatility profile; fulfills regime filter and offers additional exposure to healthcare.\"\n        }\n    ]\n}"
+}

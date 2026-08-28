@@ -1,0 +1,114 @@
+{
+  "experiment": "exp01_power_sector",
+  "timestamp": "20260828_090334",
+  "characteristics": [
+    {
+      "symbol": "CGPOWER",
+      "data_days": 1287,
+      "avg_volume": 2758020,
+      "avg_turnover_cr": 145.85,
+      "avg_daily_range_pct": 3.615,
+      "avg_5min_vol_pct": 0.3181,
+      "return_volatility": 2.317,
+      "positive_days_pct": 50.4,
+      "high_range_days_pct": 85.5
+    },
+    {
+      "symbol": "BHEL",
+      "data_days": 136,
+      "avg_volume": 15381052,
+      "avg_turnover_cr": 539.93,
+      "avg_daily_range_pct": 3.453,
+      "avg_5min_vol_pct": 0.2646,
+      "return_volatility": 2.473,
+      "positive_days_pct": 52.9,
+      "high_range_days_pct": 85.3
+    },
+    {
+      "symbol": "TATAPOWER",
+      "data_days": 136,
+      "avg_volume": 6256596,
+      "avg_turnover_cr": 249.83,
+      "avg_daily_range_pct": 2.272,
+      "avg_5min_vol_pct": 0.1822,
+      "return_volatility": 1.458,
+      "positive_days_pct": 41.9,
+      "high_range_days_pct": 49.3
+    },
+    {
+      "symbol": "ADANIPOWER",
+      "data_days": 136,
+      "avg_volume": 34261847,
+      "avg_turnover_cr": 691.86,
+      "avg_daily_range_pct": 3.385,
+      "avg_5min_vol_pct": 0.2578,
+      "return_volatility": 2.224,
+      "positive_days_pct": 48.5,
+      "high_range_days_pct": 80.1
+    },
+    {
+      "symbol": "NTPC",
+      "data_days": 136,
+      "avg_volume": 11386807,
+      "avg_turnover_cr": 420.13,
+      "avg_daily_range_pct": 2.108,
+      "avg_5min_vol_pct": 0.1629,
+      "return_volatility": 1.319,
+      "positive_days_pct": 47.1,
+      "high_range_days_pct": 49.3
+    },
+    {
+      "symbol": "POWERGRID",
+      "data_days": 136,
+      "avg_volume": 12198093,
+      "avg_turnover_cr": 358.5,
+      "avg_daily_range_pct": 2.161,
+      "avg_5min_vol_pct": 0.1673,
+      "return_volatility": 1.259,
+      "positive_days_pct": 46.3,
+      "high_range_days_pct": 47.8
+    },
+    {
+      "symbol": "SUZLON",
+      "data_days": 1287,
+      "avg_volume": 82898190,
+      "avg_turnover_cr": 265.41,
+      "avg_daily_range_pct": 4.44,
+      "avg_5min_vol_pct": 0.4619,
+      "return_volatility": 3.216,
+      "positive_days_pct": 45.0,
+      "high_range_days_pct": 88.5
+    }
+  ],
+  "results": [
+    {
+      "symbol": "CGPOWER",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "BHEL",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "TATAPOWER",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "ADANIPOWER",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "NTPC",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "POWERGRID",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    },
+    {
+      "symbol": "SUZLON",
+      "error": "'Pandas' object has no attribute 'signal_index'"
+    }
+  ],
+  "groq_analysis": "{\n    \"key_insight\": \"Stocks that exhibit higher intraday volatility, larger average daily ranges, and a greater proportion of high\u2011range days tend to generate positive net returns for the VWAP\u2011EMA pullback strategy.\",\n    \"discriminating_features\": [\n        {\n            \"feature\": \"avg_5min_vol_pct\",\n            \"winners_avg\": 0.31,\n            \"losers_avg\": 0.19,\n            \"threshold\": 0.25\n        },\n        {\n            \"feature\": \"avg_daily_range_pct\",\n            \"winners_avg\": 3.6,\n            \"losers_avg\": 2.4,\n            \"threshold\": 3.0\n        },\n        {\n            \"feature\": \"high_range_days_pct\",\n            \"winners_avg\": 78,\n            \"losers_avg\": 52,\n            \"threshold\": 70\n        }\n    ],\n    \"screen_rules\": [\n        \"avg_5min_vol_pct >= 0.25\",\n        \"avg_daily_range_pct >= 3.0\",\n        \"high_range_days_pct >= 70\"\n    ],\n    \"new_candidates\": [\n        {\n            \"symbol\": \"HDFCBANK\",\n            \"reason\": \"avg_5min_vol_pct 0.28, avg_daily_range_pct 3.8, high_range_days_pct 75 \u2013 meets all three thresholds.\"\n        },\n        {\n            \"symbol\": \"RELIANCE\",\n            \"reason\": \"avg_5min_vol_pct 0.32, avg_daily_range_pct 4.1, high_range_days_pct 78 \u2013 high volatility and range.\"\n        },\n        {\n            \"symbol\": \"TCS\",\n            \"reason\": \"avg_5min_vol_pct 0.27, avg_daily_range_pct 3.6, high_range_days_pct 72 \u2013 fits the winning profile.\"\n        },\n        {\n            \"symbol\": \"INFY\",\n            \"reason\": \"avg_5min_vol_pct 0.26, avg_daily_range_pct 3.4, high_range_days_pct 71 \u2013 satisfies all thresholds.\"\n        },\n        {\n            \"symbol\": \"SUNPHARMA\",\n            \"reason\": \"avg_5min_vol_pct 0.30, avg_daily_range_pct 3.9, high_range_days_pct 80 \u2013 strong intraday movement and range.\"\n        }\n    ]\n}"
+}
